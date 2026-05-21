@@ -1,0 +1,22 @@
+# Render.com — API 서버 배포 (무료)
+# https://dashboard.render.com 에서 Blueprint 또는 Web Service로 연결
+
+services:
+  - type: web
+    name: wall-dam-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GITHUB_OWNER
+        sync: false
+      - key: GITHUB_REPO
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_DATA_PATH
+        value: data/sessions

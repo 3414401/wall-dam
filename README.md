@@ -39,13 +39,20 @@ npm run dev
 
 각 참가자의 5차원 점수 벡터를 합산했을 때, **조별 합계가 5개 축 모두에서 고르게** 되도록 그리디 밸런싱 (hobbada 능력치 모드의 다차원 확장).
 
-## GitHub Pages 배포
+## 인터넷에서 완전히 사용하기 (Pages + API)
 
-자세한 절차: **[DEPLOY-GITHUB-PAGES.md](./DEPLOY-GITHUB-PAGES.md)**
+**한 번만 설정하면** `github.io`에서도 코드 배포·설문·조 배치가 됩니다.
 
-1. 레포 push → Settings → Pages → Source: **GitHub Actions**
-2. `https://아이디.github.io/레포이름/` 에서 접속
-3. 설문·저장 기능은 API를 Render 등에 별도 배포 후 `VITE_API_URL` 시크릿 설정
+👉 **[SETUP-인터넷배포.md](./SETUP-인터넷배포.md)** （Render + GitHub 토큰 + `public/config.json`）
+
+요약:
+1. Render.com에 API (`npm start`) 배포
+2. GitHub PAT → Render 환경 변수
+3. `public/config.json`에 Render URL 입력 후 push
+
+## GitHub Pages (화면만)
+
+**[DEPLOY-GITHUB-PAGES.md](./DEPLOY-GITHUB-PAGES.md)** — Pages만 올릴 때
 
 ## 기술 스택
 

@@ -1,6 +1,7 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../../components/Layout";
+import { SurveyResultsTable } from "../../components/SurveyResultsTable";
 import { balanceSession, getSession } from "../../lib/api";
 import type { SessionData } from "../../lib/api";
 import { getHostCode, setHostCode } from "./WallCreateSurvey";
@@ -28,6 +29,13 @@ export function WallCreateAssign() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    const saved = getHostCode();
+    if (saved && saved.length === 6) {
+      void loadSessionByCode(saved);
+    }
+  }, []);
 
   async function handleLoad(e: FormEvent) {
     e.preventDefault();
@@ -89,6 +97,8 @@ export function WallCreateAssign() {
           <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
             능력치: {session.abilities.join(" · ")}
           </p>
+
+          <SurveyResultsTable session={session} />
 
           <div className="field" style={{ marginTop: 16 }}>
             <label className="label">조 개수</label>

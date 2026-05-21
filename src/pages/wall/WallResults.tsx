@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../../components/Layout";
+import { SurveyResultsTable } from "../../components/SurveyResultsTable";
 import { getSession } from "../../lib/api";
 import type { SessionData } from "../../lib/api";
 
@@ -69,6 +70,8 @@ export function WallResults() {
           <p style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
             설문 응답: {session.surveys.length}명
           </p>
+
+          <SurveyResultsTable session={session} />
 
           {!session.groups ? (
             <p className="placeholder-box" style={{ padding: "20px 0" }}>

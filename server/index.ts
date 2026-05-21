@@ -25,7 +25,7 @@ app.use(
         callback(null, true);
         return;
       }
-      callback(null, false);
+      callback(null, true);
     },
   })
 );
@@ -91,7 +91,18 @@ app.post("/api/sessions", async (req, res) => {
     res.json({ code, session });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: "세션 생성에 실패했습니다." });
+    const raw = e instanceof Error ? e.message : "세션 생성에 실패했습니다.";
+    let error = raw;
+    if (raw.includes("GitHub API 401") || raw.includes("Bad credentials")) {
+      error =
+        "GitHub 토큰이 잘못되었습니다. Render의 GITHUB_TOKEN을 새 토큰으로 바꾸고 재배포하세요.";
+    } else if (raw.includes("GitHub API 403")) {
+      error =
+        "GitHub 권한이 없습니다. 토큰에 repo 권한이 있는지, GITHUB_OWNER·GITHUB_REPO가 wall-dam인지 확인하세요.";
+    } else if (raw.includes("GitHub API")) {
+      error = `GitHub 저장 오류: ${raw}`;
+    }
+    res.status(500).json({ error });
   }
 });
 

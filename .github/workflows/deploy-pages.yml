@@ -3,6 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - "data/sessions/**"
+      - "server-data/**"
   workflow_dispatch:
 
 permissions:

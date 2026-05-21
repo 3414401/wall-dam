@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ApiConnectionBanner } from "../../components/ApiConnectionBanner";
 import { Layout } from "../../components/Layout";
 import { createSession } from "../../lib/api";
 import { getUser } from "../../lib/auth";
@@ -55,6 +56,7 @@ export function WallCreateSurvey() {
       subtitle="5가지 능력치 이름을 입력하세요"
       onBack={() => navigate("/wall/create")}
     >
+      <ApiConnectionBanner />
       <div className="card">
         {[0, 1, 2, 3, 4].map((i) => (
           <div className="field" key={i}>
