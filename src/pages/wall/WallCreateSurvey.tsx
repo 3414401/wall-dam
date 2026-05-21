@@ -53,20 +53,26 @@ export function WallCreateSurvey() {
   return (
     <Layout
       title="설문조사 설정"
-      subtitle="5가지 능력치 이름을 입력하세요"
+      subtitle="5가지 기준 이름을 입력하세요"
       onBack={() => navigate("/wall/create")}
     >
       <ApiConnectionBanner />
+      <div className="survey-guide-box" data-ui-version="criteria-v2">
+        <p>
+          5가지 기준을 입력하세요. 학생들이 1~10점 사이로 응답합니다. 각 기준별로
+          응답 점수가 고르게 분포하도록 AI가 최적의 팀을 매칭해 줍니다.
+        </p>
+      </div>
       <div className="card">
         {[0, 1, 2, 3, 4].map((i) => (
           <div className="field" key={i}>
             <label className="label" htmlFor={`ability-${i}`}>
-              능력치 {i + 1}
+              기준 {i + 1}
             </label>
             <input
               id={`ability-${i}`}
               className="input"
-              placeholder={`예: 리더십, 협업, 창의력...`}
+              placeholder="예: 지난 수업 이해도, 외향성, 통학 거리, mbti T/F ..."
               value={abilities[i]}
               onChange={(e) => updateAbility(i, e.target.value)}
               disabled={!!code}

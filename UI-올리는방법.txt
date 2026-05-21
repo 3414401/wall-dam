@@ -1,0 +1,30 @@
+■ 설문 화면 UI가 안 바뀔 때 (PC → GitHub → 웹사이트)
+
+[1] PC에 수정이 들어갔는지
+   Cursor에서 이 파일을 엽니다:
+   src\pages\wall\WallCreateSurvey.tsx
+   → "기준 1" 글자가 보이면 PC에는 반영됨
+
+[2] CMD에서 GitHub로 올리기 (한 줄씩 Enter)
+
+   cd C:\Users\조은서\.cursor\projects\empty-window\team-wall-app
+   git add .
+   git commit -m "설문 설정 UI 기준 문구"
+   git push
+
+[3] GitHub에 올라갔는지 (브라우저)
+
+   https://github.com/3414401/wall-dam/blob/main/src/pages/wall/WallCreateSurvey.tsx
+
+   → 파일 안에 "기준 1" 이 보이면 push 성공
+   → "능력치 1" 이면 아직 push 안 된 것
+
+[4] 웹사이트 배포 기다리기
+
+   https://github.com/3414401/wall-dam/actions
+   → Deploy to GitHub Pages 가 초록색 ✓ (3~5분)
+
+[5] 사이트에서 확인
+
+   https://3414401.github.io/wall-dam/
+   → Ctrl + Shift + R (강력 새로고침)
