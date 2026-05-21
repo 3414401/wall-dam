@@ -1,0 +1,29 @@
+{
+  "code": "643859",
+  "abilities": [
+    "ㄷㄹ",
+    "ㅇ",
+    "ㅇ",
+    "ㅇ",
+    "ㅇ"
+  ],
+  "createdAt": "2026-05-21T07:34:43.702Z",
+  "createdBy": "안녕",
+  "surveys": [
+    {
+      "id": "a6de6dce-008b-4b8c-8abb-b0fb991fbebd",
+      "nickname": "ㅇㄹㅇㄹ",
+      "scores": [
+        2,
+        7,
+        3,
+        8,
+        2
+      ],
+      "submittedAt": "2026-05-21T07:35:01.169Z"
+    }
+  ],
+  "teamCount": 4,
+  "groups": null,
+  "balancedAt": null
+}
