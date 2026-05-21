@@ -9,7 +9,20 @@
   ],
   "createdAt": "2026-05-21T23:00:35.354Z",
   "createdBy": "ㅇ",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "e5a3007b-5736-431d-96d0-47bc34a7b746",
+      "nickname": "음",
+      "scores": [
+        3,
+        2,
+        7,
+        2,
+        2
+      ],
+      "submittedAt": "2026-05-21T23:01:03.254Z"
+    }
+  ],
   "teamCount": 4,
   "groups": null,
   "balancedAt": null
