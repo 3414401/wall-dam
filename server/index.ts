@@ -8,12 +8,41 @@ import type { SessionData, SurveyResponse } from "./types.js";
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
-app.use(cors());
+const corsOrigins = [
+  /^http:\/\/localhost(:\d+)?$/,
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^https:\/\/[a-zA-Z0-9-]+\.github\.io$/,
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (corsOrigins.some((re) => re.test(origin))) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
+  })
+);
 app.use(express.json());
 
 function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
+
+app.get("/", (_req, res) => {
+  res.json({
+    ok: true,
+    service: "wall-dam-api",
+    health: "/api/health",
+    storage: useGitHub() ? "github" : "local",
+  });
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({
