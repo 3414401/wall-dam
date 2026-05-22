@@ -1,0 +1,94 @@
+{
+  "code": "134667",
+  "abilities": [
+    "ㅇㅅ",
+    "ㅇ",
+    "ㅇ",
+    "ㅇ",
+    "ㅇ"
+  ],
+  "createdAt": "2026-05-21T23:00:35.354Z",
+  "createdBy": "ㅇ",
+  "surveys": [
+    {
+      "id": "e5a3007b-5736-431d-96d0-47bc34a7b746",
+      "nickname": "음",
+      "scores": [
+        3,
+        2,
+        7,
+        2,
+        2
+      ],
+      "submittedAt": "2026-05-21T23:01:03.254Z"
+    },
+    {
+      "id": "0d117b3b-ca43-40ea-96ec-6eb6bea69afd",
+      "nickname": "ㅇ",
+      "scores": [
+        1,
+        8,
+        2,
+        7,
+        1
+      ],
+      "submittedAt": "2026-05-21T23:01:22.039Z"
+    },
+    {
+      "id": "783be8e5-9da4-4909-8be1-2852705c7cbb",
+      "nickname": "ㅇ",
+      "scores": [
+        1,
+        8,
+        2,
+        7,
+        1
+      ],
+      "submittedAt": "2026-05-21T23:01:25.789Z"
+    },
+    {
+      "id": "2f814527-6050-493b-bfdf-37ae1850df78",
+      "nickname": "ㅇㅇ",
+      "scores": [
+        1,
+        8,
+        2,
+        9,
+        3
+      ],
+      "submittedAt": "2026-05-21T23:01:44.858Z"
+    }
+  ],
+  "teamCount": 2,
+  "groups": [
+    {
+      "teamIndex": 1,
+      "memberIds": [
+        "2f814527-6050-493b-bfdf-37ae1850df78",
+        "e5a3007b-5736-431d-96d0-47bc34a7b746"
+      ],
+      "totals": [
+        4,
+        10,
+        9,
+        11,
+        5
+      ]
+    },
+    {
+      "teamIndex": 2,
+      "memberIds": [
+        "0d117b3b-ca43-40ea-96ec-6eb6bea69afd",
+        "783be8e5-9da4-4909-8be1-2852705c7cbb"
+      ],
+      "totals": [
+        2,
+        16,
+        4,
+        14,
+        2
+      ]
+    }
+  ],
+  "balancedAt": "2026-05-21T23:02:19.185Z"
+}
