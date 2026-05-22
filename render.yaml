@@ -20,3 +20,5 @@ services:
         sync: false
       - key: GITHUB_DATA_PATH
         value: data/sessions
+      - key: GEMINI_API_KEY
+        sync: false

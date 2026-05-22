@@ -1,7 +1,10 @@
 import cors from "cors";
 import express from "express";
 import { v4 as uuidv4 } from "uuid";
+import { balanceTeamsWithAi } from "./aiBalance.js";
 import { balanceTeams } from "./balance.js";
+import { hasGemini } from "./gemini.js";
+import { buildSessionInsights } from "./homogeneity.js";
 import { loadSession, saveSession, useGitHub } from "./storage.js";
 import type { SessionData, SurveyResponse } from "./types.js";
 
@@ -48,6 +51,7 @@ app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
     storage: useGitHub() ? "github" : "local",
+    ai: hasGemini(),
   });
 });
 
@@ -85,6 +89,9 @@ app.post("/api/sessions", async (req, res) => {
       teamCount: 4,
       groups: null,
       balancedAt: null,
+      balanceMethod: null,
+      aiBalanceNote: null,
+      insights: null,
     };
 
     await saveSession(session);
@@ -190,6 +197,8 @@ app.post("/api/sessions/:code/balance", async (req, res) => {
     session.teamCount = count;
     session.groups = balanceTeams(session.surveys, count);
     session.balancedAt = new Date().toISOString();
+    session.balanceMethod = "greedy";
+    session.aiBalanceNote = null;
     await saveSession(session);
 
     res.json({ session });
@@ -199,7 +208,68 @@ app.post("/api/sessions/:code/balance", async (req, res) => {
   }
 });
 
+app.post("/api/sessions/:code/balance-ai", async (req, res) => {
+  try {
+    const session = await loadSession(req.params.code);
+    if (!session) {
+      res.status(404).json({ error: "코드를 찾을 수 없습니다." });
+      return;
+    }
+
+    if (session.surveys.length < 2) {
+      res.status(400).json({ error: "조 배치에는 최소 2명의 설문이 필요합니다." });
+      return;
+    }
+
+    const { teamCount } = req.body as { teamCount?: number };
+    const count = Math.max(
+      2,
+      Math.min(Number(teamCount) || session.teamCount || 4, session.surveys.length)
+    );
+
+    const result = await balanceTeamsWithAi(session, count);
+    session.teamCount = count;
+    session.groups = result.groups;
+    session.balancedAt = new Date().toISOString();
+    session.balanceMethod = result.usedAi ? "ai" : "greedy";
+    session.aiBalanceNote = result.note;
+    session.insights = await buildSessionInsights(session);
+    await saveSession(session);
+
+    res.json({ session, note: result.note, usedAi: result.usedAi });
+  } catch (e) {
+    console.error(e);
+    const msg = e instanceof Error ? e.message : "AI 조 배치에 실패했습니다.";
+    res.status(500).json({ error: msg });
+  }
+});
+
+app.post("/api/sessions/:code/insights", async (req, res) => {
+  try {
+    const session = await loadSession(req.params.code);
+    if (!session) {
+      res.status(404).json({ error: "코드를 찾을 수 없습니다." });
+      return;
+    }
+
+    if (session.surveys.length < 2) {
+      res.status(400).json({ error: "분석에는 최소 2명의 설문이 필요합니다." });
+      return;
+    }
+
+    session.insights = await buildSessionInsights(session);
+    await saveSession(session);
+
+    res.json({ insights: session.insights, session });
+  } catch (e) {
+    console.error(e);
+    const msg = e instanceof Error ? e.message : "분석에 실패했습니다.";
+    res.status(500).json({ error: msg });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`API server http://localhost:${PORT}`);
   console.log(`Storage: ${useGitHub() ? "GitHub" : "local (server-data/)"}`);
+  console.log(`AI (Gemini): ${hasGemini() ? "enabled" : "disabled"}`);
 });

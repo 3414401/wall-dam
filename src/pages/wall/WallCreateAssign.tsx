@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../../components/Layout";
 import { SurveyResultsTable } from "../../components/SurveyResultsTable";
-import { balanceSession, getSession } from "../../lib/api";
+import { balanceSession, balanceSessionAi, getSession } from "../../lib/api";
 import type { SessionData } from "../../lib/api";
 import { getHostCode, setHostCode } from "./WallCreateSurvey";
 
@@ -61,6 +61,26 @@ export function WallCreateAssign() {
     }
   }
 
+  async function handleBalanceAi() {
+    if (!session) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { session: updated, note } = await balanceSessionAi(
+        session.code,
+        teamCount
+      );
+      setSession(updated);
+      if (note) {
+        setError("");
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "AI 배치 실패");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const surveyMap = new Map(
     session?.surveys.map((s) => [s.id, s]) ?? []
   );
@@ -68,7 +88,7 @@ export function WallCreateAssign() {
   return (
     <Layout
       title="조 배치하기"
-      subtitle="5차원 능력치 합계 균형 배정"
+      subtitle="자동 균형 배치 · AI 조 배치"
       onBack={() => navigate("/wall/create")}
     >
       <form className="card" onSubmit={handleLoad}>
@@ -112,15 +132,31 @@ export function WallCreateAssign() {
             />
           </div>
 
-          <button
-            type="button"
-            className="btn btn-accent"
-            onClick={handleBalance}
-            disabled={loading || session.surveys.length < 2}
-            style={{ marginTop: 8 }}
-          >
-            {loading ? "배치 중..." : "⚡ 자동 조 배치"}
-          </button>
+          <div className="btn-stack" style={{ marginTop: 8 }}>
+            <button
+              type="button"
+              className="btn btn-accent"
+              onClick={handleBalanceAi}
+              disabled={loading || session.surveys.length < 2}
+            >
+              {loading ? "AI 배치 중… (최대 1분)" : "🤖 AI 조 배치"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleBalance}
+              disabled={loading || session.surveys.length < 2}
+            >
+              ⚡ 빠른 자동 배치
+            </button>
+          </div>
+
+          {session.aiBalanceNote && (
+            <p className="success-msg" style={{ marginTop: 12 }}>
+              {session.balanceMethod === "ai" ? "🤖 " : ""}
+              {session.aiBalanceNote}
+            </p>
+          )}
 
           {session.groups && (
             <div style={{ marginTop: 20 }}>

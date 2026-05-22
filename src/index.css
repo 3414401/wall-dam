@@ -498,6 +498,61 @@ input[type="range"]::-webkit-slider-thumb {
   color: rgba(255, 255, 255, 0.92);
 }
 
+.homogeneity-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.homogeneity-score-label {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.homogeneity-score-value {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--yellow-bright);
+  line-height: 1;
+}
+
+.homogeneity-score-unit {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.homogeneity-hint {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+.insight-summary {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.team-comment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.team-comment-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.team-comment-list li:last-child {
+  border-bottom: none;
+}
+
 .placeholder-box {
   text-align: center;
   padding: 40px 20px;
