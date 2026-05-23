@@ -1,0 +1,21 @@
+{
+  "code": "131821",
+  "abilities": [
+    "지난 수업 이해도",
+    "입학 후 다문화 친구 몇 명 사귀었나요?",
+    "외향성",
+    "mbti T/F (T가 0점/F가 10점)"
+  ],
+  "teamPurpose": "다문화 교육",
+  "createdAt": "2026-05-23T10:49:27.347Z",
+  "createdBy": "test12",
+  "surveys": [],
+  "teamCount": 4,
+  "groups": null,
+  "balancedAt": null,
+  "balanceMethod": null,
+  "aiBalanceNote": null,
+  "aiTeamExplanations": null,
+  "insights": null,
+  "roster": null
+}
