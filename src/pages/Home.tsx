@@ -21,7 +21,14 @@ export function Home() {
           className="btn"
           onClick={() => navigate("/homogeneity")}
         >
-          📊 동질성 지수 AI 요약
+          📊 우리 조 AI 요약
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/school-homogeneity")}
+        >
+          🏫 학교별 동질성 지수 계산하기
         </button>
         <button
           type="button"

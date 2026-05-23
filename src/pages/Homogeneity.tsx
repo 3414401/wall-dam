@@ -39,7 +39,7 @@ export function Homogeneity() {
 
   return (
     <Layout
-      title="동질성 지수"
+      title="우리 조 AI 요약"
       subtitle="설문 표 · 다운로드 · AI 요약"
       onBack={() => navigate("/home")}
     >
@@ -58,7 +58,7 @@ export function Homogeneity() {
           />
         </div>
         <button type="submit" className="btn btn-accent" disabled={loading}>
-          {loading ? "AI 분석 중… (30초~1분)" : "📊 동질성 지수 AI 요약"}
+          {loading ? "AI 분석 중… (30초~1분)" : "📊 우리 조 AI 요약"}
         </button>
         {error && <p className="error-msg">{error}</p>}
       </form>

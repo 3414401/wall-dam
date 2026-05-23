@@ -5,6 +5,7 @@ import { Home } from "./pages/Home";
 import { Homogeneity } from "./pages/Homogeneity";
 import { Login } from "./pages/Login";
 import { RandomProject } from "./pages/RandomProject";
+import { SchoolHomogeneity } from "./pages/SchoolHomogeneity";
 import { WallCreate } from "./pages/wall/WallCreate";
 import { WallCreateAssign } from "./pages/wall/WallCreateAssign";
 import { WallCreateSurvey } from "./pages/wall/WallCreateSurvey";
@@ -35,6 +36,14 @@ export default function App() {
         element={
           <RequireAuth>
             <Homogeneity />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/school-homogeneity"
+        element={
+          <RequireAuth>
+            <SchoolHomogeneity />
           </RequireAuth>
         }
       />
