@@ -1,0 +1,20 @@
+{
+  "code": "538555",
+  "abilities": [
+    "d",
+    "df",
+    "s",
+    "f3",
+    "3r"
+  ],
+  "createdAt": "2026-05-23T01:46:19.369Z",
+  "createdBy": "e",
+  "surveys": [],
+  "teamCount": 4,
+  "groups": null,
+  "balancedAt": null,
+  "balanceMethod": null,
+  "aiBalanceNote": null,
+  "insights": null,
+  "roster": null
+}
