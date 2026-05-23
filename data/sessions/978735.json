@@ -1,0 +1,32 @@
+{
+  "code": "978735",
+  "abilities": [
+    "d",
+    "d",
+    "d",
+    "d",
+    "d"
+  ],
+  "createdAt": "2026-05-23T01:35:12.393Z",
+  "createdBy": "dd",
+  "surveys": [
+    {
+      "id": "f07d1cbe-51db-4666-a6ff-604239907913",
+      "nickname": "ㄴㅇㄹ",
+      "scores": [
+        2,
+        9,
+        1,
+        7,
+        2
+      ],
+      "submittedAt": "2026-05-23T01:35:30.691Z"
+    }
+  ],
+  "teamCount": 4,
+  "groups": null,
+  "balancedAt": null,
+  "balanceMethod": null,
+  "aiBalanceNote": null,
+  "insights": null
+}
