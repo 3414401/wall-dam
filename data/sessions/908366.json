@@ -9,7 +9,35 @@
   ],
   "createdAt": "2026-05-23T02:09:41.700Z",
   "createdBy": "dfsd",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "491fe6ab-49c3-4ede-a9d8-c74c80e81dcd",
+      "nickname": "대구남도초등학교",
+      "scores": [
+        7,
+        2,
+        3,
+        9,
+        2
+      ],
+      "submittedAt": "2026-05-23T02:10:34.437Z",
+      "rosterRowId": "row-199",
+      "rosterLabel": "대구남도초등학교",
+      "rosterFields": {
+        "학교명": "대구남도초등학교",
+        "지역": "남구",
+        "학교 학생 수": "455",
+        "획일화 지수(H_m)": "0.8660860513",
+        "P_special": "6.153846",
+        "I_SCU": "0.921394",
+        "H_path": "1",
+        "H_job": "0.3552",
+        "H_ppc": "0.5969",
+        "1위 업종": "보건업 복합코드",
+        "R_net": "0.6593406593406593"
+      }
+    }
+  ],
   "teamCount": 4,
   "groups": null,
   "balancedAt": null,
