@@ -5,6 +5,7 @@ import type {
   SurveyResponse,
   TeamInsightLine,
 } from "./types.js";
+import { getAiReferenceText } from "./aiReference.js";
 import { generateText, hasGemini, parseJsonFromText } from "./gemini.js";
 
 function stdDev(values: number[]): number {
@@ -57,10 +58,14 @@ export async function buildSessionInsights(
 
   if (hasGemini() && session.surveys.length >= 2) {
     const roster = session.surveys
-      .map(
-        (s) =>
-          `- ${s.nickname}: ${session.abilities.map((a, i) => `${a}=${s.scores[i]}`).join(", ")}`
-      )
+      .map((s) => {
+        const excel = s.rosterFields
+          ? ` | 엑셀: ${Object.entries(s.rosterFields)
+              .map(([k, v]) => `${k}=${v}`)
+              .join("; ")}`
+          : "";
+        return `- ${s.nickname}: ${session.abilities.map((a, i) => `${a}=${s.scores[i]}`).join(", ")}${excel}`;
+      })
       .join("\n");
 
     const teamsText =
@@ -73,8 +78,13 @@ export async function buildSessionInsights(
         })
         .join("\n") || "(아직 조 배치 전)";
 
-    const prompt = `당신은 대학 팀프로젝트 조교입니다. 아래 설문(0~10점)을 분석하세요.
+    const reference = await getAiReferenceText();
+    const referenceBlock = reference
+      ? `\n[참고 자료]\n${reference}\n`
+      : "";
 
+    const prompt = `당신은 대학 팀프로젝트 조교입니다. 아래 설문(0~10점)을 분석하세요.
+${referenceBlock}
 [기준 이름] ${session.abilities.join(", ")}
 [응답 ${session.surveys.length}명]
 ${roster}

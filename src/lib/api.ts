@@ -1,8 +1,24 @@
+export interface RosterRow {
+  id: string;
+  label: string;
+  cells: Record<string, string>;
+}
+
+export interface RosterData {
+  fileName: string;
+  columns: string[];
+  rows: RosterRow[];
+  uploadedAt: string;
+}
+
 export interface SurveyResponse {
   id: string;
   nickname: string;
   scores: number[];
   submittedAt: string;
+  rosterRowId?: string;
+  rosterLabel?: string;
+  rosterFields?: Record<string, string>;
 }
 
 export interface TeamGroup {
@@ -44,6 +60,7 @@ export interface SessionData {
   balanceMethod?: "greedy" | "ai" | null;
   aiBalanceNote?: string | null;
   insights?: SessionInsights | null;
+  roster?: RosterData | null;
 }
 
 import { getApiBase } from "./apiConfig";
@@ -96,16 +113,33 @@ export function getSession(code: string) {
   return request<{ session: SessionData }>(`/api/sessions/${code}`);
 }
 
+export function getRosterInfo() {
+  return request<{
+    fileName: string;
+    rowCount: number;
+    columns: string[];
+  }>("/api/roster/info");
+}
+
+export function searchRosterRows(code: string, q: string) {
+  const limit = q.trim() ? "30" : "500";
+  const params = new URLSearchParams({ q, limit });
+  return request<{ results: RosterRow[]; total: number }>(
+    `/api/sessions/${code}/roster/search?${params}`
+  );
+}
+
 export function submitSurvey(
   code: string,
   nickname: string,
-  scores: number[]
+  scores: number[],
+  rosterRowId?: string
 ) {
   return request<{ ok: boolean; total: number }>(
     `/api/sessions/${code}/surveys`,
     {
       method: "POST",
-      body: JSON.stringify({ nickname, scores }),
+      body: JSON.stringify({ nickname, scores, rosterRowId }),
     }
   );
 }

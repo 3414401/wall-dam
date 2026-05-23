@@ -5,6 +5,12 @@ on:
     branches: [main, master]
     paths-ignore:
       - "data/sessions/**"
+      - "data/ai-reference.md"
+      - "data/ai-reference.xlsx"
+      - "data/ai-reference.csv"
+      - "data/ai-reference.template.csv"
+      - "data/roster.xlsx"
+      - "data/roster.csv"
       - "server-data/**"
   workflow_dispatch:
 

@@ -3,8 +3,11 @@ import express from "express";
 import { v4 as uuidv4 } from "uuid";
 import { balanceTeamsWithAi } from "./aiBalance.js";
 import { balanceTeams } from "./balance.js";
+import { getExcelReferenceText } from "./excelReference.js";
 import { hasGemini } from "./gemini.js";
 import { buildSessionInsights } from "./homogeneity.js";
+import { getGlobalRoster } from "./globalRoster.js";
+import { searchRoster } from "./rosterParse.js";
 import { loadSession, saveSession, useGitHub } from "./storage.js";
 import type { SessionData, SurveyResponse } from "./types.js";
 
@@ -32,7 +35,7 @@ app.use(
     },
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "15mb" }));
 
 function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
@@ -47,11 +50,16 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.get("/api/health", (_req, res) => {
+app.get("/api/health", async (_req, res) => {
+  const excel = await getExcelReferenceText();
+  const roster = await getGlobalRoster();
   res.json({
     ok: true,
     storage: useGitHub() ? "github" : "local",
     ai: hasGemini(),
+    excel: excel.length > 0,
+    roster: Boolean(roster?.rows.length),
+    rosterRows: roster?.rows.length ?? 0,
   });
 });
 
@@ -92,6 +100,7 @@ app.post("/api/sessions", async (req, res) => {
       balanceMethod: null,
       aiBalanceNote: null,
       insights: null,
+      roster: null,
     };
 
     await saveSession(session);
@@ -127,6 +136,77 @@ app.get("/api/sessions/:code", async (req, res) => {
   }
 });
 
+app.get("/api/roster/info", async (_req, res) => {
+  const roster = await getGlobalRoster();
+  if (!roster) {
+    res.status(404).json({
+      error:
+        "영구 명단 파일이 없습니다. GitHub에 data/roster.xlsx (또는 roster.csv)를 올려 주세요.",
+    });
+    return;
+  }
+  res.json({
+    fileName: roster.fileName,
+    rowCount: roster.rows.length,
+    columns: roster.columns,
+    uploadedAt: roster.uploadedAt,
+  });
+});
+
+app.get("/api/sessions/:code/roster/search", async (req, res) => {
+  try {
+    const session = await loadSession(req.params.code);
+    if (!session) {
+      res.status(404).json({ error: "코드를 찾을 수 없습니다." });
+      return;
+    }
+
+    const roster = await getGlobalRoster();
+    if (!roster) {
+      res.status(400).json({
+        error:
+          "영구 명단이 설정되지 않았습니다. GitHub data/roster.xlsx 를 확인하세요.",
+      });
+      return;
+    }
+
+    const q = String(req.query.q ?? "");
+    const defaultLimit = q.trim() ? 30 : 500;
+    const limit = Math.min(500, Number(req.query.limit) || defaultLimit);
+    const results = searchRoster(roster, q, limit);
+
+    res.json({ results, total: roster.rows.length });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "명단 검색 실패" });
+  }
+});
+
+app.get("/api/sessions/:code/roster/row/:rowId", async (req, res) => {
+  try {
+    const session = await loadSession(req.params.code);
+    if (!session) {
+      res.status(404).json({ error: "코드를 찾을 수 없습니다." });
+      return;
+    }
+
+    const roster = await getGlobalRoster();
+    if (!roster) {
+      res.status(404).json({ error: "영구 명단을 찾을 수 없습니다." });
+      return;
+    }
+    const row = roster.rows.find((r) => r.id === req.params.rowId);
+    if (!row) {
+      res.status(404).json({ error: "해당 행을 찾을 수 없습니다." });
+      return;
+    }
+    res.json({ row });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "행 조회 실패" });
+  }
+});
+
 app.post("/api/sessions/:code/surveys", async (req, res) => {
   try {
     const session = await loadSession(req.params.code);
@@ -135,12 +215,37 @@ app.post("/api/sessions/:code/surveys", async (req, res) => {
       return;
     }
 
-    const { nickname, scores } = req.body as {
+    const { nickname, scores, rosterRowId } = req.body as {
       nickname?: string;
       scores?: number[];
+      rosterRowId?: string;
     };
 
-    if (!nickname?.trim()) {
+    let displayName = nickname?.trim() ?? "";
+    let rosterFields: Record<string, string> | undefined;
+    let rosterLabel: string | undefined;
+
+    const globalRoster = await getGlobalRoster();
+
+    if (globalRoster) {
+      if (!rosterRowId) {
+        res.status(400).json({ error: "명단에서 본인을 선택해 주세요." });
+        return;
+      }
+      const row = globalRoster.rows.find((r) => r.id === rosterRowId);
+      if (!row) {
+        res.status(400).json({ error: "선택한 명단 행을 찾을 수 없습니다." });
+        return;
+      }
+      const taken = session.surveys.some((s) => s.rosterRowId === rosterRowId);
+      if (taken) {
+        res.status(400).json({ error: "이미 다른 사람이 선택한 항목입니다." });
+        return;
+      }
+      rosterFields = row.cells;
+      rosterLabel = row.label;
+      displayName = row.label;
+    } else if (!displayName) {
       res.status(400).json({ error: "닉네임을 입력해 주세요." });
       return;
     }
@@ -158,9 +263,12 @@ app.post("/api/sessions/:code/surveys", async (req, res) => {
 
     const response: SurveyResponse = {
       id: uuidv4(),
-      nickname: nickname.trim(),
+      nickname: displayName,
       scores: scores.map((s) => Math.round(s)),
       submittedAt: new Date().toISOString(),
+      ...(rosterRowId
+        ? { rosterRowId, rosterLabel, rosterFields }
+        : {}),
     };
 
     session.surveys.push(response);

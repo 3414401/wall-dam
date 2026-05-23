@@ -132,6 +132,11 @@ export function WallCreateAssign() {
             />
           </div>
 
+          <p className="api-banner-detail" style={{ marginTop: 12 }}>
+            영구 명단: GitHub <strong>data/roster.xlsx</strong> · AI 참고:{" "}
+            <strong>data/ai-reference.md</strong>
+          </p>
+
           <div className="btn-stack" style={{ marginTop: 8 }}>
             <button
               type="button"

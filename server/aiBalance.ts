@@ -1,3 +1,4 @@
+import { getAiReferenceText } from "./aiReference.js";
 import { balanceTeams } from "./balance.js";
 import { generateText, hasGemini, parseJsonFromText } from "./gemini.js";
 import type { SessionData, SurveyResponse, TeamGroup } from "./types.js";
@@ -73,14 +74,23 @@ export async function balanceTeamsWithAi(
   }
 
   const roster = session.surveys
-    .map(
-      (s) =>
-        `{"id":"${s.id}","nickname":"${s.nickname}","scores":[${s.scores.join(",")}]}`
+    .map((s) =>
+      JSON.stringify({
+        id: s.id,
+        nickname: s.nickname,
+        scores: s.scores,
+        excelRow: s.rosterFields ?? null,
+      })
     )
     .join(",\n");
 
-  const prompt = `팀프로젝트 조 배치 전문가입니다. ${session.surveys.length}명을 ${count}개 조로 나누세요.
+  const reference = await getAiReferenceText();
+  const referenceBlock = reference
+    ? `\n[조직자가 제공한 참고 자료 — 반드시 우선 고려]\n${reference}\n`
+    : "";
 
+  const prompt = `팀프로젝트 조 배치 전문가입니다. ${session.surveys.length}명을 ${count}개 조로 나누세요.
+${referenceBlock}
 목표:
 1) 각 조의 5개 기준 합계가 비슷하게
 2) 각 기준별로 조 간 점수 분포가 고르게

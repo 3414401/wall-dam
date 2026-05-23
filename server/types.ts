@@ -1,8 +1,24 @@
+export interface RosterRow {
+  id: string;
+  label: string;
+  cells: Record<string, string>;
+}
+
+export interface RosterData {
+  fileName: string;
+  columns: string[];
+  rows: RosterRow[];
+  uploadedAt: string;
+}
+
 export interface SurveyResponse {
   id: string;
   nickname: string;
   scores: number[];
   submittedAt: string;
+  rosterRowId?: string;
+  rosterLabel?: string;
+  rosterFields?: Record<string, string>;
 }
 
 export interface TeamGroup {
@@ -44,4 +60,5 @@ export interface SessionData {
   balanceMethod: "greedy" | "ai" | null;
   aiBalanceNote: string | null;
   insights: SessionInsights | null;
+  roster: RosterData | null;
 }
