@@ -1,0 +1,20 @@
+{
+  "code": "150343",
+  "abilities": [
+    "지난 수업 이해도",
+    "입학 후 다문화 친구를 얼마나 사귀었나요?",
+    "외향성",
+    "mbti T/F"
+  ],
+  "teamPurpose": "다문화 교육",
+  "createdAt": "2026-05-23T07:38:55.365Z",
+  "createdBy": "dfwdf",
+  "surveys": [],
+  "teamCount": 4,
+  "groups": null,
+  "balancedAt": null,
+  "balanceMethod": null,
+  "aiBalanceNote": null,
+  "insights": null,
+  "roster": null
+}
