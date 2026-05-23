@@ -9,7 +9,34 @@
   "teamPurpose": "다문화 교육",
   "createdAt": "2026-05-23T07:38:55.365Z",
   "createdBy": "dfwdf",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "8e5cc307-c85c-483e-bd7f-a9083b9cd42c",
+      "nickname": "강동고등학교",
+      "scores": [
+        10,
+        1,
+        8,
+        3
+      ],
+      "submittedAt": "2026-05-23T07:40:19.028Z",
+      "rosterRowId": "row-3",
+      "rosterLabel": "강동고등학교",
+      "rosterFields": {
+        "학교명": "강동고등학교",
+        "지역": "동구",
+        "학교 학생 수": "808",
+        "획일화 지수(H_m)": "0.6601847202123236",
+        "P_special": "5.445545",
+        "I_SCU": "0.944474",
+        "H_path": "0.546804",
+        "H_job": "0.3499",
+        "H_ppc": "0.4321",
+        "1위 업종": "",
+        "R_net": "0.6116852984602404"
+      }
+    }
+  ],
   "teamCount": 4,
   "groups": null,
   "balancedAt": null,
