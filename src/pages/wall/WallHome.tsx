@@ -16,14 +16,14 @@ export function WallHome() {
           className="btn btn-accent"
           onClick={() => navigate("/wall/create")}
         >
-          ➕ 조 만들기
+          ➕ 조 만들기 👩‍🏫
         </button>
         <button
           type="button"
           className="btn"
           onClick={() => navigate("/wall/join")}
         >
-          🔑 조 참여하기
+          🔑 조 참여하기 🎓
         </button>
         <button
           type="button"

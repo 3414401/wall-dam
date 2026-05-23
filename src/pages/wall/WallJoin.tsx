@@ -23,6 +23,7 @@ export function WallJoin() {
   const [searchResults, setSearchResults] = useState<RosterRow[]>([]);
   const [listLoading, setListLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState<RosterRow | null>(null);
+  const [studentName, setStudentName] = useState("");
   const [nickname, setNickname] = useState("");
   const [scores, setScores] = useState([5, 5, 5, 5]);
   const [loading, setLoading] = useState(false);
@@ -83,6 +84,7 @@ export function WallJoin() {
       setAbilities(session.abilities);
       setScores(Array(session.abilities.length).fill(5));
       setSelectedRow(null);
+      setStudentName("");
       setSearchQ("");
       setSearchResults([]);
       setRosterTotal(0);
@@ -117,12 +119,19 @@ export function WallJoin() {
       return;
     }
 
+    if (needsSchoolPick && selectedRow && !studentName.trim()) {
+      setError("본인 이름을 입력해 주세요. (같은 학교 여러 명 가능)");
+      return;
+    }
+
     if (!needsSchoolPick && !selectedRow && !nickname.trim()) {
       setError("학교명을 선택하거나 닉네임을 입력해 주세요.");
       return;
     }
 
-    const name = selectedRow?.label ?? nickname;
+    const name = selectedRow
+      ? `${studentName.trim()} (${selectedRow.label})`
+      : nickname;
 
     setLoading(true);
     try {
@@ -266,6 +275,24 @@ export function WallJoin() {
             )}
 
           </div>
+
+        {needsSchoolPick && (
+          <div className="field">
+            <label className="label" htmlFor="student-name">
+              본인 이름 (필수)
+            </label>
+            <input
+              id="student-name"
+              className="input"
+              placeholder="예: 홍길동 — 같은 학교도 여러 명 가능"
+              value={studentName}
+              onChange={(e) => setStudentName(e.target.value)}
+            />
+            <p className="api-banner-detail">
+              같은 학교를 선택해도 됩니다. 이름으로 구분합니다.
+            </p>
+          </div>
+        )}
 
         {rosterChecked && !needsSchoolPick && (
           <div className="field">

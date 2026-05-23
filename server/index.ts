@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { balanceTeamsWithAi } from "./aiBalance.js";
 import { balanceTeams } from "./balance.js";
 import { getExcelReferenceText } from "./excelReference.js";
-import { hasGemini } from "./gemini.js";
+import { hasGemini, probeGeminiModel } from "./gemini.js";
 import { buildSessionInsights } from "./homogeneity.js";
 import { getGlobalRoster } from "./globalRoster.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
@@ -55,10 +55,13 @@ app.get("/api/health", async (_req, res) => {
   const excel = await getExcelReferenceText();
   const roster = await getGlobalRoster();
   const rosterGuide = await getRosterAiGuideText();
+  const geminiModel = hasGemini() ? await probeGeminiModel() : null;
   res.json({
     ok: true,
     storage: useGitHub() ? "github" : "local",
     ai: hasGemini(),
+    geminiOk: Boolean(geminiModel),
+    geminiModel,
     excel: excel.length > 0,
     roster: Boolean(roster?.rows.length),
     rosterRows: roster?.rows.length ?? 0,
@@ -243,14 +246,13 @@ app.post("/api/sessions/:code/surveys", async (req, res) => {
         res.status(400).json({ error: "선택한 명단 행을 찾을 수 없습니다." });
         return;
       }
-      const taken = session.surveys.some((s) => s.rosterRowId === rosterRowId);
-      if (taken) {
-        res.status(400).json({ error: "이미 다른 사람이 선택한 항목입니다." });
-        return;
-      }
       rosterFields = row.cells;
       rosterLabel = row.label;
-      displayName = row.label;
+      if (!displayName) {
+        displayName = row.label;
+      } else if (!displayName.includes(row.label)) {
+        displayName = `${displayName} (${row.label})`;
+      }
     } else if (!displayName) {
       res.status(400).json({ error: "닉네임을 입력해 주세요." });
       return;
