@@ -10,18 +10,17 @@ import {
 } from "../../lib/api";
 import type { RosterRow } from "../../lib/api";
 
-type Step = "code" | "pick" | "survey";
+type Step = "code" | "survey";
 
 export function WallJoin() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("code");
   const [code, setCode] = useState("");
-  const [hasRoster, setHasRoster] = useState(false);
   const [rosterTotal, setRosterTotal] = useState(0);
+  const [rosterChecked, setRosterChecked] = useState(false);
   const [abilities, setAbilities] = useState<string[]>([]);
   const [searchQ, setSearchQ] = useState("");
   const [searchResults, setSearchResults] = useState<RosterRow[]>([]);
-  const [listTotal, setListTotal] = useState(0);
   const [listLoading, setListLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState<RosterRow | null>(null);
   const [nickname, setNickname] = useState("");
@@ -30,26 +29,43 @@ export function WallJoin() {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
+  const needsSchoolPick = rosterChecked && rosterTotal > 0;
+
   useEffect(() => {
-    if (step !== "pick" || !code) {
-      setSearchResults([]);
-      setListTotal(0);
-      return;
-    }
+    if (step !== "survey" || !code) return;
+
+    let cancelled = false;
     setListLoading(true);
-    const t = setTimeout(() => {
-      void searchRosterRows(code, searchQ)
-        .then((r) => {
-          setSearchResults(r.results);
-          setListTotal(r.total);
-        })
-        .catch(() => {
-          setSearchResults([]);
-          setListTotal(0);
-        })
-        .finally(() => setListLoading(false));
-    }, searchQ.trim() ? 300 : 0);
-    return () => clearTimeout(t);
+
+    void (async () => {
+      let total = 0;
+      try {
+        const info = await getRosterInfo();
+        total = info.rowCount;
+      } catch {
+        /* roster/info 실패 시 search로 재시도 */
+      }
+
+      try {
+        const r = await searchRosterRows(code, searchQ);
+        if (cancelled) return;
+        setSearchResults(r.results);
+        setRosterTotal(Math.max(total, r.total));
+      } catch {
+        if (cancelled) return;
+        setSearchResults([]);
+        if (total > 0) setRosterTotal(total);
+      } finally {
+        if (!cancelled) {
+          setRosterChecked(true);
+          setListLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [step, code, searchQ]);
 
   async function handleCodeSubmit(e: FormEvent) {
@@ -66,26 +82,25 @@ export function WallJoin() {
       setCode(trimmed);
       setAbilities(session.abilities);
       setScores([5, 5, 5, 5, 5]);
-      let rosterRows = 0;
-      try {
-        const info = await getRosterInfo();
-        rosterRows = info.rowCount;
-      } catch {
-        rosterRows = 0;
-      }
-      if (rosterRows === 0) {
-        try {
-          const probe = await searchRosterRows(trimmed, "");
-          rosterRows = probe.total;
-        } catch {
-          rosterRows = 0;
-        }
-      }
-      setHasRoster(rosterRows > 0);
-      setRosterTotal(rosterRows);
-      setStep(rosterRows > 0 ? "pick" : "survey");
       setSelectedRow(null);
       setSearchQ("");
+      setSearchResults([]);
+      setRosterTotal(0);
+      setRosterChecked(false);
+
+      try {
+        const info = await getRosterInfo();
+        setRosterTotal(info.rowCount);
+      } catch {
+        try {
+          const probe = await searchRosterRows(trimmed, "");
+          setRosterTotal(probe.total);
+        } catch {
+          setRosterTotal(0);
+        }
+      }
+
+      setStep("survey");
     } catch (err) {
       setError(err instanceof Error ? err.message : "입장 실패");
     } finally {
@@ -93,27 +108,34 @@ export function WallJoin() {
     }
   }
 
-  function handleSelectRow(row: RosterRow) {
-    setSelectedRow(row);
-    setStep("survey");
-    setError("");
-  }
-
   async function handleSurveySubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (needsSchoolPick && !selectedRow) {
+      setError("학교명을 목록에서 선택해 주세요.");
+      return;
+    }
+
+    if (!needsSchoolPick && !selectedRow && !nickname.trim()) {
+      setError("학교명을 선택하거나 닉네임을 입력해 주세요.");
+      return;
+    }
+
+    const name = selectedRow?.label ?? nickname;
+
     setLoading(true);
     try {
-      const name = selectedRow?.label ?? nickname;
-      if (!name.trim()) {
-        setError("이름을 입력하거나 명단에서 선택해 주세요.");
-        setLoading(false);
-        return;
-      }
       await submitSurvey(code, name.trim(), scores, selectedRow?.id);
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "제출 실패");
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("명단에서")) {
+        setRosterTotal((n) => Math.max(n, 1));
+        setRosterChecked(true);
+        setSearchQ("");
+      }
+      setError(msg || "제출 실패");
     } finally {
       setLoading(false);
     }
@@ -171,85 +193,97 @@ export function WallJoin() {
     );
   }
 
-  if (step === "pick") {
-    return (
-      <Layout
-        title="본인 선택"
-        subtitle={`명단 ${rosterTotal}명 중 찾기`}
-        onBack={() => setStep("code")}
-      >
-        <div className="card">
-          <div className="field">
-            <label className="label" htmlFor="roster-search">
-              학교명 선택 (A열)
-            </label>
-            <input
-              id="roster-search"
-              className="input"
-              placeholder="학교명 검색 (비워두면 전체 목록)"
-              value={searchQ}
-              onChange={(e) => setSearchQ(e.target.value)}
-              autoFocus
-            />
-          </div>
-          <p className="api-banner-detail">
-            {listLoading
-              ? "명단 불러오는 중..."
-              : searchQ.trim()
-                ? `검색 결과 ${searchResults.length}건 / 전체 ${listTotal}건`
-                : `학교명 ${searchResults.length}건 (전체 ${listTotal}건)`}
-          </p>
-          {!listLoading && searchResults.length === 0 && (
-            <p className="error-msg" style={{ marginBottom: 12 }}>
-              {listTotal === 0
-                ? "명단이 비어 있습니다. GitHub data/roster.xlsx 를 확인해 주세요."
-                : "검색 결과가 없습니다. A열 학교명을 다시 확인해 주세요."}
-            </p>
-          )}
-          <ul className="roster-pick-list">
-            {searchResults.map((row) => (
-              <li key={row.id}>
-                <button
-                  type="button"
-                  className="roster-pick-item"
-                  onClick={() => handleSelectRow(row)}
-                >
-                  {row.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-          {error && <p className="error-msg">{error}</p>}
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout
       title="설문 작성"
       subtitle={selectedRow ? selectedRow.label : `코드 ${code}`}
-      onBack={() => setStep(hasRoster ? "pick" : "code")}
+      onBack={() => setStep("code")}
     >
       <form className="card" onSubmit={handleSurveySubmit}>
-        {selectedRow && (
-          <div className="roster-detail-box">
-            <h2 className="section-title">엑셀 명단 정보</h2>
-            <ul className="roster-detail-list">
-              {Object.entries(selectedRow.cells).map(([key, val]) => (
-                <li key={key}>
-                  <span className="roster-detail-key">{key}</span>
-                  <span>{val || "—"}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div className="roster-pick-section">
+            <h2 className="section-title">학교명 선택 (필수)</h2>
+            <p className="api-banner-detail">
+              roster.xlsx A열 목록에서 본인 학교를 선택하세요.
+            </p>
 
-        {!hasRoster && (
+            {selectedRow ? (
+              <div className="roster-selected-box">
+                <span className="roster-selected-label">선택됨</span>
+                <strong>{selectedRow.label}</strong>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={() => setSelectedRow(null)}
+                >
+                  다시 선택
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="field">
+                  <label className="label" htmlFor="roster-search">
+                    학교명 검색
+                  </label>
+                  <input
+                    id="roster-search"
+                    className="input"
+                    placeholder="비워두면 전체 목록"
+                    value={searchQ}
+                    onChange={(e) => setSearchQ(e.target.value)}
+                  />
+                </div>
+                <p className="api-banner-detail">
+                  {listLoading
+                    ? "명단 불러오는 중..."
+                    : searchQ.trim()
+                      ? `검색 ${searchResults.length}건 / 전체 ${rosterTotal}건`
+                      : `학교명 ${searchResults.length}건 (전체 ${rosterTotal}건)`}
+                </p>
+                {!listLoading && searchResults.length === 0 && (
+                  <p className="error-msg" style={{ marginBottom: 12 }}>
+                    {rosterTotal === 0
+                      ? "명단을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+                      : "검색 결과가 없습니다."}
+                  </p>
+                )}
+                <ul className="roster-pick-list">
+                  {searchResults.map((row) => (
+                    <li key={row.id}>
+                      <button
+                        type="button"
+                        className="roster-pick-item"
+                        onClick={() => {
+                          setSelectedRow(row);
+                          setError("");
+                        }}
+                      >
+                        {row.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {selectedRow && (
+              <div className="roster-detail-box">
+                <h2 className="section-title">선택한 학교 정보</h2>
+                <ul className="roster-detail-list">
+                  {Object.entries(selectedRow.cells).map(([key, val]) => (
+                    <li key={key}>
+                      <span className="roster-detail-key">{key}</span>
+                      <span>{val || "—"}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+        {rosterChecked && !needsSchoolPick && (
           <div className="field">
             <label className="label" htmlFor="nickname">
-              닉네임
+              닉네임 (본인 식별용)
             </label>
             <input
               id="nickname"
@@ -262,7 +296,7 @@ export function WallJoin() {
         )}
 
         <p className="page-subtitle" style={{ margin: "16px 0" }}>
-          아래 5개 기준을 0~10으로 평가해 주세요 (AI 조 배치에 반영)
+          각 항목을 0~10으로 평가해 주세요
         </p>
         {abilities.map((name, i) => (
           <ScoreSlider
