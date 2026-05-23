@@ -245,12 +245,55 @@
       }
     }
   ],
-  "teamCount": 4,
-  "groups": null,
-  "balancedAt": null,
-  "balanceMethod": null,
-  "aiBalanceNote": null,
-  "aiTeamExplanations": null,
+  "teamCount": 3,
+  "groups": [
+    {
+      "teamIndex": 1,
+      "memberIds": [
+        "d8adabd1-ff91-48f6-8091-58684f9631ac",
+        "5f9f252c-c03b-47f3-a33e-1f2e56d6abca",
+        "0b87d891-bed2-43ac-9304-3558446a931a"
+      ],
+      "totals": [
+        13,
+        13,
+        17,
+        9
+      ]
+    },
+    {
+      "teamIndex": 2,
+      "memberIds": [
+        "45655d88-d8a9-43d1-be16-829442740066",
+        "857013c9-7b4c-4a1c-b4a9-1c7655a35148",
+        "676b477e-caf5-469f-8a5a-f3cd86a92a9a"
+      ],
+      "totals": [
+        17,
+        10,
+        18,
+        6
+      ]
+    },
+    {
+      "teamIndex": 3,
+      "memberIds": [
+        "6516bf56-6d1e-4551-bf9f-dc49704e0794",
+        "c3d3ada7-5cf9-4252-b622-2cc746d80360",
+        "bb77039c-9069-400a-a5b8-045294765159"
+      ],
+      "totals": [
+        17,
+        5,
+        18,
+        11
+      ]
+    }
+  ],
+  "balancedAt": "2026-05-23T10:55:39.718Z",
+  "balanceMethod": "greedy",
+  "aiBalanceNote": "AI 실패 → 자동 균형 배치로 대체 (Gemini API 오류: gemini-2.0-flash: 429 {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, pl)",
+  "aiTeamExplanations": [],
   "insights": {
     "homogeneityIndex": 37,
     "overallSummary": "동질성 지수 37점. 응답자들은 「외향성」에서 평균 5.9점으로 가장 두드러집니다. (AI 요약은 통계만 반영됨)",
@@ -285,7 +328,7 @@
       }
     ],
     "teamComments": [],
-    "generatedAt": "2026-05-23T10:54:41.134Z"
+    "generatedAt": "2026-05-23T10:55:39.843Z"
   },
   "roster": null
 }
