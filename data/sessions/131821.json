@@ -251,6 +251,41 @@
   "balanceMethod": null,
   "aiBalanceNote": null,
   "aiTeamExplanations": null,
-  "insights": null,
+  "insights": {
+    "homogeneityIndex": 37,
+    "overallSummary": "동질성 지수 37점. 응답자들은 「외향성」에서 평균 5.9점으로 가장 두드러집니다. (AI 요약은 통계만 반영됨)",
+    "abilityStats": [
+      {
+        "name": "지난 수업 이해도",
+        "mean": 5.2,
+        "std": 3.5,
+        "min": 1,
+        "max": 10
+      },
+      {
+        "name": "입학 후 다문화 친구 몇 명 사귀었나요?",
+        "mean": 3.1,
+        "std": 2.4,
+        "min": 1,
+        "max": 8
+      },
+      {
+        "name": "외향성",
+        "mean": 5.9,
+        "std": 3.3,
+        "min": 1,
+        "max": 9
+      },
+      {
+        "name": "mbti T/F (T가 0점/F가 10점)",
+        "mean": 2.9,
+        "std": 2.3,
+        "min": 1,
+        "max": 8
+      }
+    ],
+    "teamComments": [],
+    "generatedAt": "2026-05-23T10:54:41.134Z"
+  },
   "roster": null
 }
