@@ -34,7 +34,7 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
 
       - name: Build for GitHub Pages
         run: npm run build
