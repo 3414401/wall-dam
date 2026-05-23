@@ -16,14 +16,14 @@ export function WallCreate() {
           className="btn"
           onClick={() => navigate("/wall/create/survey")}
         >
-          📝 설문조사
+          1단계: 설문 조사 만들기
         </button>
         <button
           type="button"
           className="btn btn-secondary"
           onClick={() => navigate("/wall/create/assign")}
         >
-          ⚖️ 조 배치하기
+          2단계: 조 배치하기
         </button>
       </div>
     </Layout>

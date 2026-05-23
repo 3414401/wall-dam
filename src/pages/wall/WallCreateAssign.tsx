@@ -87,7 +87,7 @@ export function WallCreateAssign() {
 
   return (
     <Layout
-      title="조 배치하기"
+      title="2단계: 조 배치하기"
       subtitle="자동 균형 배치 · AI 조 배치"
       onBack={() => navigate("/wall/create")}
     >
@@ -134,7 +134,8 @@ export function WallCreateAssign() {
 
           <p className="api-banner-detail" style={{ marginTop: 12 }}>
             영구 명단: GitHub <strong>data/roster.xlsx</strong> · AI 참고:{" "}
-            <strong>data/ai-reference.md</strong>
+            <strong>data/ai-reference.md</strong> · 명단 활용 지침:{" "}
+            <strong>data/roster-ai-guide.md</strong>
           </p>
 
           <div className="btn-stack" style={{ marginTop: 8 }}>

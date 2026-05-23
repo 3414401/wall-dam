@@ -24,7 +24,7 @@ export function WallJoin() {
   const [listLoading, setListLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState<RosterRow | null>(null);
   const [nickname, setNickname] = useState("");
-  const [scores, setScores] = useState([5, 5, 5, 5, 5]);
+  const [scores, setScores] = useState([5, 5, 5, 5]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -81,7 +81,7 @@ export function WallJoin() {
       const { session } = await getSession(trimmed);
       setCode(trimmed);
       setAbilities(session.abilities);
-      setScores([5, 5, 5, 5, 5]);
+      setScores(Array(session.abilities.length).fill(5));
       setSelectedRow(null);
       setSearchQ("");
       setSearchResults([]);
@@ -283,7 +283,7 @@ export function WallJoin() {
         )}
 
         <p className="page-subtitle" style={{ margin: "16px 0" }}>
-          각 항목을 0~10으로 평가해 주세요
+          아래 {abilities.length}개 기준을 0~10으로 평가해 주세요
         </p>
         {abilities.map((name, i) => (
           <ScoreSlider

@@ -6,6 +6,7 @@ import type {
   TeamInsightLine,
 } from "./types.js";
 import { getAiReferenceText } from "./aiReference.js";
+import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { generateText, hasGemini, parseJsonFromText } from "./gemini.js";
 
 function stdDev(values: number[]): number {
@@ -83,8 +84,18 @@ export async function buildSessionInsights(
       ? `\n[참고 자료]\n${reference}\n`
       : "";
 
+    const rosterGuide = await getRosterAiGuideText();
+    const rosterGuideBlock = rosterGuide
+      ? `\n[명단 Excel(roster.xlsx) 활용 지침]\n${rosterGuide}\n`
+      : "";
+
+    const purpose = session.teamPurpose?.trim();
+    const purposeBlock = purpose
+      ? `\n[조를 짜는 목적]\n${purpose}\n`
+      : "";
+
     const prompt = `당신은 대학 팀프로젝트 조교입니다. 아래 설문(0~10점)을 분석하세요.
-${referenceBlock}
+${purposeBlock}${referenceBlock}${rosterGuideBlock}
 [기준 이름] ${session.abilities.join(", ")}
 [응답 ${session.surveys.length}명]
 ${roster}

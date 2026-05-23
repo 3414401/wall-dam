@@ -51,6 +51,7 @@ export interface SessionInsights {
 export interface SessionData {
   code: string;
   abilities: string[];
+  teamPurpose?: string;
   createdAt: string;
   createdBy: string;
   surveys: SurveyResponse[];
@@ -102,10 +103,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return data as T;
 }
 
-export function createSession(abilities: string[], createdBy: string) {
+export function createSession(
+  abilities: string[],
+  createdBy: string,
+  teamPurpose?: string
+) {
   return request<{ code: string; session: SessionData }>("/api/sessions", {
     method: "POST",
-    body: JSON.stringify({ abilities, createdBy }),
+    body: JSON.stringify({ abilities, createdBy, teamPurpose }),
   });
 }
 

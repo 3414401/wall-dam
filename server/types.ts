@@ -51,6 +51,7 @@ export interface SessionInsights {
 export interface SessionData {
   code: string;
   abilities: string[];
+  teamPurpose?: string;
   createdAt: string;
   createdBy: string;
   surveys: SurveyResponse[];

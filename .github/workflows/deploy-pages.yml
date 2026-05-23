@@ -11,6 +11,7 @@ on:
       - "data/ai-reference.template.csv"
       - "data/roster.xlsx"
       - "data/roster.csv"
+      - "data/roster-ai-guide.md"
       - "server-data/**"
   workflow_dispatch:
 

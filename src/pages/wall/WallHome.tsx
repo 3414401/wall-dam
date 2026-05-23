@@ -7,7 +7,7 @@ export function WallHome() {
   return (
     <Layout
       title="담을 넘는 조짜기"
-      subtitle="5가지 능력치 · 설문 기반 밸런스 조"
+      subtitle="4가지 능력치 · 설문 기반 밸런스 조"
       onBack={() => navigate("/home")}
     >
       <div className="btn-stack">

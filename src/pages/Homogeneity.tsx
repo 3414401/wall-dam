@@ -1,13 +1,16 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../components/Layout";
+import { SurveyResultsTable } from "../components/SurveyResultsTable";
 import { generateInsights } from "../lib/api";
-import type { SessionInsights } from "../lib/api";
+import type { SessionData, SessionInsights } from "../lib/api";
+import { downloadSessionExcel } from "../lib/surveyExport";
 import { getHostCode } from "./wall/WallCreateSurvey";
 
 export function Homogeneity() {
   const navigate = useNavigate();
   const [code, setCode] = useState(getHostCode() ?? "");
+  const [session, setSession] = useState<SessionData | null>(null);
   const [insights, setInsights] = useState<SessionInsights | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -22,9 +25,11 @@ export function Homogeneity() {
     setLoading(true);
     setError("");
     setInsights(null);
+    setSession(null);
     try {
-      const { insights: data } = await generateInsights(trimmed);
+      const { insights: data, session: loaded } = await generateInsights(trimmed);
       setInsights(data);
+      setSession(loaded);
     } catch (err) {
       setError(err instanceof Error ? err.message : "분석 실패");
     } finally {
@@ -35,7 +40,7 @@ export function Homogeneity() {
   return (
     <Layout
       title="동질성 지수"
-      subtitle="설문 패턴 분석 · AI 한 줄 요약"
+      subtitle="설문 표 · 다운로드 · AI 요약"
       onBack={() => navigate("/home")}
     >
       <form className="card" onSubmit={handleAnalyze}>
@@ -53,67 +58,90 @@ export function Homogeneity() {
           />
         </div>
         <button type="submit" className="btn btn-accent" disabled={loading}>
-          {loading ? "AI 분석 중… (30초~1분)" : "📊 분석하기"}
+          {loading ? "AI 분석 중… (30초~1분)" : "📊 동질성 지수 AI 요약"}
         </button>
         {error && <p className="error-msg">{error}</p>}
       </form>
 
-      {insights && (
-        <div className="card" style={{ marginTop: 16 }}>
-          <div className="homogeneity-score">
-            <span className="homogeneity-score-label">동질성 지수</span>
-            <span className="homogeneity-score-value">
-              {insights.homogeneityIndex}
-            </span>
-            <span className="homogeneity-score-unit">/ 100</span>
+      {session && insights && (
+        <>
+          <div className="card" style={{ marginTop: 16 }}>
+            <SurveyResultsTable session={session} showExport={false} />
+            {session.surveys.length > 0 && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ marginTop: 12 }}
+                onClick={() => downloadSessionExcel(session)}
+              >
+                📥 설문 결과 엑셀(CSV) 다운로드
+              </button>
+            )}
           </div>
-          <p className="homogeneity-hint">
-            점수가 높을수록 전체 응답 패턴이 비슷합니다.
-          </p>
 
-          <h2 className="section-title">전체 요약</h2>
-          <p className="insight-summary">{insights.overallSummary}</p>
+          <div className="card" style={{ marginTop: 16 }}>
+            <div className="homogeneity-score">
+              <span className="homogeneity-score-label">동질성 지수</span>
+              <span className="homogeneity-score-value">
+                {insights.homogeneityIndex}
+              </span>
+              <span className="homogeneity-score-unit">/ 100</span>
+            </div>
+            <p className="homogeneity-hint">
+              점수가 높을수록 전체 응답 패턴이 비슷합니다.
+            </p>
 
-          <h2 className="section-title">기준별 통계</h2>
-          <div className="survey-table-wrap">
-            <table className="survey-table">
-              <thead>
-                <tr>
-                  <th>기준</th>
-                  <th>평균</th>
-                  <th>편차</th>
-                  <th>최소</th>
-                  <th>최대</th>
-                </tr>
-              </thead>
-              <tbody>
-                {insights.abilityStats.map((s) => (
-                  <tr key={s.name}>
-                    <td className="survey-nickname">{s.name}</td>
-                    <td>{s.mean}</td>
-                    <td>{s.std}</td>
-                    <td>{s.min}</td>
-                    <td>{s.max}</td>
+            {session.teamPurpose && (
+              <>
+                <h2 className="section-title">조를 짜는 목적</h2>
+                <p className="insight-summary">{session.teamPurpose}</p>
+              </>
+            )}
+
+            <h2 className="section-title">AI 전체 요약</h2>
+            <p className="insight-summary">{insights.overallSummary}</p>
+
+            <h2 className="section-title">기준별 통계</h2>
+            <div className="survey-table-wrap">
+              <table className="survey-table">
+                <thead>
+                  <tr>
+                    <th>기준</th>
+                    <th>평균</th>
+                    <th>편차</th>
+                    <th>최소</th>
+                    <th>최대</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {insights.abilityStats.map((s) => (
+                    <tr key={s.name}>
+                      <td className="survey-nickname">{s.name}</td>
+                      <td>{s.mean}</td>
+                      <td>{s.std}</td>
+                      <td>{s.min}</td>
+                      <td>{s.max}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          {insights.teamComments.length > 0 && (
-            <>
-              <h2 className="section-title">조별 한 줄 코멘트</h2>
-              <ul className="team-comment-list">
-                {insights.teamComments.map((t) => (
-                  <li key={t.teamIndex}>
-                    <span className="badge">{t.teamIndex}조</span>
-                    {t.comment}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
+            {insights.teamComments.length > 0 && (
+              <>
+                <h2 className="section-title">조별 한 줄 코멘트</h2>
+                <ul className="team-comment-list">
+                  {insights.teamComments.map((t) => (
+                    <li key={t.teamIndex}>
+                      <span className="badge">{t.teamIndex}조</span>
+                      {t.comment}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        </>
       )}
     </Layout>
   );

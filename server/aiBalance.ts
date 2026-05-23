@@ -1,4 +1,5 @@
 import { getAiReferenceText } from "./aiReference.js";
+import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { balanceTeams } from "./balance.js";
 import { generateText, hasGemini, parseJsonFromText } from "./gemini.js";
 import type { SessionData, SurveyResponse, TeamGroup } from "./types.js";
@@ -89,10 +90,20 @@ export async function balanceTeamsWithAi(
     ? `\n[조직자가 제공한 참고 자료 — 반드시 우선 고려]\n${reference}\n`
     : "";
 
+  const rosterGuide = await getRosterAiGuideText();
+  const rosterGuideBlock = rosterGuide
+    ? `\n[명단 Excel(roster.xlsx) 활용 지침 — excelRow 열 해석·가중치]\n${rosterGuide}\n`
+    : "";
+
+  const purpose = session.teamPurpose?.trim();
+  const purposeBlock = purpose
+    ? `\n[조를 짜는 목적 — 최우선 반영]\n${purpose}\n`
+    : "";
+
   const prompt = `팀프로젝트 조 배치 전문가입니다. ${session.surveys.length}명을 ${count}개 조로 나누세요.
-${referenceBlock}
+${purposeBlock}${referenceBlock}${rosterGuideBlock}
 목표:
-1) 각 조의 5개 기준 합계가 비슷하게
+1) 각 조의 ${session.abilities.length}개 기준 합계가 비슷하게
 2) 각 기준별로 조 간 점수 분포가 고르게
 3) 한 조에 너무 강하거나 약한 사람만 몰리지 않게
 

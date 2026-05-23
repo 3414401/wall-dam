@@ -182,5 +182,26 @@ https://wall-dam.onrender.com/api/health
 | 파일 | 용도 |
 |------|------|
 | **data/roster.xlsx** | 500명 **명단** (학생이 행 선택) |
-| data/ai-reference.md | AI용 **글** 규칙 |
+| **data/roster-ai-guide.md** | roster.xlsx **열을 AI가 어떻게 쓸지** (한글, 짧게) |
+| data/ai-reference.md | AI용 **글** 규칙 (수업 전반) |
 | data/ai-reference.xlsx | AI용 **추가 표** (선택) |
+
+---
+
+## 7. AI 명단 활용 지침 (roster-ai-guide.md)
+
+**GitHub에서 바로 수정:**
+
+```
+https://github.com/3414401/wall-dam/edit/main/data/roster-ai-guide.md
+```
+
+**PC 파일:**
+
+```
+C:\Users\조은서\.cursor\projects\empty-window\team-wall-app\data\roster-ai-guide.md
+```
+
+- H_m, P_special 같은 **열 이름·의미**, **조 배치 우선순위**를 한글로 짧게 적으면 됩니다.
+- `git push` 후 다음 **AI 조 배치**부터 반영 (Render Manual Deploy 불필요).
+- 확인: `https://wall-dam.onrender.com/api/health` → `"rosterAiGuide": true`

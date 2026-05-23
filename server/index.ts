@@ -7,6 +7,7 @@ import { getExcelReferenceText } from "./excelReference.js";
 import { hasGemini } from "./gemini.js";
 import { buildSessionInsights } from "./homogeneity.js";
 import { getGlobalRoster } from "./globalRoster.js";
+import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
 import { loadSession, saveSession, useGitHub } from "./storage.js";
 import type { SessionData, SurveyResponse } from "./types.js";
@@ -53,6 +54,7 @@ app.get("/", (_req, res) => {
 app.get("/api/health", async (_req, res) => {
   const excel = await getExcelReferenceText();
   const roster = await getGlobalRoster();
+  const rosterGuide = await getRosterAiGuideText();
   res.json({
     ok: true,
     storage: useGitHub() ? "github" : "local",
@@ -60,18 +62,20 @@ app.get("/api/health", async (_req, res) => {
     excel: excel.length > 0,
     roster: Boolean(roster?.rows.length),
     rosterRows: roster?.rows.length ?? 0,
+    rosterAiGuide: rosterGuide.length > 0,
   });
 });
 
 app.post("/api/sessions", async (req, res) => {
   try {
-    const { abilities, createdBy } = req.body as {
+    const { abilities, createdBy, teamPurpose } = req.body as {
       abilities?: string[];
       createdBy?: string;
+      teamPurpose?: string;
     };
 
-    if (!abilities || abilities.length !== 5) {
-      res.status(400).json({ error: "능력치 5개를 입력해 주세요." });
+    if (!abilities || abilities.length !== 4) {
+      res.status(400).json({ error: "능력치 4개를 입력해 주세요." });
       return;
     }
 
@@ -91,6 +95,7 @@ app.post("/api/sessions", async (req, res) => {
     const session: SessionData = {
       code,
       abilities: trimmed,
+      teamPurpose: String(teamPurpose ?? "").trim(),
       createdAt: new Date().toISOString(),
       createdBy: createdBy || "host",
       surveys: [],
@@ -250,8 +255,10 @@ app.post("/api/sessions/:code/surveys", async (req, res) => {
       return;
     }
 
-    if (!scores || scores.length !== 5) {
-      res.status(400).json({ error: "5개 능력치 점수를 모두 입력해 주세요." });
+    if (!scores || scores.length !== session.abilities.length) {
+      res.status(400).json({
+        error: `${session.abilities.length}개 능력치 점수를 모두 입력해 주세요.`,
+      });
       return;
     }
 

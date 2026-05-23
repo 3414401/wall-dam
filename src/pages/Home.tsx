@@ -21,7 +21,7 @@ export function Home() {
           className="btn"
           onClick={() => navigate("/homogeneity")}
         >
-          📊 동질성 지수 · AI 요약
+          📊 동질성 지수 AI 요약
         </button>
         <button
           type="button"
