@@ -265,19 +265,6 @@ export function WallJoin() {
               </>
             )}
 
-            {selectedRow && (
-              <div className="roster-detail-box">
-                <h2 className="section-title">선택한 학교 정보</h2>
-                <ul className="roster-detail-list">
-                  {Object.entries(selectedRow.cells).map(([key, val]) => (
-                    <li key={key}>
-                      <span className="roster-detail-key">{key}</span>
-                      <span>{val || "—"}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
 
         {rosterChecked && !needsSchoolPick && (
