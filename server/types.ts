@@ -60,6 +60,7 @@ export interface SessionData {
   balancedAt: string | null;
   balanceMethod: "greedy" | "ai" | null;
   aiBalanceNote: string | null;
+  aiTeamExplanations?: TeamInsightLine[] | null;
   insights: SessionInsights | null;
   roster: RosterData | null;
 }

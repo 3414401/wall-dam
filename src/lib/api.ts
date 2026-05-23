@@ -60,6 +60,7 @@ export interface SessionData {
   balancedAt: string | null;
   balanceMethod?: "greedy" | "ai" | null;
   aiBalanceNote?: string | null;
+  aiTeamExplanations?: TeamInsightLine[] | null;
   insights?: SessionInsights | null;
   roster?: RosterData | null;
 }
@@ -160,6 +161,7 @@ export function balanceSessionAi(code: string, teamCount: number) {
   return request<{
     session: SessionData;
     note: string;
+    teamExplanations?: TeamInsightLine[];
     usedAi: boolean;
   }>(`/api/sessions/${code}/balance-ai`, {
     method: "POST",

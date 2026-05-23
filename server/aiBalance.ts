@@ -18,6 +18,7 @@ function teamSumsFromMembers(members: SurveyResponse[]): number[] {
 interface AiTeamsPayload {
   teams: { teamIndex: number; memberIds: string[] }[];
   summary?: string;
+  teamExplanations?: { teamIndex: number; reason: string }[];
 }
 
 function validateAiTeams(
@@ -60,7 +61,12 @@ function validateAiTeams(
 export async function balanceTeamsWithAi(
   session: SessionData,
   teamCount: number
-): Promise<{ groups: TeamGroup[]; note: string; usedAi: boolean }> {
+): Promise<{
+  groups: TeamGroup[];
+  note: string;
+  teamExplanations: { teamIndex: number; reason: string }[];
+  usedAi: boolean;
+}> {
   const count = Math.max(
     2,
     Math.min(teamCount, session.surveys.length)
@@ -70,6 +76,7 @@ export async function balanceTeamsWithAi(
     return {
       groups: balanceTeams(session.surveys, count),
       note: "GEMINI_API_KEY 없음 → 자동(균형) 알고리즘으로 배치했습니다.",
+      teamExplanations: [],
       usedAi: false,
     };
   }
@@ -124,24 +131,39 @@ JSON만:
   "teams": [
     { "teamIndex": 1, "memberIds": ["uuid", "..."] }
   ],
-  "summary": "배치 이유 한국어 2문장"
-}`;
+  "summary": "전체적으로 왜 이렇게 나눴는지 한국어 3~5문장 (조를 짜는 목적·엑셀 지표 반영)",
+  "teamExplanations": [
+    { "teamIndex": 1, "reason": "1조 멤버 구성 이유 2~3문장 (학교명·점수·엑셀 열 언급)" }
+  ]
+}
+
+teamExplanations는 1조부터 ${count}조까지 각각 1개씩 작성하세요.`;
 
   try {
     const raw = await generateText(prompt);
     const parsed = parseJsonFromText<AiTeamsPayload>(raw);
     if (!parsed.teams?.length) throw new Error("teams 배열 없음");
     const groups = validateAiTeams(session.surveys, parsed.teams, count);
+    const explanations =
+      parsed.teamExplanations?.filter((t) => t.teamIndex && t.reason?.trim()) ??
+      [];
+
     return {
       groups,
       note: parsed.summary?.trim() || "AI가 조를 배치했습니다.",
+      teamExplanations: explanations,
       usedAi: true,
     };
   } catch (e) {
     console.error("AI balance fallback", e);
+    const short =
+      e instanceof Error
+        ? e.message.replace(/Gemini API \d+: /, "").slice(0, 120)
+        : "오류";
     return {
       groups: balanceTeams(session.surveys, count),
-      note: `AI 실패 → 자동 균형 배치로 대체 (${e instanceof Error ? e.message : "오류"})`,
+      note: `AI 실패 → 자동 균형 배치로 대체 (${short})`,
+      teamExplanations: [],
       usedAi: false,
     };
   }

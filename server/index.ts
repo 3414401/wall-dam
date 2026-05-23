@@ -104,6 +104,7 @@ app.post("/api/sessions", async (req, res) => {
       balancedAt: null,
       balanceMethod: null,
       aiBalanceNote: null,
+      aiTeamExplanations: null,
       insights: null,
       roster: null,
     };
@@ -314,6 +315,7 @@ app.post("/api/sessions/:code/balance", async (req, res) => {
     session.balancedAt = new Date().toISOString();
     session.balanceMethod = "greedy";
     session.aiBalanceNote = null;
+    session.aiTeamExplanations = null;
     await saveSession(session);
 
     res.json({ session });
@@ -348,10 +350,19 @@ app.post("/api/sessions/:code/balance-ai", async (req, res) => {
     session.balancedAt = new Date().toISOString();
     session.balanceMethod = result.usedAi ? "ai" : "greedy";
     session.aiBalanceNote = result.note;
+    session.aiTeamExplanations = result.teamExplanations.map((t) => ({
+      teamIndex: t.teamIndex,
+      comment: t.reason.trim(),
+    }));
     session.insights = await buildSessionInsights(session);
     await saveSession(session);
 
-    res.json({ session, note: result.note, usedAi: result.usedAi });
+    res.json({
+      session,
+      note: result.note,
+      teamExplanations: session.aiTeamExplanations,
+      usedAi: result.usedAi,
+    });
   } catch (e) {
     console.error(e);
     const msg = e instanceof Error ? e.message : "AI 조 배치에 실패했습니다.";

@@ -158,11 +158,40 @@ export function WallCreateAssign() {
           </div>
 
           {session.aiBalanceNote && (
-            <p className="success-msg" style={{ marginTop: 12 }}>
-              {session.balanceMethod === "ai" ? "🤖 " : ""}
-              {session.aiBalanceNote}
-            </p>
+            <div
+              className={
+                session.balanceMethod === "ai"
+                  ? "ai-explain-box"
+                  : "error-msg"
+              }
+              style={{ marginTop: 12 }}
+            >
+              {session.balanceMethod === "ai" ? (
+                <>
+                  <h2 className="section-title">🤖 AI 배치 설명</h2>
+                  <p className="insight-summary">{session.aiBalanceNote}</p>
+                </>
+              ) : (
+                <p>{session.aiBalanceNote}</p>
+              )}
+            </div>
           )}
+
+          {session.balanceMethod === "ai" &&
+            session.aiTeamExplanations &&
+            session.aiTeamExplanations.length > 0 && (
+              <div className="ai-explain-box" style={{ marginTop: 12 }}>
+                <h2 className="section-title">조별 배정 이유</h2>
+                <ul className="team-comment-list">
+                  {session.aiTeamExplanations.map((t) => (
+                    <li key={t.teamIndex}>
+                      <span className="badge">{t.teamIndex}조</span>
+                      {t.comment}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
           {session.groups && (
             <div style={{ marginTop: 20 }}>

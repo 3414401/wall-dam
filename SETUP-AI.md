@@ -20,6 +20,7 @@
 | Key | Value |
 |-----|--------|
 | `GEMINI_API_KEY` | (Google AI Studio에서 복사한 키) |
+| `GEMINI_MODEL` | (선택) 기본 `gemini-2.0-flash` — 404 나면 자동으로 다른 모델 시도 |
 
 4. **Save Changes** → **Manual Deploy** → **Deploy latest commit**
 

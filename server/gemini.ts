@@ -2,15 +2,20 @@ export function hasGemini(): boolean {
   return Boolean(process.env.GEMINI_API_KEY?.trim());
 }
 
-export async function generateText(prompt: string): Promise<string> {
-  const key = process.env.GEMINI_API_KEY?.trim();
-  if (!key) {
-    throw new Error(
-      "GEMINI_API_KEY가 없습니다. Render Environment에 키를 추가하세요."
-    );
-  }
+const DEFAULT_MODEL_CHAIN = [
+  "gemini-2.0-flash",
+  "gemini-2.5-flash",
+  "gemini-1.5-flash-8b",
+  "gemini-1.5-pro",
+];
 
-  const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+function modelCandidates(): string[] {
+  const fromEnv = process.env.GEMINI_MODEL?.trim();
+  const list = fromEnv ? [fromEnv, ...DEFAULT_MODEL_CHAIN] : DEFAULT_MODEL_CHAIN;
+  return [...new Set(list)];
+}
+
+async function callGemini(model: string, key: string, prompt: string): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
 
   const res = await fetch(url, {
@@ -20,14 +25,14 @@ export async function generateText(prompt: string): Promise<string> {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 8192,
       },
     }),
   });
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Gemini API ${res.status}: ${err.slice(0, 300)}`);
+    throw new Error(`${model}: ${res.status} ${err.slice(0, 200)}`);
   }
 
   const data = (await res.json()) as {
@@ -35,8 +40,38 @@ export async function generateText(prompt: string): Promise<string> {
   };
 
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini 응답이 비어 있습니다.");
+  if (!text) throw new Error(`${model}: 응답이 비어 있습니다.`);
   return text;
+}
+
+export async function generateText(prompt: string): Promise<string> {
+  const key = process.env.GEMINI_API_KEY?.trim();
+  if (!key) {
+    throw new Error(
+      "GEMINI_API_KEY가 없습니다. Render Environment에 키를 추가하세요."
+    );
+  }
+
+  const models = modelCandidates();
+  const errors: string[] = [];
+
+  for (const model of models) {
+    try {
+      return await callGemini(model, key, prompt);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      errors.push(msg);
+      const notFound =
+        msg.includes("404") ||
+        msg.includes("NOT_FOUND") ||
+        msg.includes("not found");
+      if (!notFound) throw new Error(`Gemini API 오류: ${msg}`);
+    }
+  }
+
+  throw new Error(
+    `사용 가능한 Gemini 모델을 찾지 못했습니다. Render에 GEMINI_MODEL=gemini-2.0-flash 를 설정해 보세요. (${errors[0] ?? ""})`
+  );
 }
 
 export function parseJsonFromText<T>(text: string): T {
