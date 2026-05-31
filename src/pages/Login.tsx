@@ -25,8 +25,8 @@ export function Login() {
 
   return (
     <Layout
-      title="담을 넘는 조짜기"
-      subtitle="함께 벽을 넘어 최고의 팀을 만들어요"
+      title="월담(wall-jump)"
+      subtitle="팀 학습 · 조짜기 · 랜덤 프로젝트"
     >
       <form className="card" onSubmit={handleSubmit}>
         <div className="field">
