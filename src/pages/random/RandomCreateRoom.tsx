@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiConnectionBanner } from "../../components/ApiConnectionBanner";
 import { Layout } from "../../components/Layout";
-import { createRandomRoom, RANDOM_SUBJECTS } from "../../lib/api";
+import { createRandomRoom, RANDOM_CRITERION1, RANDOM_SUBJECTS } from "../../lib/api";
 import { getUser } from "../../lib/auth";
 
 const HOST_ROOM_KEY = "random_project_host_room";
@@ -24,7 +24,9 @@ export function setHostRandomRoom(code: string, entryCode: string) {
 export function RandomCreateRoom() {
   const navigate = useNavigate();
   const user = getUser();
-  const [subject, setSubject] = useState<(typeof RANDOM_SUBJECTS)[number]>("국어");
+  const [subject, setSubject] = useState<(typeof RANDOM_SUBJECTS)[number]>(
+    "초등 국어"
+  );
   const [recipientEmail, setRecipientEmail] = useState("");
   const [criterion3, setCriterion3] = useState("");
   const [criterion4, setCriterion4] = useState("");
@@ -102,14 +104,16 @@ export function RandomCreateRoom() {
           </select>
         </div>
 
+        <p className="learning-style-prompt">어떤 학습스타일이 떠오르나요?</p>
+
         <div className="field">
           <label className="label">기준 1</label>
-          <input className="input" value="난이도" disabled />
+          <input className="input" value={RANDOM_CRITERION1} disabled />
         </div>
 
         <div className="field">
           <label className="label" htmlFor="recipient-email">
-            기준 2 · 입장 코드를 받을 이메일
+            입장 코드를 받을 이메일
           </label>
           <input
             id="recipient-email"

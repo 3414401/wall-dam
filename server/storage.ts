@@ -104,3 +104,41 @@ export async function saveSession(session: SessionData): Promise<void> {
     ...(sha ? { sha } : {}),
   });
 }
+
+export async function listSessionCodes(): Promise<string[]> {
+  if (!useGitHub()) {
+    try {
+      await ensureDir();
+      const { readdir } = await import("fs/promises");
+      const files = await readdir(DATA_DIR);
+      return files
+        .filter((f) => f.endsWith(".json"))
+        .map((f) => f.replace(/\.json$/, ""));
+    } catch {
+      return [];
+    }
+  }
+
+  const base = process.env.GITHUB_DATA_PATH || "data/sessions";
+  const data = await githubRequest("GET", base);
+  if (!data || !Array.isArray(data)) return [];
+
+  return data
+    .filter((item: { name?: string; type?: string }) => item.type === "file")
+    .map((item: { name?: string }) => item.name?.replace(/\.json$/, "") ?? "")
+    .filter(Boolean);
+}
+
+export async function findSessionByInsightsCode(
+  insightsCode: string
+): Promise<SessionData | null> {
+  const target = insightsCode.replace(/\D/g, "");
+  if (target.length !== 6) return null;
+
+  const codes = await listSessionCodes();
+  for (const code of codes) {
+    const session = await loadSession(code);
+    if (session?.insightsCode === target) return session;
+  }
+  return null;
+}

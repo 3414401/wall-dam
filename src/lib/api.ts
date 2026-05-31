@@ -51,6 +51,7 @@ export interface SessionInsights {
 
 export interface SessionData {
   code: string;
+  insightsCode?: string;
   abilities: string[];
   teamPurpose?: string;
   createdAt: string;
@@ -67,13 +68,27 @@ export interface SessionData {
 }
 
 export const RANDOM_SUBJECTS = [
-  "국어",
-  "수학",
-  "영어",
-  "사회",
-  "과학",
-  "예체능",
+  "초등 국어",
+  "중등 국어",
+  "고등 국어",
+  "초등 수학",
+  "중등 수학",
+  "고등 수학",
+  "초등 영어",
+  "중등 영어",
+  "고등 영어",
+  "초등 사회",
+  "중등 사회",
+  "고등 사회",
+  "초등 과학",
+  "중등 과학",
+  "고등 과학",
+  "예술",
+  "체육",
+  "철학",
 ] as const;
+
+export const RANDOM_CRITERION1 = "선호하는 토론 난이도";
 
 export type RandomSubject = (typeof RANDOM_SUBJECTS)[number];
 
@@ -143,10 +158,13 @@ export function createSession(
   createdBy: string,
   teamPurpose?: string
 ) {
-  return request<{ code: string; session: SessionData }>("/api/sessions", {
-    method: "POST",
-    body: JSON.stringify({ abilities, createdBy, teamPurpose }),
-  });
+  return request<{ code: string; insightsCode: string; session: SessionData }>(
+    "/api/sessions",
+    {
+      method: "POST",
+      body: JSON.stringify({ abilities, createdBy, teamPurpose }),
+    }
+  );
 }
 
 export function getSession(code: string) {
@@ -203,10 +221,13 @@ export function balanceSessionAi(code: string, teamCount: number) {
   });
 }
 
-export function generateInsights(code: string) {
+export function generateInsights(insightsCode: string) {
   return request<{ insights: SessionInsights; session: SessionData }>(
-    `/api/sessions/${code}/insights`,
-    { method: "POST" }
+    "/api/insights",
+    {
+      method: "POST",
+      body: JSON.stringify({ insightsCode }),
+    }
   );
 }
 

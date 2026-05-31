@@ -163,7 +163,6 @@ export function RandomChatRoom() {
     return (
       <Layout
         title="채팅 입장"
-        subtitle={`방 코드 ${code}`}
         onBack={() => navigate("/random/chat")}
       >
         <form className="card" onSubmit={handleCodeSubmit}>
@@ -195,7 +194,6 @@ export function RandomChatRoom() {
   return (
     <Layout
       title={`${subject} 채팅`}
-      subtitle={`방 ${code}`}
       onBack={() => navigate("/random/chat")}
     >
       <div className="chat-room">

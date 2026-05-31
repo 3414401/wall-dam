@@ -15,14 +15,14 @@ import {
   loadRandomRoom,
   saveRandomRoom,
 } from "./randomRoomStorage.js";
-import { loadSession, saveSession, useGitHub } from "./storage.js";
+import { loadSession, saveSession, useGitHub, findSessionByInsightsCode } from "./storage.js";
 import type {
   RandomRoomData,
   RandomRoomPublic,
   SessionData,
   SurveyResponse,
 } from "./types.js";
-import { RANDOM_SUBJECTS } from "./types.js";
+import { RANDOM_CRITERION1, RANDOM_SUBJECTS } from "./types.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -52,6 +52,30 @@ app.use(express.json({ limit: "15mb" }));
 
 function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function publicSession(session: SessionData) {
+  const { insightsCode: _secret, ...rest } = session;
+  return rest;
+}
+
+async function generateUniqueSessionCodes(): Promise<{
+  code: string;
+  insightsCode: string;
+}> {
+  for (let i = 0; i < 20; i++) {
+    const code = generateCode();
+    let insightsCode = generateCode();
+    while (insightsCode === code) {
+      insightsCode = generateCode();
+    }
+    const existing = await loadSession(code);
+    const insightsTaken = await findSessionByInsightsCode(insightsCode);
+    if (!existing && !insightsTaken) {
+      return { code, insightsCode };
+    }
+  }
+  return { code: generateCode(), insightsCode: generateCode() };
 }
 
 function isValidEmail(email: string): boolean {
@@ -138,15 +162,11 @@ app.post("/api/sessions", async (req, res) => {
       return;
     }
 
-    let code = generateCode();
-    for (let i = 0; i < 10; i++) {
-      const existing = await loadSession(code);
-      if (!existing) break;
-      code = generateCode();
-    }
+    let { code, insightsCode } = await generateUniqueSessionCodes();
 
     const session: SessionData = {
       code,
+      insightsCode,
       abilities: trimmed,
       teamPurpose: String(teamPurpose ?? "").trim(),
       createdAt: new Date().toISOString(),
@@ -163,7 +183,7 @@ app.post("/api/sessions", async (req, res) => {
     };
 
     await saveSession(session);
-    res.json({ code, session });
+    res.json({ code, insightsCode, session: publicSession(session) });
   } catch (e) {
     console.error(e);
     const raw = e instanceof Error ? e.message : "세션 생성에 실패했습니다.";
@@ -188,7 +208,7 @@ app.get("/api/sessions/:code", async (req, res) => {
       res.status(404).json({ error: "코드를 찾을 수 없습니다." });
       return;
     }
-    res.json({ session });
+    res.json({ session: publicSession(session) });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "세션 조회에 실패했습니다." });
@@ -370,7 +390,7 @@ app.post("/api/sessions/:code/balance", async (req, res) => {
     session.aiTeamExplanations = null;
     await saveSession(session);
 
-    res.json({ session });
+    res.json({ session: publicSession(session) });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "조 배치에 실패했습니다." });
@@ -404,13 +424,17 @@ app.post("/api/sessions/:code/balance-ai", async (req, res) => {
     session.aiBalanceNote = result.note;
     session.aiTeamExplanations = result.teamExplanations.map((t) => ({
       teamIndex: t.teamIndex,
-      comment: t.reason.trim(),
+      comment: t.reason?.trim() || `${t.teamIndex}조 배치`,
     }));
-    session.insights = await buildSessionInsights(session);
+    try {
+      session.insights = await buildSessionInsights(session);
+    } catch (insightErr) {
+      console.error("insights after AI balance", insightErr);
+    }
     await saveSession(session);
 
     res.json({
-      session,
+      session: publicSession(session),
       note: result.note,
       teamExplanations: session.aiTeamExplanations,
       usedAi: result.usedAi,
@@ -430,6 +454,19 @@ app.post("/api/sessions/:code/insights", async (req, res) => {
       return;
     }
 
+    const { insightsCode } = req.body as { insightsCode?: string };
+    const provided = String(insightsCode ?? "").replace(/\D/g, "");
+    if (!session.insightsCode) {
+      res.status(400).json({
+        error: "이 세션에는 AI 요약 코드가 없습니다. 설문을 새로 만들어 주세요.",
+      });
+      return;
+    }
+    if (provided !== session.insightsCode) {
+      res.status(403).json({ error: "AI 요약 코드가 올바르지 않습니다." });
+      return;
+    }
+
     if (session.surveys.length < 2) {
       res.status(400).json({ error: "분석에는 최소 2명의 설문이 필요합니다." });
       return;
@@ -438,7 +475,38 @@ app.post("/api/sessions/:code/insights", async (req, res) => {
     session.insights = await buildSessionInsights(session);
     await saveSession(session);
 
-    res.json({ insights: session.insights, session });
+    res.json({ insights: session.insights, session: publicSession(session) });
+  } catch (e) {
+    console.error(e);
+    const msg = e instanceof Error ? e.message : "분석에 실패했습니다.";
+    res.status(500).json({ error: msg });
+  }
+});
+
+app.post("/api/insights", async (req, res) => {
+  try {
+    const { insightsCode } = req.body as { insightsCode?: string };
+    const provided = String(insightsCode ?? "").replace(/\D/g, "");
+    if (provided.length !== 6) {
+      res.status(400).json({ error: "AI 요약 코드 6자리를 입력해 주세요." });
+      return;
+    }
+
+    const session = await findSessionByInsightsCode(provided);
+    if (!session) {
+      res.status(404).json({ error: "AI 요약 코드를 찾을 수 없습니다." });
+      return;
+    }
+
+    if (session.surveys.length < 2) {
+      res.status(400).json({ error: "분석에는 최소 2명의 설문이 필요합니다." });
+      return;
+    }
+
+    session.insights = await buildSessionInsights(session);
+    await saveSession(session);
+
+    res.json({ insights: session.insights, session: publicSession(session) });
   } catch (e) {
     console.error(e);
     const msg = e instanceof Error ? e.message : "분석에 실패했습니다.";
@@ -509,7 +577,7 @@ app.post("/api/random-rooms", async (req, res) => {
       code,
       entryCode,
       subject: subject as RandomRoomData["subject"],
-      abilities: ["난이도", c3, c4],
+      abilities: [RANDOM_CRITERION1, c3, c4],
       criterion3: c3,
       criterion4: c4,
       recipientEmail: email,

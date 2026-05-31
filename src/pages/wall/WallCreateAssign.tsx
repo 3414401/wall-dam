@@ -66,12 +66,14 @@ export function WallCreateAssign() {
     setLoading(true);
     setError("");
     try {
-      const { session: updated, note } = await balanceSessionAi(
+      const { session: updated, note, usedAi } = await balanceSessionAi(
         session.code,
         teamCount
       );
       setSession(updated);
-      if (note) {
+      if (!usedAi && note) {
+        setError(note);
+      } else {
         setError("");
       }
     } catch (e) {

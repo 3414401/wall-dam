@@ -26,36 +26,67 @@ function validateAiTeams(
   teams: AiTeamsPayload["teams"],
   teamCount: number
 ): TeamGroup[] {
-  const ids = new Set(surveys.map((s) => s.id));
-  const seen = new Set<string>();
+  return repairAiTeams(surveys, teams, teamCount);
+}
+
+function repairAiTeams(
+  surveys: SurveyResponse[],
+  teams: AiTeamsPayload["teams"],
+  teamCount: number
+): TeamGroup[] {
+  const count = Math.max(2, Math.min(teamCount, surveys.length));
+  const assigned = new Set<string>();
   const groups: TeamGroup[] = [];
 
-  for (const t of teams) {
+  const sortedTeams = [...(teams ?? [])].sort(
+    (a, b) => (a.teamIndex ?? 0) - (b.teamIndex ?? 0)
+  );
+
+  for (let i = 1; i <= count; i++) {
+    const t =
+      sortedTeams.find((x) => x.teamIndex === i) ??
+      sortedTeams[i - 1] ??
+      ({ teamIndex: i, memberIds: [] } as AiTeamsPayload["teams"][number]);
+
     const members: SurveyResponse[] = [];
-    for (const id of t.memberIds) {
-      if (!ids.has(id) || seen.has(id)) {
-        throw new Error("AI가 잘못된 멤버 ID를 반환했습니다.");
-      }
-      seen.add(id);
+    for (const id of t.memberIds ?? []) {
+      if (assigned.has(id)) continue;
       const m = surveys.find((s) => s.id === id);
-      if (m) members.push(m);
+      if (!m) continue;
+      assigned.add(id);
+      members.push(m);
     }
-    if (members.length > 0) {
-      groups.push({
-        teamIndex: t.teamIndex,
-        memberIds: members.map((m) => m.id),
-        totals: teamSumsFromMembers(members),
-      });
-    }
+
+    groups.push({
+      teamIndex: i,
+      memberIds: members.map((m) => m.id),
+      totals: teamSumsFromMembers(members),
+    });
   }
 
-  if (seen.size !== surveys.length) {
-    throw new Error("AI 조 배치에 누락된 멤버가 있습니다.");
+  const unassigned = surveys.filter((s) => !assigned.has(s.id));
+  for (const member of unassigned) {
+    const target = groups.reduce((best, g) => {
+      const bestSize = best.memberIds.length;
+      const gSize = g.memberIds.length;
+      if (gSize < bestSize) return g;
+      if (gSize > bestSize) return best;
+      const bestSum = best.totals.reduce((a, b) => a + b, 0);
+      const gSum = g.totals.reduce((a, b) => a + b, 0);
+      return gSum < bestSum ? g : best;
+    }, groups[0]);
+
+    target.memberIds.push(member.id);
+    target.totals = teamSumsFromMembers(
+      target.memberIds
+        .map((id) => surveys.find((s) => s.id === id))
+        .filter(Boolean) as SurveyResponse[]
+    );
   }
 
   return groups
-    .sort((a, b) => a.teamIndex - b.teamIndex)
-    .slice(0, teamCount);
+    .filter((g) => g.memberIds.length > 0)
+    .map((g, idx) => ({ ...g, teamIndex: idx + 1 }));
 }
 
 export async function balanceTeamsWithAi(
@@ -150,7 +181,9 @@ teamExplanations는 1조부터 ${count}조까지 각각 1개씩 작성하세요.
 
     return {
       groups,
-      note: parsed.summary?.trim() || "AI가 조를 배치했습니다.",
+      note:
+        parsed.summary?.trim() ||
+        "AI가 조를 배치했습니다. (일부 멤버는 자동 보정되었을 수 있습니다.)",
       teamExplanations: explanations,
       usedAi: true,
     };
