@@ -1,0 +1,30 @@
+{
+  "code": "872452",
+  "entryCode": "579464",
+  "subject": "철학",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "강아지를 사랑하는 정도",
+    "내인인가요 외찐인가요"
+  ],
+  "criterion3": "강아지를 사랑하는 정도",
+  "criterion4": "내인인가요 외찐인가요",
+  "recipientEmail": "zoe5eyy@gmail.com",
+  "createdAt": "2026-05-31T06:17:25.240Z",
+  "createdBy": "ㅇㅇ",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "67aa6b98-4e3a-4638-bbec-b8e90db7b9e6",
+      "authorName": "시스템",
+      "body": "철학 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.",
+      "createdAt": "2026-05-31T06:17:25.241Z",
+      "system": true
+    }
+  ]
+}
