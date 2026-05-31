@@ -12,7 +12,34 @@
   "recipientEmail": "zoe5eyy@gmail.com",
   "createdAt": "2026-05-31T06:17:25.240Z",
   "createdBy": "ㅇㅇ",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "b99eb557-78a8-44e4-bd7d-35f773618a5e",
+      "nickname": "ㅇㅇ (가. 미입력)",
+      "email": "zoe5eyy@gmail.com",
+      "scores": [
+        10,
+        10,
+        2
+      ],
+      "submittedAt": "2026-05-31T06:18:09.725Z",
+      "rosterRowId": "row-1",
+      "rosterLabel": "가. 미입력",
+      "rosterFields": {
+        "학교명": "가. 미입력",
+        "지역": "미입력",
+        "학교 학생 수": "미입력",
+        "획일화 지수(H_m)": "미입력",
+        "P_special": "미입력",
+        "I_SCU": "미입력",
+        "H_path": "미입력",
+        "H_job": "미입력",
+        "H_ppc": "미입력",
+        "1위 업종": "미입력",
+        "R_net": "미입력"
+      }
+    }
+  ],
   "joinClosed": false,
   "maxParticipants": 5,
   "selectedEmail": null,
