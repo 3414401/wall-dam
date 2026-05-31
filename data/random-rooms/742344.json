@@ -116,19 +116,52 @@
         "1위 업종": "기타 개인 서비스업 복합코드",
         "R_net": "-0.21595356998245377"
       }
+    },
+    {
+      "id": "b03bac28-2adf-4721-90a2-e712d60b41b3",
+      "nickname": "ㅇㅇ (경상중학교부설방송통신중학교)",
+      "email": "test4@test4.com",
+      "scores": [
+        5,
+        2,
+        1
+      ],
+      "submittedAt": "2026-05-31T02:22:18.924Z",
+      "rosterRowId": "row-24",
+      "rosterLabel": "경상중학교부설방송통신중학교",
+      "rosterFields": {
+        "학교명": "경상중학교부설방송통신중학교",
+        "지역": "남구",
+        "학교 학생 수": "310",
+        "획일화 지수(H_m)": "0.9300253232337424",
+        "P_special": "0",
+        "I_SCU": "0.941907",
+        "H_path": "0.693446",
+        "H_job": "0.3552",
+        "H_ppc": "0.5969",
+        "1위 업종": "보건업 복합코드",
+        "R_net": "0"
+      }
     }
   ],
-  "joinClosed": false,
+  "joinClosed": true,
   "maxParticipants": 5,
-  "selectedEmail": null,
-  "matchedAt": null,
-  "matchNote": null,
+  "selectedEmail": "zoe5eyy@gmail.com",
+  "matchedAt": "2026-05-31T02:22:37.956Z",
+  "matchNote": "그룹 내 다수(3명)가 T 성향(1점)을 보이는 반면, 해당 응답자는 F 성향(9점)으로 극단적인 차이를 보여 가장 이질적입니다.",
   "messages": [
     {
       "id": "54dc063d-9bc6-4e10-9114-a99b5daa8346",
       "authorName": "시스템",
       "body": "국어 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.",
       "createdAt": "2026-05-31T02:19:22.088Z",
+      "system": true
+    },
+    {
+      "id": "1cb4e20c-d87f-4a25-af3d-cb28a0ebef84",
+      "authorName": "월담 AI",
+      "body": "선정된 이메일: zoe5eyy@gmail.com\n이 이메일로 입장코드를 보내세요.",
+      "createdAt": "2026-05-31T02:22:37.956Z",
       "system": true
     }
   ]
