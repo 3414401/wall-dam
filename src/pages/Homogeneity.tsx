@@ -140,6 +140,24 @@ export function Homogeneity() {
                 </ul>
               </>
             )}
+
+            {insights.teamComments.some((t) => t.recommendedActivity) && (
+              <>
+                <h2 className="section-title">조별 추천 활동</h2>
+                <ul className="team-activity-list">
+                  {insights.teamComments
+                    .filter((t) => t.recommendedActivity)
+                    .map((t) => (
+                      <li key={`act-${t.teamIndex}`}>
+                        <span className="badge">{t.teamIndex}조</span>
+                        <span className="team-activity-text">
+                          {t.recommendedActivity}
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              </>
+            )}
           </div>
         </>
       )}

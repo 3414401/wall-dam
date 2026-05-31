@@ -553,6 +553,28 @@ input[type="range"]::-webkit-slider-thumb {
   border-bottom: none;
 }
 
+.team-activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.team-activity-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: rgba(94, 231, 255, 0.08);
+  border-radius: 12px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.team-activity-text {
+  flex: 1;
+}
+
 .roster-upload-block {
   margin-top: 20px;
   padding-top: 16px;
@@ -668,4 +690,203 @@ input[type="range"]::-webkit-slider-thumb {
 .placeholder-box .emoji {
   font-size: 3rem;
   margin-bottom: 12px;
+}
+
+.room-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.room-list-item {
+  margin-bottom: 0;
+}
+
+.room-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.room-subject-badge {
+  background: rgba(255, 213, 79, 0.2);
+  color: var(--yellow-bright);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.room-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.room-list-title {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.room-list-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chat-post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-post-card {
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.chat-post-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(94, 231, 255, 0.45);
+}
+
+.chat-post-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.chat-post-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.chat-post-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.chat-post-hint {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: var(--cyan);
+}
+
+.chat-post-enter {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--yellow-bright);
+}
+
+.chat-room {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 55vh;
+  gap: 12px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 4px 12px;
+  max-height: 58vh;
+}
+
+.chat-bubble-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 88%;
+}
+
+.chat-bubble-row.chat-mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.chat-bubble-row.chat-system {
+  align-self: center;
+  align-items: center;
+  max-width: 95%;
+}
+
+.chat-author {
+  font-size: 0.72rem;
+  color: var(--cyan);
+  margin-bottom: 4px;
+}
+
+.chat-bubble {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px 16px 16px 4px;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.chat-mine .chat-bubble {
+  background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+  border-radius: 16px 16px 4px 16px;
+}
+
+.chat-bubble-system {
+  background: rgba(255, 213, 79, 0.15);
+  border: 1px dashed rgba(255, 213, 79, 0.45);
+  text-align: center;
+  font-size: 0.88rem;
+}
+
+.chat-time {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.chat-compose {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-name-input {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.chat-compose-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-input {
+  flex: 1;
+}
+
+.chat-send {
+  flex-shrink: 0;
+  min-width: 64px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+select.input {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.6) 50%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.6) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% + 2px), calc(100% - 12px) calc(50% + 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
 }

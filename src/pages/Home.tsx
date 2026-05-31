@@ -26,7 +26,9 @@ export function Home() {
         <button
           type="button"
           className="btn"
-          onClick={() => navigate("/school-homogeneity")}
+          onClick={() => {
+            window.location.href = "https://3414401.github.io/walljump/";
+          }}
         >
           🏫 학교별 동질성 지수 계산하기
         </button>

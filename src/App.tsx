@@ -4,7 +4,12 @@ import { getUser } from "./lib/auth";
 import { Home } from "./pages/Home";
 import { Homogeneity } from "./pages/Homogeneity";
 import { Login } from "./pages/Login";
-import { RandomProject } from "./pages/RandomProject";
+import { RandomChatList } from "./pages/random/RandomChatList";
+import { RandomChatRoom } from "./pages/random/RandomChatRoom";
+import { RandomCreateRoom } from "./pages/random/RandomCreateRoom";
+import { RandomHome } from "./pages/random/RandomHome";
+import { RandomJoinPrepare } from "./pages/random/RandomJoinPrepare";
+import { RandomRoomList } from "./pages/random/RandomRoomList";
 import { SchoolHomogeneity } from "./pages/SchoolHomogeneity";
 import { WallCreate } from "./pages/wall/WallCreate";
 import { WallCreateAssign } from "./pages/wall/WallCreateAssign";
@@ -51,7 +56,47 @@ export default function App() {
         path="/random"
         element={
           <RequireAuth>
-            <RandomProject />
+            <RandomHome />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/random/create"
+        element={
+          <RequireAuth>
+            <RandomCreateRoom />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/random/rooms"
+        element={
+          <RequireAuth>
+            <RandomRoomList />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/random/prepare/:code"
+        element={
+          <RequireAuth>
+            <RandomJoinPrepare />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/random/chat"
+        element={
+          <RequireAuth>
+            <RandomChatList />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/random/chat/:code"
+        element={
+          <RequireAuth>
+            <RandomChatRoom />
           </RequireAuth>
         }
       />

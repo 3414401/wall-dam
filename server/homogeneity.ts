@@ -57,6 +57,19 @@ export async function buildSessionInsights(
   let overallSummary = fallbackSummary(session, homogeneityIndex);
   let teamComments: TeamInsightLine[] = [];
 
+  if (session.groups?.length) {
+    teamComments = session.groups.map((g) => {
+      const names = g.memberIds
+        .map((id) => session.surveys.find((s) => s.id === id)?.nickname)
+        .filter(Boolean);
+      return {
+        teamIndex: g.teamIndex,
+        comment: `${g.teamIndex}조(${names.join(", ")})의 응답 패턴을 바탕으로 한 조 단위 특성입니다.`,
+        recommendedActivity: `${session.teamPurpose?.trim() || "팀 프로젝트"}에 맞는 역할 분담 토의와 10분 아이스브레이킹을 추천합니다.`,
+      };
+    });
+  }
+
   if (hasGemini() && session.surveys.length >= 2) {
     const roster = session.surveys
       .map((s) => {
@@ -111,11 +124,15 @@ JSON만 출력:
 {
   "overallSummary": "전체 응답 패턴을 한국어 2문장으로",
   "teamComments": [
-    { "teamIndex": 1, "comment": "1조 한 줄 코멘트" }
+    {
+      "teamIndex": 1,
+      "comment": "1조 한 줄 코멘트",
+      "recommendedActivity": "1조에게 맞는 구체적 팀 활동 1가지 (20~40자)"
+    }
   ]
 }
 
-teamComments는 조 배치가 있을 때만 각 조마다 1줄, 없으면 빈 배열 []`;
+teamComments는 조 배치가 있을 때만 각 조마다 1줄 코멘트와 recommendedActivity(조별 추천 활동)를 함께 작성. 조 배치 전이면 빈 배열 []`;
 
     try {
       const raw = await generateText(prompt);
@@ -127,9 +144,13 @@ teamComments는 조 배치가 있을 때만 각 조마다 1줄, 없으면 빈 �
         overallSummary = parsed.overallSummary.trim();
       }
       if (Array.isArray(parsed.teamComments)) {
-        teamComments = parsed.teamComments.filter(
-          (t) => t.teamIndex && t.comment
-        );
+        teamComments = parsed.teamComments
+          .filter((t) => t.teamIndex && t.comment)
+          .map((t) => ({
+            teamIndex: t.teamIndex,
+            comment: t.comment.trim(),
+            recommendedActivity: t.recommendedActivity?.trim() || undefined,
+          }));
       }
     } catch (e) {
       console.error("Gemini insights", e);

@@ -38,6 +38,7 @@ export interface AbilityStat {
 export interface TeamInsightLine {
   teamIndex: number;
   comment: string;
+  recommendedActivity?: string;
 }
 
 export interface SessionInsights {
@@ -63,6 +64,39 @@ export interface SessionData {
   aiTeamExplanations?: TeamInsightLine[] | null;
   insights?: SessionInsights | null;
   roster?: RosterData | null;
+}
+
+export const RANDOM_SUBJECTS = [
+  "국어",
+  "수학",
+  "영어",
+  "사회",
+  "과학",
+  "예체능",
+] as const;
+
+export type RandomSubject = (typeof RANDOM_SUBJECTS)[number];
+
+export interface RandomChatMessage {
+  id: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  system?: boolean;
+}
+
+export interface RandomRoomPublic {
+  code: string;
+  subject: RandomSubject;
+  criterion3: string;
+  criterion4: string;
+  createdAt: string;
+  createdBy: string;
+  participantCount: number;
+  maxParticipants: number;
+  joinClosed: boolean;
+  selectedEmail: string | null;
+  matchedAt: string | null;
 }
 
 import { getApiBase } from "./apiConfig";
@@ -173,5 +207,85 @@ export function generateInsights(code: string) {
   return request<{ insights: SessionInsights; session: SessionData }>(
     `/api/sessions/${code}/insights`,
     { method: "POST" }
+  );
+}
+
+export function listRandomRooms() {
+  return request<{ rooms: RandomRoomPublic[] }>("/api/random-rooms");
+}
+
+export function createRandomRoom(
+  subject: RandomSubject,
+  criterion3: string,
+  criterion4: string,
+  recipientEmail: string,
+  createdBy: string
+) {
+  return request<{
+    code: string;
+    entryCode: string;
+    room: RandomRoomPublic;
+  }>("/api/random-rooms", {
+    method: "POST",
+    body: JSON.stringify({
+      subject,
+      criterion3,
+      criterion4,
+      recipientEmail,
+      createdBy,
+    }),
+  });
+}
+
+export function getRandomRoom(code: string, entryCode?: string) {
+  const params = entryCode
+    ? `?entryCode=${encodeURIComponent(entryCode.replace(/\D/g, ""))}`
+    : "";
+  return request<{
+    room: RandomRoomPublic;
+    abilities: string[];
+    messages?: RandomChatMessage[];
+    chatAccess: boolean;
+  }>(`/api/random-rooms/${code}${params}`);
+}
+
+export function searchRandomRosterRows(code: string, q: string) {
+  const limit = q.trim() ? "30" : "500";
+  const params = new URLSearchParams({ q, limit });
+  return request<{ results: RosterRow[]; total: number }>(
+    `/api/random-rooms/${code}/roster/search?${params}`
+  );
+}
+
+export function submitRandomSurvey(
+  code: string,
+  nickname: string,
+  email: string,
+  scores: number[],
+  rosterRowId?: string
+) {
+  return request<{
+    ok: boolean;
+    total: number;
+    joinClosed: boolean;
+    matched: boolean;
+  }>(`/api/random-rooms/${code}/surveys`, {
+    method: "POST",
+    body: JSON.stringify({ nickname, email, scores, rosterRowId }),
+  });
+}
+
+export function sendRandomMessage(
+  code: string,
+  entryCode: string,
+  authorName: string,
+  body: string
+) {
+  return request<{ ok: boolean; messages: RandomChatMessage[] }>(
+    `/api/random-rooms/${code}/messages`,
+    {
+      method: "POST",
+      body: JSON.stringify({ entryCode, authorName, body }),
+    }
   );
 }
