@@ -1,0 +1,186 @@
+{
+  "code": "742344",
+  "entryCode": "989174",
+  "subject": "국어",
+  "abilities": [
+    "난이도",
+    "엄밀하게 풀면 0 직관적으로 풀면 10",
+    "T면0 F면10"
+  ],
+  "criterion3": "엄밀하게 풀면 0 직관적으로 풀면 10",
+  "criterion4": "T면0 F면10",
+  "recipientEmail": "zoe5eyy@gmail.com",
+  "createdAt": "2026-05-31T02:19:22.087Z",
+  "createdBy": "www2o2oo2je",
+  "surveys": [
+    {
+      "id": "b5399f65-442e-4255-9755-f147abf06ea4",
+      "nickname": "ㅇㅇ (대구다사초등학교)",
+      "email": "zoe5eyy@gmail.com",
+      "scores": [
+        8,
+        2,
+        9
+      ],
+      "submittedAt": "2026-05-31T02:20:25.591Z",
+      "rosterRowId": "row-113",
+      "rosterLabel": "대구다사초등학교",
+      "rosterFields": {
+        "학교명": "대구다사초등학교",
+        "지역": "달성군",
+        "학교 학생 수": "971",
+        "획일화 지수(H_m)": "0.7412928559112114",
+        "P_special": "3.810505",
+        "I_SCU": "0.94327",
+        "H_path": "1",
+        "H_job": "0.3487",
+        "H_ppc": "0.4321",
+        "1위 업종": "",
+        "R_net": "-0.44802867383512546"
+      }
+    },
+    {
+      "id": "9b955cbe-4a5d-439e-b9a4-55e05c20a64a",
+      "nickname": "ㅇㅇ (경북여자고등학교)",
+      "email": "test1@test1.com",
+      "scores": [
+        9,
+        2,
+        1
+      ],
+      "submittedAt": "2026-05-31T02:21:00.018Z",
+      "rosterRowId": "row-17",
+      "rosterLabel": "경북여자고등학교",
+      "rosterFields": {
+        "학교명": "경북여자고등학교",
+        "지역": "중구",
+        "학교 학생 수": "708",
+        "획일화 지수(H_m)": "0.5787010310306234",
+        "P_special": "7.062147",
+        "I_SCU": "0.95377",
+        "H_path": "0.417208",
+        "H_job": "0.3322",
+        "H_ppc": "0.2302",
+        "1위 업종": "스포츠 서비스업",
+        "R_net": "0.6116852984602404"
+      }
+    },
+    {
+      "id": "8f6799b0-3476-4f61-83cd-88cb31df17ef",
+      "nickname": "ㅇㅇ (경북기계공업고등학교)",
+      "email": "test2@test2.com",
+      "scores": [
+        5,
+        1,
+        7
+      ],
+      "submittedAt": "2026-05-31T02:21:25.183Z",
+      "rosterRowId": "row-13",
+      "rosterLabel": "경북기계공업고등학교",
+      "rosterFields": {
+        "학교명": "경북기계공업고등학교",
+        "지역": "달서구",
+        "학교 학생 수": "711",
+        "획일화 지수(H_m)": "0.5900690144127211",
+        "P_special": "0",
+        "I_SCU": "0.973726",
+        "H_path": "0.366498",
+        "H_job": "0.3515",
+        "H_ppc": "0.4321",
+        "1위 업종": "",
+        "R_net": "0"
+      }
+    },
+    {
+      "id": "63a4a402-64aa-401e-b64b-ea38df2fb04a",
+      "nickname": "ㅇㅇ (경신중학교)",
+      "email": "test3@test3.com",
+      "scores": [
+        8,
+        1,
+        1
+      ],
+      "submittedAt": "2026-05-31T02:21:46.206Z",
+      "rosterRowId": "row-27",
+      "rosterLabel": "경신중학교",
+      "rosterFields": {
+        "학교명": "경신중학교",
+        "지역": "수성구",
+        "학교 학생 수": "931",
+        "획일화 지수(H_m)": "0.6529980576636504",
+        "P_special": "0.214823",
+        "I_SCU": "0.978955",
+        "H_path": "0.645965",
+        "H_job": "0.3313",
+        "H_ppc": "0.4693",
+        "1위 업종": "기타 개인 서비스업 복합코드",
+        "R_net": "-0.21595356998245377"
+      }
+    },
+    {
+      "id": "b03bac28-2adf-4721-90a2-e712d60b41b3",
+      "nickname": "ㅇㅇ (경상중학교부설방송통신중학교)",
+      "email": "test4@test4.com",
+      "scores": [
+        5,
+        2,
+        1
+      ],
+      "submittedAt": "2026-05-31T02:22:18.924Z",
+      "rosterRowId": "row-24",
+      "rosterLabel": "경상중학교부설방송통신중학교",
+      "rosterFields": {
+        "학교명": "경상중학교부설방송통신중학교",
+        "지역": "남구",
+        "학교 학생 수": "310",
+        "획일화 지수(H_m)": "0.9300253232337424",
+        "P_special": "0",
+        "I_SCU": "0.941907",
+        "H_path": "0.693446",
+        "H_job": "0.3552",
+        "H_ppc": "0.5969",
+        "1위 업종": "보건업 복합코드",
+        "R_net": "0"
+      }
+    }
+  ],
+  "joinClosed": true,
+  "maxParticipants": 5,
+  "selectedEmail": "zoe5eyy@gmail.com",
+  "matchedAt": "2026-05-31T02:22:37.956Z",
+  "matchNote": "그룹 내 다수(3명)가 T 성향(1점)을 보이는 반면, 해당 응답자는 F 성향(9점)으로 극단적인 차이를 보여 가장 이질적입니다.",
+  "messages": [
+    {
+      "id": "54dc063d-9bc6-4e10-9114-a99b5daa8346",
+      "authorName": "시스템",
+      "body": "국어 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.",
+      "createdAt": "2026-05-31T02:19:22.088Z",
+      "system": true
+    },
+    {
+      "id": "1cb4e20c-d87f-4a25-af3d-cb28a0ebef84",
+      "authorName": "월담 AI",
+      "body": "선정된 이메일: zoe5eyy@gmail.com\n이 이메일로 입장코드를 보내세요.",
+      "createdAt": "2026-05-31T02:22:37.956Z",
+      "system": true
+    },
+    {
+      "id": "246f2a9b-1477-4bdf-99b9-e02544d1f91a",
+      "authorName": "안녕",
+      "body": "ㅇ",
+      "createdAt": "2026-05-31T02:23:53.935Z"
+    },
+    {
+      "id": "b76fb9a3-c2a4-4cab-845e-90ed0eeefee3",
+      "authorName": "익명이",
+      "body": "ㅇㅕㄴㄴㅏㅇ",
+      "createdAt": "2026-05-31T02:25:00.386Z"
+    },
+    {
+      "id": "bb7d13e9-c843-429c-92bd-24a5541b4583",
+      "authorName": "익명이",
+      "body": "ㅇㅕㄴㄴㅏㅇ",
+      "createdAt": "2026-05-31T02:25:05.539Z"
+    }
+  ]
+}
