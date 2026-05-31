@@ -54,6 +54,8 @@ export function RandomChatRoom() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const composingRef = useRef(false);
+  const messagesRef = useRef<RandomChatMessage[]>([]);
 
   const refreshChat = useCallback(async (codeValue: string) => {
     const data = await getRandomRoom(code, codeValue);
@@ -61,7 +63,9 @@ export function RandomChatRoom() {
       throw new Error("입장 코드가 올바르지 않습니다.");
     }
     setSubject(data.room.subject);
-    setMessages(data.messages ?? []);
+    const next = data.messages ?? [];
+    messagesRef.current = next;
+    setMessages(next);
   }, [code]);
 
   useEffect(() => {
@@ -80,10 +84,19 @@ export function RandomChatRoom() {
     })();
 
     const poll = async () => {
+      if (composingRef.current) return;
       try {
         const data = await getRandomRoom(code, entryCode);
         if (cancelled) return;
-        setMessages(data.messages ?? []);
+        const next = data.messages ?? [];
+        const prev = messagesRef.current;
+        const changed =
+          next.length !== prev.length ||
+          next[next.length - 1]?.id !== prev[prev.length - 1]?.id;
+        if (changed) {
+          messagesRef.current = next;
+          setMessages(next);
+        }
       } catch {
         /* ignore polling errors */
       }
@@ -137,6 +150,7 @@ export function RandomChatRoom() {
         text
       );
       setMessages(next);
+      messagesRef.current = next;
       setDraft("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "전송 실패");
@@ -220,6 +234,12 @@ export function RandomChatRoom() {
               className="input chat-input"
               placeholder="메시지 입력..."
               value={draft}
+              onCompositionStart={() => {
+                composingRef.current = true;
+              }}
+              onCompositionEnd={() => {
+                composingRef.current = false;
+              }}
               onChange={(e) => setDraft(e.target.value)}
             />
             <button type="submit" className="btn btn-accent chat-send" disabled={sending}>
