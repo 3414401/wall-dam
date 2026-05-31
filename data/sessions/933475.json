@@ -167,12 +167,87 @@
       }
     }
   ],
-  "teamCount": 4,
-  "groups": null,
-  "balancedAt": null,
-  "balanceMethod": null,
-  "aiBalanceNote": null,
-  "aiTeamExplanations": null,
-  "insights": null,
+  "teamCount": 2,
+  "groups": [
+    {
+      "teamIndex": 1,
+      "memberIds": [
+        "4d874ced-d50f-4a8c-99a4-08109360d3bc",
+        "1b4789c3-c4f8-4abd-b3c4-51dafdc0b04c"
+      ],
+      "totals": [
+        9,
+        18,
+        11,
+        18
+      ]
+    },
+    {
+      "teamIndex": 2,
+      "memberIds": [
+        "350187f5-3a56-47c5-ab9b-572d22493908",
+        "06946995-0fa3-47d3-915a-d0b76e21782d",
+        "6304b69d-86ab-49ae-85e5-bc1bcd0f5f4c",
+        "e874d8c3-256a-4de7-ba48-51ea7cdb48de"
+      ],
+      "totals": [
+        14,
+        26,
+        12,
+        18
+      ]
+    }
+  ],
+  "balancedAt": "2026-05-31T02:39:53.535Z",
+  "balanceMethod": "greedy",
+  "aiBalanceNote": "AI 실패 → 자동 균형 배치로 대체 (Expected ',' or ']' after array element in JSON at position 427 (line 18 column 6))",
+  "aiTeamExplanations": [],
+  "insights": {
+    "homogeneityIndex": 23,
+    "overallSummary": "제시된 조 배치는 '다문화 교육'이라는 목적 달성에 미흡한 점이 많습니다. 특히 1조는 다문화 경험 측면에서 동질적이며, 2조는 동일 학교 및 지역 학생이 다수 포함되어 다양성 확보 원칙을 위배합니다. 전반적인 동질성 지수 또한 23/100으로 매우 높아, 조 배치 목적에 부합하지 않습니다.",
+    "abilityStats": [
+      {
+        "name": "지난 수업 이해도",
+        "mean": 3.8,
+        "std": 3.7,
+        "min": 0,
+        "max": 9
+      },
+      {
+        "name": "외향성",
+        "mean": 7.3,
+        "std": 2.7,
+        "min": 2,
+        "max": 10
+      },
+      {
+        "name": "mbti T/F",
+        "mean": 3.8,
+        "std": 4.1,
+        "min": 0,
+        "max": 10
+      },
+      {
+        "name": "다문화 친구를 몇 명 사귀었나요*",
+        "mean": 6,
+        "std": 3.6,
+        "min": 1,
+        "max": 9
+      }
+    ],
+    "teamComments": [
+      {
+        "teamIndex": 1,
+        "comment": "두 학생 모두 다문화 친구 경험이 많고, 소속 학교의 다문화 관련 지수(I_SCU)도 유사하여 다문화 교육 목적에 부합하는 다양성 확보에는 아쉬움이 있습니다.",
+        "recommendedActivity": "다문화 사회의 편견과 고정관념 분석 토론"
+      },
+      {
+        "teamIndex": 2,
+        "comment": "다문화 친구 경험 점수는 다양하게 분포되어 있으나, 동일 학교(강북고) 및 동일 지역(북구) 학생들이 다수 포함되어 '피하고 싶은 배치' 원칙을 위배합니다. 또한, 소속 학교의 다문화 관련 지수(I_SCU)도 모두 높아 학교 배경의 다양성도 부족합니다.",
+        "recommendedActivity": "다문화 가정 학생의 학교생활 적응 사례 연구"
+      }
+    ],
+    "generatedAt": "2026-05-31T02:42:33.848Z"
+  },
   "roster": null
 }
