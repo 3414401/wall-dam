@@ -9,7 +9,34 @@
   "teamPurpose": "다문화 교육",
   "createdAt": "2026-05-31T02:34:34.964Z",
   "createdBy": "wwe",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "6304b69d-86ab-49ae-85e5-bc1bcd0f5f4c",
+      "nickname": "ㅇㅇ (강북고등학교)",
+      "scores": [
+        2,
+        6,
+        1,
+        7
+      ],
+      "submittedAt": "2026-05-31T02:35:15.942Z",
+      "rosterRowId": "row-5",
+      "rosterLabel": "강북고등학교",
+      "rosterFields": {
+        "학교명": "강북고등학교",
+        "지역": "북구",
+        "학교 학생 수": "747",
+        "획일화 지수(H_m)": "0.6405136440069144",
+        "P_special": "0",
+        "I_SCU": "0.969718",
+        "H_path": "0.422591",
+        "H_job": "0.3493",
+        "H_ppc": "0.4321",
+        "1위 업종": "",
+        "R_net": "0.6116852984602404"
+      }
+    }
+  ],
   "teamCount": 4,
   "groups": null,
   "balancedAt": null,
