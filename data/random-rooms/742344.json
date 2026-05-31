@@ -12,7 +12,34 @@
   "recipientEmail": "zoe5eyy@gmail.com",
   "createdAt": "2026-05-31T02:19:22.087Z",
   "createdBy": "www2o2oo2je",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "b5399f65-442e-4255-9755-f147abf06ea4",
+      "nickname": "ㅇㅇ (대구다사초등학교)",
+      "email": "zoe5eyy@gmail.com",
+      "scores": [
+        8,
+        2,
+        9
+      ],
+      "submittedAt": "2026-05-31T02:20:25.591Z",
+      "rosterRowId": "row-113",
+      "rosterLabel": "대구다사초등학교",
+      "rosterFields": {
+        "학교명": "대구다사초등학교",
+        "지역": "달성군",
+        "학교 학생 수": "971",
+        "획일화 지수(H_m)": "0.7412928559112114",
+        "P_special": "3.810505",
+        "I_SCU": "0.94327",
+        "H_path": "1",
+        "H_job": "0.3487",
+        "H_ppc": "0.4321",
+        "1위 업종": "",
+        "R_net": "-0.44802867383512546"
+      }
+    }
+  ],
   "joinClosed": false,
   "maxParticipants": 5,
   "selectedEmail": null,
