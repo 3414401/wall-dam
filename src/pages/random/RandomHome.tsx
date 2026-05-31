@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Layout } from "../components/Layout";
+import { Layout } from "../../components/Layout";
 
 export function RandomHome() {
   const navigate = useNavigate();
