@@ -1,0 +1,30 @@
+{
+  "code": "742344",
+  "entryCode": "989174",
+  "subject": "국어",
+  "abilities": [
+    "난이도",
+    "엄밀하게 풀면 0 직관적으로 풀면 10",
+    "T면0 F면10"
+  ],
+  "criterion3": "엄밀하게 풀면 0 직관적으로 풀면 10",
+  "criterion4": "T면0 F면10",
+  "recipientEmail": "zoe5eyy@gmail.com",
+  "createdAt": "2026-05-31T02:19:22.087Z",
+  "createdBy": "www2o2oo2je",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "54dc063d-9bc6-4e10-9114-a99b5daa8346",
+      "authorName": "시스템",
+      "body": "국어 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.",
+      "createdAt": "2026-05-31T02:19:22.088Z",
+      "system": true
+    }
+  ]
+}
