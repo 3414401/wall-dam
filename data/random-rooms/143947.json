@@ -37,6 +37,12 @@
       "authorName": "test9",
       "body": "안녕",
       "createdAt": "2026-06-07T11:01:13.110Z"
+    },
+    {
+      "id": "4f09e300-f08b-48d1-87e1-f50f9063e320",
+      "authorName": "test9",
+      "body": "AI가 만든 그림도 예술일까?",
+      "createdAt": "2026-06-07T11:01:29.666Z"
     }
   ]
 }
