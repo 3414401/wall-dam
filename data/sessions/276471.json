@@ -1,0 +1,22 @@
+{
+  "code": "276471",
+  "insightsCode": "613337",
+  "abilities": [
+    "지난 수업 이해도",
+    "입학 후 다문화 학생을 몇 명 사귀었나요?",
+    "외향성",
+    "Mbti T/F (T가 0점, F가 10점)"
+  ],
+  "teamPurpose": "다문화 교육",
+  "createdAt": "2026-06-07T10:53:40.505Z",
+  "createdBy": "test1",
+  "surveys": [],
+  "teamCount": 4,
+  "groups": null,
+  "balancedAt": null,
+  "balanceMethod": null,
+  "aiBalanceNote": null,
+  "aiTeamExplanations": null,
+  "insights": null,
+  "roster": null
+}
