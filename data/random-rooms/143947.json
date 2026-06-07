@@ -1,0 +1,54 @@
+{
+  "code": "143947",
+  "entryCode": "616124",
+  "subject": "철학",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "진지함",
+    "엄밀함"
+  ],
+  "criterion3": "진지함",
+  "criterion4": "엄밀함",
+  "recipientEmail": "test0@school.ac.kr",
+  "createdAt": "2026-06-07T11:00:03.731Z",
+  "createdBy": "test0",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "fb924ca5-f387-49e0-b7d2-5b1964fa524f",
+      "authorName": "시스템",
+      "body": "철학 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.",
+      "createdAt": "2026-06-07T11:00:03.731Z",
+      "system": true
+    },
+    {
+      "id": "ca64d3e1-a59b-4d5f-83b5-bb92b2797206",
+      "authorName": "test0",
+      "body": "안녕",
+      "createdAt": "2026-06-07T11:00:33.469Z"
+    },
+    {
+      "id": "212d5f0f-3535-4b5a-82d5-54c42f6e4832",
+      "authorName": "test9",
+      "body": "안녕",
+      "createdAt": "2026-06-07T11:01:13.110Z"
+    },
+    {
+      "id": "4f09e300-f08b-48d1-87e1-f50f9063e320",
+      "authorName": "test9",
+      "body": "AI가 만든 그림도 예술일까?",
+      "createdAt": "2026-06-07T11:01:29.666Z"
+    },
+    {
+      "id": "7276ac0d-d862-433b-9c37-9a95dc525674",
+      "authorName": "test0",
+      "body": "맞다고 생각해 왜냐하면 예술의 정의에 '사람이 만든'이라는 말이 없어",
+      "createdAt": "2026-06-07T11:04:56.215Z"
+    }
+  ]
+}

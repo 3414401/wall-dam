@@ -1,0 +1,30 @@
+{
+  "code": "607367",
+  "entryCode": "970062",
+  "subject": "초등 국어",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "예술에 대한 진지함 강도",
+    "얼마나 자유로운 스타일인가요?"
+  ],
+  "criterion3": "예술에 대한 진지함 강도",
+  "criterion4": "얼마나 자유로운 스타일인가요?",
+  "recipientEmail": "whtj526@naver.com",
+  "createdAt": "2026-06-07T11:04:01.395Z",
+  "createdBy": "test9",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "ea232309-c7c7-414c-82d6-c5e09420e06a",
+      "authorName": "시스템",
+      "body": "초등 국어 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.",
+      "createdAt": "2026-06-07T11:04:01.395Z",
+      "system": true
+    }
+  ]
+}
