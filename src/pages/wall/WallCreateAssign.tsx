@@ -6,6 +6,14 @@ import { balanceSession, balanceSessionAi, getSession } from "../../lib/api";
 import type { SessionData } from "../../lib/api";
 import { getHostCode, setHostCode } from "./WallCreateSurvey";
 
+const AUTO_BALANCE_LABEL = "자동 균형 배치";
+
+function displayBalanceNote(session: SessionData): string | null {
+  if (!session.aiBalanceNote) return null;
+  if (session.balanceMethod === "ai") return session.aiBalanceNote;
+  return AUTO_BALANCE_LABEL;
+}
+
 export function WallCreateAssign() {
   const navigate = useNavigate();
   const [code, setCode] = useState(getHostCode() ?? "");
@@ -66,11 +74,19 @@ export function WallCreateAssign() {
     setLoading(true);
     setError("");
     try {
-      const { session: updated } = await balanceSessionAi(
+      const { session: updated, usedAi } = await balanceSessionAi(
         session.code,
         teamCount
       );
-      setSession(updated);
+      setSession(
+        usedAi
+          ? updated
+          : {
+              ...updated,
+              balanceMethod: "greedy",
+              aiBalanceNote: AUTO_BALANCE_LABEL,
+            }
+      );
       setError("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "AI 배치 실패");
@@ -130,12 +146,6 @@ export function WallCreateAssign() {
             />
           </div>
 
-          <p className="api-banner-detail" style={{ marginTop: 12 }}>
-            영구 명단: GitHub <strong>data/roster.xlsx</strong> · AI 참고:{" "}
-            <strong>data/ai-reference.md</strong> · 명단 활용 지침:{" "}
-            <strong>data/roster-ai-guide.md</strong>
-          </p>
-
           <div className="btn-stack" style={{ marginTop: 8 }}>
             <div>
               <button
@@ -164,15 +174,15 @@ export function WallCreateAssign() {
             </button>
           </div>
 
-          {session.aiBalanceNote && (
+          {displayBalanceNote(session) && (
             <div className="ai-explain-box" style={{ marginTop: 12 }}>
               {session.balanceMethod === "ai" ? (
                 <>
                   <h2 className="section-title">🤖 AI 배치 설명</h2>
-                  <p className="insight-summary">{session.aiBalanceNote}</p>
+                  <p className="insight-summary">{displayBalanceNote(session)}</p>
                 </>
               ) : (
-                <p className="insight-summary">{session.aiBalanceNote}</p>
+                <p className="insight-summary">{displayBalanceNote(session)}</p>
               )}
             </div>
           )}

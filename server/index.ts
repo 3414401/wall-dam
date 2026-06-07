@@ -422,7 +422,7 @@ app.post("/api/sessions/:code/balance-ai", async (req, res) => {
     session.groups = result.groups;
     session.balancedAt = new Date().toISOString();
     session.balanceMethod = result.usedAi ? "ai" : "greedy";
-    session.aiBalanceNote = result.note;
+    session.aiBalanceNote = result.usedAi ? result.note : "자동 균형 배치";
     session.aiTeamExplanations = result.teamExplanations.map((t) => ({
       teamIndex: t.teamIndex,
       comment: t.reason?.trim() || `${t.teamIndex}조 배치`,

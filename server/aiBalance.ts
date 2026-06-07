@@ -106,7 +106,7 @@ export async function balanceTeamsWithAi(
   if (!hasGemini()) {
     return {
       groups: balanceTeams(session.surveys, count),
-      note: "조 간 점수 균형을 맞춰 자동 배치했습니다.",
+      note: "자동 균형 배치",
       teamExplanations: [],
       usedAi: false,
     };
@@ -191,7 +191,7 @@ teamExplanations는 1조부터 ${count}조까지 각각 1개씩 작성하세요.
     console.error("AI balance fallback", e);
     return {
       groups: balanceTeams(session.surveys, count),
-      note: "조 간 점수 균형을 맞춰 자동 배치했습니다.",
+      note: "자동 균형 배치",
       teamExplanations: [],
       usedAi: false,
     };
