@@ -142,12 +142,86 @@
       }
     }
   ],
-  "teamCount": 4,
-  "groups": null,
-  "balancedAt": null,
-  "balanceMethod": null,
-  "aiBalanceNote": null,
-  "aiTeamExplanations": null,
-  "insights": null,
+  "teamCount": 2,
+  "groups": [
+    {
+      "teamIndex": 1,
+      "memberIds": [
+        "3de317e5-73f6-4c86-8b38-8b64314da3ae",
+        "ba365b20-a8bc-4ab9-b543-a4b8bf201f96",
+        "0ec9323b-feca-44cc-bf5b-43fe99e22426"
+      ],
+      "totals": [
+        10,
+        7,
+        17,
+        5
+      ]
+    },
+    {
+      "teamIndex": 2,
+      "memberIds": [
+        "fcc39d94-f2ce-4169-9750-0a8cbd40e01e",
+        "2e977bac-e129-4308-88f8-e848b579c95c"
+      ],
+      "totals": [
+        14,
+        5,
+        14,
+        6
+      ]
+    }
+  ],
+  "balancedAt": "2026-06-07T10:57:17.873Z",
+  "balanceMethod": "greedy",
+  "aiBalanceNote": "AI 실패 → 자동 균형 배치로 대체 (Gemini 모델 연결 실패. Render에서 GEMINI_MODEL을 삭제하거나 gemini-2.5-flash 로 설정 후 재배포하세요. (gemini-2.0-flash: 429 {\n  \"error\": {\n    )",
+  "aiTeamExplanations": [],
+  "insights": {
+    "homogeneityIndex": 40,
+    "overallSummary": "동질성 지수 40점. 응답자들은 「외향성」에서 평균 6.2점으로 가장 두드러집니다. (AI 요약은 통계만 반영됨)",
+    "abilityStats": [
+      {
+        "name": "지난 수업 이해도",
+        "mean": 4.8,
+        "std": 3.8,
+        "min": 0,
+        "max": 9
+      },
+      {
+        "name": "입학 후 다문화 학생을 몇 명 사귀었나요?",
+        "mean": 2.4,
+        "std": 2.2,
+        "min": 0,
+        "max": 5
+      },
+      {
+        "name": "외향성",
+        "mean": 6.2,
+        "std": 3.4,
+        "min": 0,
+        "max": 9
+      },
+      {
+        "name": "Mbti T/F (T가 0점, F가 10점)",
+        "mean": 2.2,
+        "std": 1.5,
+        "min": 1,
+        "max": 5
+      }
+    ],
+    "teamComments": [
+      {
+        "teamIndex": 1,
+        "comment": "1조(Test1 (강동고등학교), Test4 (군위고등학교), Test5 (경북예술고등학교))의 응답 패턴을 바탕으로 한 조 단위 특성입니다.",
+        "recommendedActivity": "다문화 교육에 맞는 역할 분담 토의와 10분 아이스브레이킹을 추천합니다."
+      },
+      {
+        "teamIndex": 2,
+        "comment": "2조(test2 (경덕여자고등학교), Test3 (경북고등학교))의 응답 패턴을 바탕으로 한 조 단위 특성입니다.",
+        "recommendedActivity": "다문화 교육에 맞는 역할 분담 토의와 10분 아이스브레이킹을 추천합니다."
+      }
+    ],
+    "generatedAt": "2026-06-07T10:57:20.071Z"
+  },
   "roster": null
 }
