@@ -66,16 +66,12 @@ export function WallCreateAssign() {
     setLoading(true);
     setError("");
     try {
-      const { session: updated, note, usedAi } = await balanceSessionAi(
+      const { session: updated } = await balanceSessionAi(
         session.code,
         teamCount
       );
       setSession(updated);
-      if (!usedAi && note) {
-        setError(note);
-      } else {
-        setError("");
-      }
+      setError("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "AI 배치 실패");
     } finally {
@@ -141,14 +137,23 @@ export function WallCreateAssign() {
           </p>
 
           <div className="btn-stack" style={{ marginTop: 8 }}>
-            <button
-              type="button"
-              className="btn btn-accent"
-              onClick={handleBalanceAi}
-              disabled={loading || session.surveys.length < 2}
-            >
-              {loading ? "AI 배치 중… (최대 1분)" : "🤖 AI 조 배치"}
-            </button>
+            <div>
+              <button
+                type="button"
+                className="btn btn-accent"
+                onClick={handleBalanceAi}
+                disabled={loading || session.surveys.length < 2}
+              >
+                {loading ? "AI 배치 중… (최대 1분)" : "🤖 AI 조 배치"}
+              </button>
+              <p
+                className="api-banner-detail"
+                style={{ marginTop: 8, marginBottom: 0, fontSize: "0.78rem" }}
+              >
+                아직은 서버 할당량이 작아, 일일 AI 한도를 초과할 경우 실행되지
+                않을 수 있습니다. 더 나은 서버 구축을 위해 노력하겠습니다.
+              </p>
+            </div>
             <button
               type="button"
               className="btn btn-secondary"
@@ -160,21 +165,14 @@ export function WallCreateAssign() {
           </div>
 
           {session.aiBalanceNote && (
-            <div
-              className={
-                session.balanceMethod === "ai"
-                  ? "ai-explain-box"
-                  : "error-msg"
-              }
-              style={{ marginTop: 12 }}
-            >
+            <div className="ai-explain-box" style={{ marginTop: 12 }}>
               {session.balanceMethod === "ai" ? (
                 <>
                   <h2 className="section-title">🤖 AI 배치 설명</h2>
                   <p className="insight-summary">{session.aiBalanceNote}</p>
                 </>
               ) : (
-                <p>{session.aiBalanceNote}</p>
+                <p className="insight-summary">{session.aiBalanceNote}</p>
               )}
             </div>
           )}

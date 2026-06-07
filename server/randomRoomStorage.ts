@@ -14,9 +14,9 @@ function localPath(code: string) {
 }
 
 async function githubRequest(
-  method: "GET" | "PUT",
+  method: "GET" | "PUT" | "DELETE",
   filePath: string,
-  body?: { message: string; content: string; sha?: string }
+  body?: { message: string; content?: string; sha?: string }
 ) {
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
@@ -37,6 +37,7 @@ async function githubRequest(
   });
 
   if (method === "GET" && res.status === 404) return null;
+  if (method === "DELETE" && res.status === 404) return null;
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`GitHub API ${res.status}: ${text}`);
@@ -96,6 +97,8 @@ export async function saveRandomRoom(room: RandomRoomData): Promise<void> {
   });
 }
 
+const HIDDEN_ROOM_CODES = new Set(["872452", "193413", "742344"]);
+
 export async function listRandomRoomCodes(): Promise<string[]> {
   if (!useGitHub()) {
     try {
@@ -103,7 +106,8 @@ export async function listRandomRoomCodes(): Promise<string[]> {
       const files = await readdir(LOCAL_DIR);
       return files
         .filter((f) => f.endsWith(".json"))
-        .map((f) => f.replace(/\.json$/, ""));
+        .map((f) => f.replace(/\.json$/, ""))
+        .filter((code) => !HIDDEN_ROOM_CODES.has(code));
     } catch {
       return [];
     }
@@ -116,5 +120,27 @@ export async function listRandomRoomCodes(): Promise<string[]> {
   return data
     .filter((item: { name?: string; type?: string }) => item.type === "file")
     .map((item: { name?: string }) => item.name?.replace(/\.json$/, "") ?? "")
-    .filter(Boolean);
+    .filter((code) => Boolean(code) && !HIDDEN_ROOM_CODES.has(code));
+}
+
+export async function deleteRandomRoom(code: string): Promise<boolean> {
+  if (!useGitHub()) {
+    try {
+      const { unlink } = await import("fs/promises");
+      await unlink(localPath(code));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const filePath = githubFilePath(code);
+  const existing = await githubRequest("GET", filePath);
+  if (!existing?.sha) return false;
+
+  await githubRequest("DELETE", filePath, {
+    message: `Delete random room ${code}`,
+    sha: existing.sha,
+  });
+  return true;
 }

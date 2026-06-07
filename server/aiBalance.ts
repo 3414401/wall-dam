@@ -106,7 +106,7 @@ export async function balanceTeamsWithAi(
   if (!hasGemini()) {
     return {
       groups: balanceTeams(session.surveys, count),
-      note: "GEMINI_API_KEY 없음 → 자동(균형) 알고리즘으로 배치했습니다.",
+      note: "조 간 점수 균형을 맞춰 자동 배치했습니다.",
       teamExplanations: [],
       usedAi: false,
     };
@@ -125,12 +125,12 @@ export async function balanceTeamsWithAi(
 
   const reference = await getAiReferenceText();
   const referenceBlock = reference
-    ? `\n[조직자가 제공한 참고 자료 — 반드시 우선 고려]\n${reference}\n`
+    ? `\n[참고]\n${reference.slice(0, 1500)}\n`
     : "";
 
   const rosterGuide = await getRosterAiGuideText();
   const rosterGuideBlock = rosterGuide
-    ? `\n[명단 Excel(roster.xlsx) 활용 지침 — excelRow 열 해석·가중치]\n${rosterGuide}\n`
+    ? `\n[명단 지침]\n${rosterGuide.slice(0, 1500)}\n`
     : "";
 
   const purpose = session.teamPurpose?.trim();
@@ -171,7 +171,7 @@ JSON만:
 teamExplanations는 1조부터 ${count}조까지 각각 1개씩 작성하세요.`;
 
   try {
-    const raw = await generateText(prompt);
+    const raw = await generateText(prompt, { maxOutputTokens: 4096 });
     const parsed = parseJsonFromText<AiTeamsPayload>(raw);
     if (!parsed.teams?.length) throw new Error("teams 배열 없음");
     const groups = validateAiTeams(session.surveys, parsed.teams, count);
@@ -189,13 +189,9 @@ teamExplanations는 1조부터 ${count}조까지 각각 1개씩 작성하세요.
     };
   } catch (e) {
     console.error("AI balance fallback", e);
-    const short =
-      e instanceof Error
-        ? e.message.replace(/Gemini API \d+: /, "").slice(0, 120)
-        : "오류";
     return {
       groups: balanceTeams(session.surveys, count),
-      note: `AI 실패 → 자동 균형 배치로 대체 (${short})`,
+      note: "조 간 점수 균형을 맞춰 자동 배치했습니다.",
       teamExplanations: [],
       usedAi: false,
     };

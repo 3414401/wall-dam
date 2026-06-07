@@ -11,6 +11,7 @@ import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
 import {
+  deleteRandomRoom,
   listRandomRoomCodes,
   loadRandomRoom,
   saveRandomRoom,
@@ -826,8 +827,35 @@ app.post("/api/random-rooms/:code/messages", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+/** 방 삭제 (호스트용) */
+app.delete("/api/random-rooms/:code", async (req, res) => {
+  try {
+    const code = String(req.params.code ?? "").trim();
+    if (!/^\d{6}$/.test(code)) {
+      res.status(400).json({ error: "올바른 방 코드가 아닙니다." });
+      return;
+    }
+    await deleteRandomRoom(code);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "방 삭제에 실패했습니다." });
+  }
+});
+
+const PURGE_ROOM_CODES = ["872452", "193413", "742344"];
+
+app.listen(PORT, async () => {
   console.log(`API server http://localhost:${PORT}`);
   console.log(`Storage: ${useGitHub() ? "GitHub" : "local (server-data/)"}`);
   console.log(`AI (Gemini): ${hasGemini() ? "enabled" : "disabled"}`);
+
+  for (const code of PURGE_ROOM_CODES) {
+    try {
+      await deleteRandomRoom(code);
+      console.log(`Purged random room ${code}`);
+    } catch {
+      /* already gone */
+    }
+  }
 });

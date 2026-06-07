@@ -5,22 +5,46 @@ export function hasGemini(): boolean {
 /** 구형 모델(1.5-flash 등)은 404 — 목록에서 제외 */
 const DEPRECATED = /gemini-1\.5-flash(?!-8b)/i;
 
+/** 429·할당량 이슈가 잦은 모델 — 체인 끝으로 */
+const QUOTA_HEAVY = /^gemini-2\.0-flash$/i;
+
+/** 429 완화: 가벼운 모델 우선 */
 const DEFAULT_MODEL_CHAIN = [
+  "gemini-2.0-flash-lite",
+  "gemini-2.5-flash-lite",
   "gemini-2.5-flash",
   "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
   "gemini-1.5-flash-8b",
 ];
 
+let lastWorkingModel: string | null = null;
+
 function modelCandidates(): string[] {
   const fromEnv = process.env.GEMINI_MODEL?.trim();
-  const list: string[] = [];
-  if (fromEnv && !DEPRECATED.test(fromEnv)) list.push(fromEnv);
-  list.push(...DEFAULT_MODEL_CHAIN);
-  return [...new Set(list)];
+  const preferred: string[] = [];
+  const deferred: string[] = [];
+
+  if (lastWorkingModel) preferred.push(lastWorkingModel);
+  preferred.push(...DEFAULT_MODEL_CHAIN);
+
+  if (fromEnv && !DEPRECATED.test(fromEnv)) {
+    if (QUOTA_HEAVY.test(fromEnv)) deferred.push(fromEnv);
+    else preferred.unshift(fromEnv);
+  }
+
+  return [...new Set([...preferred, ...deferred])];
 }
 
-async function callGemini(model: string, key: string, prompt: string): Promise<string> {
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callGemini(
+  model: string,
+  key: string,
+  prompt: string,
+  maxOutputTokens = 8192
+): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
 
   const res = await fetch(url, {
@@ -30,7 +54,7 @@ async function callGemini(model: string, key: string, prompt: string): Promise<s
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 8192,
+        maxOutputTokens,
       },
     }),
   });
@@ -49,7 +73,21 @@ async function callGemini(model: string, key: string, prompt: string): Promise<s
   return text;
 }
 
-export async function generateText(prompt: string): Promise<string> {
+function isRetryable(msg: string): boolean {
+  return (
+    msg.includes("404") ||
+    msg.includes("NOT_FOUND") ||
+    msg.includes("not found") ||
+    msg.includes("429") ||
+    msg.includes("503") ||
+    msg.includes("RESOURCE_EXHAUSTED")
+  );
+}
+
+export async function generateText(
+  prompt: string,
+  options?: { maxOutputTokens?: number }
+): Promise<string> {
   const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) {
     throw new Error(
@@ -58,21 +96,27 @@ export async function generateText(prompt: string): Promise<string> {
   }
 
   const models = modelCandidates();
+  const maxTokens = options?.maxOutputTokens ?? 8192;
   const errors: string[] = [];
 
   for (const model of models) {
-    try {
-      return await callGemini(model, key, prompt);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      errors.push(msg);
-      const retryable =
-        msg.includes("404") ||
-        msg.includes("NOT_FOUND") ||
-        msg.includes("not found") ||
-        msg.includes("429") ||
-        msg.includes("503");
-      if (!retryable) throw new Error(`Gemini API 오류: ${msg}`);
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const text = await callGemini(model, key, prompt, maxTokens);
+        lastWorkingModel = model;
+        return text;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        errors.push(msg);
+        if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED")) {
+          await sleep(2000 * (attempt + 1));
+          continue;
+        }
+        if (!isRetryable(msg)) {
+          throw new Error(`Gemini API 오류: ${msg}`);
+        }
+        break;
+      }
     }
   }
 
@@ -94,11 +138,17 @@ export async function probeGeminiModel(): Promise<string | null> {
     return probeCache.model;
   }
 
-  let found: string | null = null;
+  let found: string | null = lastWorkingModel;
+  if (found) {
+    probeCache = { model: found, at: now };
+    return found;
+  }
+
   for (const model of modelCandidates()) {
     try {
-      await callGemini(model, key, '{"ping":true}');
+      await callGemini(model, key, '{"ping":true}', 32);
       found = model;
+      lastWorkingModel = model;
       break;
     } catch {
       /* try next */
