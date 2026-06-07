@@ -1,0 +1,30 @@
+{
+  "code": "143947",
+  "entryCode": "616124",
+  "subject": "철학",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "진지함",
+    "엄밀함"
+  ],
+  "criterion3": "진지함",
+  "criterion4": "엄밀함",
+  "recipientEmail": "test0@school.ac.kr",
+  "createdAt": "2026-06-07T11:00:03.731Z",
+  "createdBy": "test0",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "fb924ca5-f387-49e0-b7d2-5b1964fa524f",
+      "authorName": "시스템",
+      "body": "철학 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.",
+      "createdAt": "2026-06-07T11:00:03.731Z",
+      "system": true
+    }
+  ]
+}
