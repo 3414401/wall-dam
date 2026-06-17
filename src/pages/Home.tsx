@@ -46,6 +46,13 @@ export function Home() {
         >
           🎲 랜덤 팀 프로젝트
         </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/far-far-away")}
+        >
+          🗺️ 멀리 저 멀리
+        </button>
       </div>
     </Layout>
   );
