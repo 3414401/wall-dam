@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { getUser } from "./lib/auth";
+import { FarFarAway } from "./pages/FarFarAway";
 import { Home } from "./pages/Home";
 import { Homogeneity } from "./pages/Homogeneity";
 import { Login } from "./pages/Login";
@@ -57,6 +58,14 @@ export default function App() {
         element={
           <RequireAuth>
             <RandomHome />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/far-far-away"
+        element={
+          <RequireAuth>
+            <FarFarAway />
           </RequireAuth>
         }
       />
