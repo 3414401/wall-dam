@@ -10,7 +10,34 @@
   "teamPurpose": "공부",
   "createdAt": "2026-07-14T01:21:36.512Z",
   "createdBy": "ㅇㅇ",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "b4872801-9cec-4be3-9afa-a5a8272c69f2",
+      "nickname": "정현우 (대구남명초등학교)",
+      "scores": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "submittedAt": "2026-07-14T03:49:46.886Z",
+      "rosterRowId": "row-101",
+      "rosterLabel": "대구남명초등학교",
+      "rosterFields": {
+        "학교명": "대구남명초등학교",
+        "지역": "남구",
+        "학교 학생 수": "137",
+        "획일화 지수(H_m)": "1.3114663545836243",
+        "P_special": "7.29927",
+        "I_SCU": "0.917576",
+        "H_path": "1",
+        "H_job": "0.3552",
+        "H_ppc": "0.5969",
+        "1위 업종": "보건업 복합코드",
+        "R_net": "-11.678832116788321"
+      }
+    }
+  ],
   "teamCount": 4,
   "groups": null,
   "balancedAt": null,
