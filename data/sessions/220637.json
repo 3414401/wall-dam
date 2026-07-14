@@ -142,15 +142,15 @@
       }
     },
     {
-      "id": "9b83a631-2233-4143-afe7-cd2be5cd6a44",
-      "nickname": "김슬찬 (대구남명초등학교)",
+      "id": "5cd9670f-ca89-4af6-9408-199ce5ee9abf",
+      "nickname": "박신비 (대구남명초등학교)",
       "scores": [
         8,
-        5,
-        0,
-        9
+        9,
+        6,
+        6
       ],
-      "submittedAt": "2026-07-14T03:50:24.136Z",
+      "submittedAt": "2026-07-14T03:50:25.218Z",
       "rosterRowId": "row-101",
       "rosterLabel": "대구남명초등학교",
       "rosterFields": {
