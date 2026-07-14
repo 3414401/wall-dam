@@ -168,15 +168,15 @@
       }
     },
     {
-      "id": "010fc608-70ee-477a-bdad-8af383947c6c",
-      "nickname": "안수아 (대구남명초등학교)",
+      "id": "0af89061-0d6d-4b8d-8967-eb842b564f78",
+      "nickname": "박지민 (대구남명초등학교)",
       "scores": [
-        7,
-        10,
-        7,
-        3
+        6,
+        4,
+        2,
+        7
       ],
-      "submittedAt": "2026-07-14T03:50:26.707Z",
+      "submittedAt": "2026-07-14T03:50:29.349Z",
       "rosterRowId": "row-101",
       "rosterLabel": "대구남명초등학교",
       "rosterFields": {
