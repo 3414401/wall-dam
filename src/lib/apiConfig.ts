@@ -1,6 +1,13 @@
 const PRODUCTION_API_FALLBACK = "https://wall-dam.onrender.com";
 
+type AppConfig = {
+  apiUrl?: string;
+  googleClientId?: string;
+};
+
 let resolvedApiBase: string | null = null;
+let resolvedGoogleClientId: string | null = null;
+let configLoaded = false;
 
 function configJsonUrl(): string {
   const base = import.meta.env.BASE_URL || "/";
@@ -9,36 +16,59 @@ function configJsonUrl(): string {
 }
 
 export async function loadApiConfig(): Promise<string> {
-  if (resolvedApiBase !== null) return resolvedApiBase;
+  if (configLoaded && resolvedApiBase !== null) return resolvedApiBase;
 
-  const fromBuild = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
-  if (fromBuild) {
-    resolvedApiBase = fromBuild;
-    return resolvedApiBase;
+  const fromBuildApi = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
+  const fromBuildGoogle = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ?? "";
+
+  if (fromBuildApi) {
+    resolvedApiBase = fromBuildApi;
+  }
+  if (fromBuildGoogle) {
+    resolvedGoogleClientId = fromBuildGoogle;
   }
 
   try {
     const res = await fetch(configJsonUrl(), { cache: "no-store" });
     if (res.ok) {
-      const cfg = (await res.json()) as { apiUrl?: string };
+      const cfg = (await res.json()) as AppConfig;
       const url = cfg.apiUrl?.trim().replace(/\/$/, "") ?? "";
-      if (url) {
+      if (!resolvedApiBase && url) {
         resolvedApiBase = url;
-        return resolvedApiBase;
+      }
+      const googleId = cfg.googleClientId?.trim() ?? "";
+      if (!resolvedGoogleClientId && googleId) {
+        resolvedGoogleClientId = googleId;
       }
     }
   } catch {
     /* ignore */
   }
 
-  if (import.meta.env.PROD) {
-    resolvedApiBase = PRODUCTION_API_FALLBACK;
-    return resolvedApiBase;
+  if (!resolvedApiBase) {
+    if (import.meta.env.PROD) {
+      resolvedApiBase = PRODUCTION_API_FALLBACK;
+    } else {
+      resolvedApiBase = "";
+    }
   }
 
-  resolvedApiBase = "";
+  if (resolvedGoogleClientId === null) {
+    resolvedGoogleClientId = "";
+  }
+
+  configLoaded = true;
   return resolvedApiBase;
 }
+
 export function getApiBase(): string {
   return resolvedApiBase ?? import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
+}
+
+export function getGoogleClientId(): string {
+  return (
+    resolvedGoogleClientId ??
+    import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ??
+    ""
+  );
 }

@@ -9,7 +9,11 @@ export function Home() {
   return (
     <Layout
       title={`안녕하세요, ${user?.username ?? "게스트"}님`}
-      subtitle="원하는 메뉴를 선택하세요"
+      subtitle={
+        user?.provider === "google"
+          ? "Google 계정으로 로그인됨 · 원하는 메뉴를 선택하세요"
+          : "원하는 메뉴를 선택하세요"
+      }
       onBack={() => {
         logout();
         navigate("/");
