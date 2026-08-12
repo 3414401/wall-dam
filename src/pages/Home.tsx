@@ -18,19 +18,19 @@ export function Home() {
       <div className="btn-stack">
         <button
           type="button"
-          className="btn"
-          onClick={() => navigate("/homogeneity")}
+          className="btn btn-soft-green"
+          onClick={() => {
+            window.location.href = "https://3414401.github.io/walldam_calculate/";
+          }}
         >
-          📊 우리 조 AI 요약
+          🏫 공공데이터로 동질성 지수 계산하기
         </button>
         <button
           type="button"
           className="btn"
-          onClick={() => {
-            window.location.href = "https://3414401.github.io/walljump/";
-          }}
+          onClick={() => navigate("/homogeneity")}
         >
-          🏫 학교별 동질성 지수 계산하기
+          📊 우리 조 AI 요약
         </button>
         <button
           type="button"

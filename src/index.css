@@ -184,6 +184,16 @@ body {
   box-shadow: 0 2px 0 #c9a020, 0 4px 12px rgba(80, 60, 0, 0.2);
 }
 
+.btn-soft-green {
+  color: #1a4d2e;
+  background: linear-gradient(180deg, #d8f5e1 0%, #b8e8c8 100%);
+  box-shadow: 0 6px 0 #7cbc90, 0 8px 20px rgba(40, 100, 60, 0.25);
+}
+
+.btn-soft-green:active {
+  box-shadow: 0 2px 0 #7cbc90, 0 4px 12px rgba(40, 100, 60, 0.2);
+}
+
 .btn-stack {
   display: flex;
   flex-direction: column;
