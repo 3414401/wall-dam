@@ -59,6 +59,18 @@ export function Login() {
       title="월담(wall-jump)"
       subtitle="팀 학습 · 조짜기 · 랜덤 프로젝트"
     >
+      <div className="btn-stack" style={{ marginTop: 0, marginBottom: 16 }}>
+        <button
+          type="button"
+          className="btn btn-soft-green"
+          onClick={() => {
+            window.location.href = "https://3414401.github.io/walldam_calculate/";
+          }}
+        >
+          공공데이터 분석 보러가기
+        </button>
+      </div>
+
       <section className="card login-panel">
         <h2 className="login-option-title">구글 계정으로 로그인</h2>
         <p className="login-option-desc">Google 계정으로 바로 입장합니다.</p>
@@ -80,6 +92,9 @@ export function Login() {
 
       <section className="card login-panel">
         <h2 className="login-option-title">계정 없이 사용</h2>
+        <p className="login-option-desc">
+          아무 아이디, 비밀번호 입력하면 됩니다.
+        </p>
         <form onSubmit={handleGuestSubmit}>
           <div className="field">
             <label className="label" htmlFor="username">
