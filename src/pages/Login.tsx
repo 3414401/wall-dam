@@ -1,7 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../components/Layout";
-import { getGoogleClientId } from "../lib/apiConfig";
 import { loginGuest, loginWithGoogle } from "../lib/auth";
 import { renderGoogleSignInButton } from "../lib/googleAuth";
 
@@ -11,7 +10,6 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [googleReady, setGoogleReady] = useState(false);
-  const [googleHint, setGoogleHint] = useState("");
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,20 +25,13 @@ export function Login() {
         loginWithGoogle(profile);
         navigate("/home", { replace: true });
       },
-      (message) => {
+      () => {
         if (cancelled) return;
         setGoogleReady(false);
-        setGoogleHint(message);
       }
     ).then((ok) => {
       if (cancelled) return;
       setGoogleReady(ok);
-      if (ok) setGoogleHint("");
-      else if (!getGoogleClientId()) {
-        setGoogleHint(
-          "Google Client ID를 등록하면 사용할 수 있습니다. (config.json → googleClientId)"
-        );
-      }
     });
 
     return () => {
@@ -81,7 +72,6 @@ export function Login() {
             Google로 로그인
           </button>
         )}
-        {googleHint && <p className="login-hint">{googleHint}</p>}
       </section>
 
       <div className="login-divider" role="separator" aria-label="또는">
@@ -90,9 +80,6 @@ export function Login() {
 
       <section className="card login-panel">
         <h2 className="login-option-title">계정 없이 사용</h2>
-        <p className="login-option-desc">
-          지금처럼 아무 아이디·비밀번호로 입장할 수 있습니다.
-        </p>
         <form onSubmit={handleGuestSubmit}>
           <div className="field">
             <label className="label" htmlFor="username">
