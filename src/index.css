@@ -3,8 +3,8 @@
   --blue-mid: #2563c7;
   --blue-light: #4f8cff;
   --cyan: #5ee7ff;
-  --yellow: #ffd54f;
-  --yellow-bright: #ffe566;
+  --yellow: #ffcc00;
+  --yellow-bright: #ffe600;
   --white: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.75);
   --shadow: 0 8px 24px rgba(0, 20, 80, 0.35);
@@ -220,12 +220,12 @@ body {
 
 .btn-accent {
   color: var(--blue-deep);
-  background: linear-gradient(180deg, var(--yellow-bright) 0%, var(--yellow) 100%);
-  box-shadow: 0 6px 0 #c9a020, 0 8px 20px rgba(80, 60, 0, 0.25);
+  background: linear-gradient(180deg, #fff24a 0%, #ffcc00 55%, #ffb800 100%);
+  box-shadow: 0 6px 0 #e09a00, 0 8px 20px rgba(255, 180, 0, 0.35);
 }
 
 .btn-accent:active {
-  box-shadow: 0 2px 0 #c9a020, 0 4px 12px rgba(80, 60, 0, 0.2);
+  box-shadow: 0 2px 0 #e09a00, 0 4px 12px rgba(255, 180, 0, 0.28);
 }
 
 .btn-soft-green {
