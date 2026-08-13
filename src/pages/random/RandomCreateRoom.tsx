@@ -25,7 +25,7 @@ export function RandomCreateRoom() {
   const navigate = useNavigate();
   const user = getUser();
   const [subject, setSubject] = useState<(typeof RANDOM_SUBJECTS)[number]>(
-    "초등 국어"
+    "기획/아이디어"
   );
   const [recipientEmail, setRecipientEmail] = useState("");
   const [criterion3, setCriterion3] = useState("");
