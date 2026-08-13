@@ -5,22 +5,6 @@ import { Layout } from "../../components/Layout";
 import { createRandomRoom, RANDOM_CRITERION1, RANDOM_SUBJECTS } from "../../lib/api";
 import { getUser } from "../../lib/auth";
 
-const HOST_ROOM_KEY = "random_project_host_room";
-
-export function getHostRandomRoom(): { code: string } | null {
-  const raw = sessionStorage.getItem(HOST_ROOM_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as { code: string };
-  } catch {
-    return null;
-  }
-}
-
-export function setHostRandomRoom(code: string) {
-  sessionStorage.setItem(HOST_ROOM_KEY, JSON.stringify({ code }));
-}
-
 export function RandomCreateRoom() {
   const navigate = useNavigate();
   const user = getUser();
@@ -29,9 +13,6 @@ export function RandomCreateRoom() {
   );
   const [criterion3, setCriterion3] = useState("");
   const [criterion4, setCriterion4] = useState("");
-  const [created, setCreated] = useState<{ code: string } | null>(
-    getHostRandomRoom()
-  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,23 +24,18 @@ export function RandomCreateRoom() {
     }
     setLoading(true);
     try {
-      const { code } = await createRandomRoom(
+      await createRandomRoom(
         subject,
         criterion3.trim(),
         criterion4.trim(),
         user?.username ?? "host"
       );
-      setCreated({ code });
-      setHostRandomRoom(code);
+      navigate("/random/rooms");
     } catch (e) {
       setError(e instanceof Error ? e.message : "방 생성 실패");
     } finally {
       setLoading(false);
     }
-  }
-
-  function copyText(text: string) {
-    void navigator.clipboard.writeText(text);
   }
 
   return (
@@ -71,8 +47,8 @@ export function RandomCreateRoom() {
       <ApiConnectionBanner />
       <div className="survey-guide-box">
         <p>
-          방 주제와 기준을 설정하세요. 참가자 5명이 설문을 완료하면 AI가 가장
-          이질성이 높은 사람을 선정합니다.
+          방 주제와 기준을 설정하세요. 만든 방은 방 목록에 바로 보이며, 참가자는
+          코드를 받을 필요 없이 입장할 수 있습니다.
         </p>
       </div>
 
@@ -88,7 +64,6 @@ export function RandomCreateRoom() {
             onChange={(e) =>
               setSubject(e.target.value as (typeof RANDOM_SUBJECTS)[number])
             }
-            disabled={!!created}
           >
             {RANDOM_SUBJECTS.map((s) => (
               <option key={s} value={s}>
@@ -115,7 +90,6 @@ export function RandomCreateRoom() {
             placeholder="예: 엄밀한 풀이, 진지함, mbti T/F, 지역 등"
             value={criterion3}
             onChange={(e) => setCriterion3(e.target.value)}
-            disabled={!!created}
           />
         </div>
 
@@ -129,40 +103,17 @@ export function RandomCreateRoom() {
             placeholder="예: 엄밀한 풀이, 진지함, mbti T/F, 지역 등"
             value={criterion4}
             onChange={(e) => setCriterion4(e.target.value)}
-            disabled={!!created}
           />
         </div>
 
-        {created ? (
-          <>
-            <p style={{ textAlign: "center", margin: "8px 0 0" }}>방 코드</p>
-            <div className="code-display">{created.code}</div>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => copyText(created.code)}
-            >
-              📋 방 코드 복사
-            </button>
-            <p className="success-msg">방 목록에 등록되었습니다.</p>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => navigate("/random/rooms")}
-            >
-              방 목록 보기
-            </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            className="btn btn-accent"
-            onClick={handleCreate}
-            disabled={loading}
-          >
-            {loading ? "생성 중..." : "🚀 방 만들기"}
-          </button>
-        )}
+        <button
+          type="button"
+          className="btn btn-accent"
+          onClick={handleCreate}
+          disabled={loading}
+        >
+          {loading ? "생성 중..." : "🚀 방 만들기"}
+        </button>
         {error && <p className="error-msg">{error}</p>}
       </div>
     </Layout>
