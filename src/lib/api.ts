@@ -239,7 +239,6 @@ export function createRandomRoom(
 ) {
   return request<{
     code: string;
-    entryCode: string;
     room: RandomRoomPublic;
   }>("/api/random-rooms", {
     method: "POST",
@@ -252,16 +251,13 @@ export function createRandomRoom(
   });
 }
 
-export function getRandomRoom(code: string, entryCode?: string) {
-  const params = entryCode
-    ? `?entryCode=${encodeURIComponent(entryCode.replace(/\D/g, ""))}`
-    : "";
+export function getRandomRoom(code: string) {
   return request<{
     room: RandomRoomPublic;
     abilities: string[];
     messages?: RandomChatMessage[];
     chatAccess: boolean;
-  }>(`/api/random-rooms/${code}${params}`);
+  }>(`/api/random-rooms/${code}`);
 }
 
 export function searchRandomRosterRows(code: string, q: string) {
@@ -292,7 +288,6 @@ export function submitRandomSurvey(
 
 export function sendRandomMessage(
   code: string,
-  entryCode: string,
   authorName: string,
   body: string
 ) {
@@ -300,7 +295,7 @@ export function sendRandomMessage(
     `/api/random-rooms/${code}/messages`,
     {
       method: "POST",
-      body: JSON.stringify({ entryCode, authorName, body }),
+      body: JSON.stringify({ authorName, body }),
     }
   );
 }

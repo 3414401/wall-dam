@@ -109,7 +109,8 @@ export interface RandomChatMessage {
 
 export interface RandomRoomData {
   code: string;
-  entryCode: string;
+  /** @deprecated kept for existing room JSON compatibility */
+  entryCode?: string;
   subject: RandomSubject;
   abilities: string[];
   criterion3: string;

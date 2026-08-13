@@ -8,29 +8,6 @@ import {
 } from "../../lib/api";
 import { getUser } from "../../lib/auth";
 
-const ENTRY_CODE_KEY = "random_chat_entry_codes";
-
-function loadEntryCodes(): Record<string, string> {
-  try {
-    return JSON.parse(sessionStorage.getItem(ENTRY_CODE_KEY) ?? "{}") as Record<
-      string,
-      string
-    >;
-  } catch {
-    return {};
-  }
-}
-
-function saveEntryCode(roomCode: string, entryCode: string) {
-  const all = loadEntryCodes();
-  all[roomCode] = entryCode;
-  sessionStorage.setItem(ENTRY_CODE_KEY, JSON.stringify(all));
-}
-
-function getSavedEntryCode(roomCode: string): string {
-  return loadEntryCodes()[roomCode] ?? "";
-}
-
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("ko-KR", {
     hour: "2-digit",
@@ -42,26 +19,19 @@ export function RandomChatRoom() {
   const { code = "" } = useParams();
   const navigate = useNavigate();
   const user = getUser();
-  const [step, setStep] = useState<"code" | "chat">(
-    getSavedEntryCode(code) ? "chat" : "code"
-  );
-  const [entryCode, setEntryCode] = useState(getSavedEntryCode(code));
   const [subject, setSubject] = useState("");
   const [messages, setMessages] = useState<RandomChatMessage[]>([]);
   const [authorName, setAuthorName] = useState(user?.username ?? "");
   const [draft, setDraft] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const composingRef = useRef(false);
   const messagesRef = useRef<RandomChatMessage[]>([]);
 
-  const refreshChat = useCallback(async (codeValue: string) => {
-    const data = await getRandomRoom(code, codeValue);
-    if (!data.chatAccess) {
-      throw new Error("입장 코드가 올바르지 않습니다.");
-    }
+  const refreshChat = useCallback(async () => {
+    const data = await getRandomRoom(code);
     setSubject(data.room.subject);
     const next = data.messages ?? [];
     messagesRef.current = next;
@@ -69,24 +39,23 @@ export function RandomChatRoom() {
   }, [code]);
 
   useEffect(() => {
-    if (step !== "chat" || !entryCode) return;
-
     let cancelled = false;
     void (async () => {
       try {
-        await refreshChat(entryCode);
+        await refreshChat();
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "채팅 로드 실패");
-          setStep("code");
         }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
 
     const poll = async () => {
       if (composingRef.current) return;
       try {
-        const data = await getRandomRoom(code, entryCode);
+        const data = await getRandomRoom(code);
         if (cancelled) return;
         const next = data.messages ?? [];
         const prev = messagesRef.current;
@@ -107,32 +76,11 @@ export function RandomChatRoom() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [step, code, entryCode, refreshChat]);
+  }, [code, refreshChat]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  async function handleCodeSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError("");
-    const trimmed = entryCode.replace(/\D/g, "");
-    if (trimmed.length !== 6) {
-      setError("6자리 입장 코드를 입력해 주세요.");
-      return;
-    }
-    setLoading(true);
-    try {
-      await refreshChat(trimmed);
-      saveEntryCode(code, trimmed);
-      setEntryCode(trimmed);
-      setStep("chat");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "입장 실패");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleSend(e: FormEvent) {
     e.preventDefault();
@@ -143,12 +91,7 @@ export function RandomChatRoom() {
 
     setSending(true);
     try {
-      const { messages: next } = await sendRandomMessage(
-        code,
-        entryCode,
-        name,
-        text
-      );
+      const { messages: next } = await sendRandomMessage(code, name, text);
       setMessages(next);
       messagesRef.current = next;
       setDraft("");
@@ -159,34 +102,10 @@ export function RandomChatRoom() {
     }
   }
 
-  if (step === "code") {
+  if (loading) {
     return (
-      <Layout
-        title="채팅 입장"
-        onBack={() => navigate("/random/chat")}
-      >
-        <form className="card" onSubmit={handleCodeSubmit}>
-          <div className="field">
-            <label className="label" htmlFor="chat-entry-code">
-              입장 코드 (6자리)
-            </label>
-            <input
-              id="chat-entry-code"
-              className="input code-input"
-              inputMode="numeric"
-              maxLength={6}
-              placeholder="000000"
-              value={entryCode}
-              onChange={(e) =>
-                setEntryCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-              }
-            />
-          </div>
-          {error && <p className="error-msg">{error}</p>}
-          <button type="submit" className="btn btn-accent" disabled={loading}>
-            {loading ? "확인 중..." : "채팅 입장 💬"}
-          </button>
-        </form>
+      <Layout title="채팅" onBack={() => navigate("/random/rooms")}>
+        <p className="api-banner-detail">채팅방을 불러오는 중...</p>
       </Layout>
     );
   }
@@ -194,7 +113,7 @@ export function RandomChatRoom() {
   return (
     <Layout
       title={`${subject} 채팅`}
-      onBack={() => navigate("/random/chat")}
+      onBack={() => navigate("/random/rooms")}
     >
       <div className="chat-room">
         <div className="chat-messages">

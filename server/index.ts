@@ -109,7 +109,7 @@ async function runRandomMatch(room: RandomRoomData): Promise<RandomRoomData> {
   room.messages.push({
     id: uuidv4(),
     authorName: "월담 AI",
-    body: `선정된 이메일: ${survey.email}\n이 이메일로 입장코드를 보내세요.`,
+    body: `선정된 이메일: ${survey.email}\n채팅방에서 이 참가자를 확인해 주세요.`,
     createdAt: new Date().toISOString(),
     system: true,
   });
@@ -559,17 +559,14 @@ app.post("/api/random-rooms", async (req, res) => {
     }
 
     let code = generateCode();
-    let entryCode = generateCode();
     for (let i = 0; i < 10; i++) {
       const existing = await loadRandomRoom(code);
       if (!existing) break;
       code = generateCode();
-      entryCode = generateCode();
     }
 
     const room: RandomRoomData = {
       code,
-      entryCode,
       subject: subject as RandomRoomData["subject"],
       abilities: [RANDOM_CRITERION1, c3, c4],
       criterion3: c3,
@@ -587,7 +584,7 @@ app.post("/api/random-rooms", async (req, res) => {
         {
           id: uuidv4(),
           authorName: "시스템",
-          body: `${subject} 주제의 랜덤 팀 채팅방이 열렸습니다. 입장 코드가 필요합니다.`,
+          body: `${subject} 주제의 랜덤 팀 채팅방이 열렸습니다. 설문 후 바로 입장할 수 있습니다.`,
           createdAt: new Date().toISOString(),
           system: true,
         },
@@ -595,7 +592,7 @@ app.post("/api/random-rooms", async (req, res) => {
     };
 
     await saveRandomRoom(room);
-    res.json({ code, entryCode, room: toPublicRoom(room) });
+    res.json({ code, room: toPublicRoom(room) });
   } catch (e) {
     console.error(e);
     const raw = e instanceof Error ? e.message : "방 생성에 실패했습니다.";
@@ -611,23 +608,11 @@ app.get("/api/random-rooms/:code", async (req, res) => {
       return;
     }
 
-    const entryCode = String(req.query.entryCode ?? "").replace(/\D/g, "");
-    const publicRoom = toPublicRoom(room);
-
-    if (entryCode && entryCode === room.entryCode) {
-      res.json({
-        room: publicRoom,
-        abilities: room.abilities,
-        messages: room.messages,
-        chatAccess: true,
-      });
-      return;
-    }
-
     res.json({
-      room: publicRoom,
+      room: toPublicRoom(room),
       abilities: room.abilities,
-      chatAccess: false,
+      messages: room.messages,
+      chatAccess: true,
     });
   } catch (e) {
     console.error(e);
@@ -780,17 +765,10 @@ app.post("/api/random-rooms/:code/messages", async (req, res) => {
       return;
     }
 
-    const { entryCode, authorName, body } = req.body as {
-      entryCode?: string;
+    const { authorName, body } = req.body as {
       authorName?: string;
       body?: string;
     };
-
-    const code = String(entryCode ?? "").replace(/\D/g, "");
-    if (code !== room.entryCode) {
-      res.status(403).json({ error: "입장 코드가 올바르지 않습니다." });
-      return;
-    }
 
     const name = authorName?.trim() ?? "";
     const text = body?.trim() ?? "";

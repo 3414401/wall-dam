@@ -7,18 +7,18 @@ import { getUser } from "../../lib/auth";
 
 const HOST_ROOM_KEY = "random_project_host_room";
 
-export function getHostRandomRoom(): { code: string; entryCode: string } | null {
+export function getHostRandomRoom(): { code: string } | null {
   const raw = sessionStorage.getItem(HOST_ROOM_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as { code: string; entryCode: string };
+    return JSON.parse(raw) as { code: string };
   } catch {
     return null;
   }
 }
 
-export function setHostRandomRoom(code: string, entryCode: string) {
-  sessionStorage.setItem(HOST_ROOM_KEY, JSON.stringify({ code, entryCode }));
+export function setHostRandomRoom(code: string) {
+  sessionStorage.setItem(HOST_ROOM_KEY, JSON.stringify({ code }));
 }
 
 export function RandomCreateRoom() {
@@ -29,7 +29,7 @@ export function RandomCreateRoom() {
   );
   const [criterion3, setCriterion3] = useState("");
   const [criterion4, setCriterion4] = useState("");
-  const [created, setCreated] = useState<{ code: string; entryCode: string } | null>(
+  const [created, setCreated] = useState<{ code: string } | null>(
     getHostRandomRoom()
   );
   const [loading, setLoading] = useState(false);
@@ -43,14 +43,14 @@ export function RandomCreateRoom() {
     }
     setLoading(true);
     try {
-      const { code, entryCode } = await createRandomRoom(
+      const { code } = await createRandomRoom(
         subject,
         criterion3.trim(),
         criterion4.trim(),
         user?.username ?? "host"
       );
-      setCreated({ code, entryCode });
-      setHostRandomRoom(code, entryCode);
+      setCreated({ code });
+      setHostRandomRoom(code);
     } catch (e) {
       setError(e instanceof Error ? e.message : "방 생성 실패");
     } finally {
@@ -65,7 +65,7 @@ export function RandomCreateRoom() {
   return (
     <Layout
       title="방 만들기"
-      subtitle="주제 · 기준 · 입장 코드 발급"
+      subtitle="주제 · 기준 설정"
       onBack={() => navigate("/random")}
     >
       <ApiConnectionBanner />
@@ -144,18 +144,7 @@ export function RandomCreateRoom() {
             >
               📋 방 코드 복사
             </button>
-            <p style={{ textAlign: "center", margin: "16px 0 0" }}>
-              채팅 입장 코드 (6자리)
-            </p>
-            <div className="code-display">{created.entryCode}</div>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => copyText(created.entryCode)}
-            >
-              📋 입장 코드 복사
-            </button>
-            <p className="success-msg">방 목록·채팅하기에 등록되었습니다.</p>
+            <p className="success-msg">방 목록에 등록되었습니다.</p>
             <button
               type="button"
               className="btn"

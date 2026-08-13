@@ -75,16 +75,8 @@ export function RandomRoomList() {
             <div className="room-list-actions">
               <button
                 type="button"
-                className="btn btn-sm"
-                disabled={room.joinClosed}
-                onClick={() => navigate(`/random/prepare/${room.code}`)}
-              >
-                입장준비
-              </button>
-              <button
-                type="button"
                 className="btn btn-sm btn-accent"
-                onClick={() => navigate(`/random/chat/${room.code}`)}
+                onClick={() => navigate(`/random/prepare/${room.code}`)}
               >
                 입장하기
               </button>

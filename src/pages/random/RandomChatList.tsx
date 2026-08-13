@@ -39,7 +39,7 @@ export function RandomChatList() {
   return (
     <Layout
       title="채팅하기"
-      subtitle="방을 선택하고 입장 코드로 대화"
+      subtitle="방을 선택하고 설문 후 대화"
       onBack={() => navigate("/random")}
     >
       <ApiConnectionBanner />
@@ -63,7 +63,7 @@ export function RandomChatList() {
             type="button"
             key={room.code}
             className="card chat-post-card"
-            onClick={() => navigate(`/random/chat/${room.code}`)}
+            onClick={() => navigate(`/random/prepare/${room.code}`)}
           >
             <div className="chat-post-head">
               <span className="room-subject-badge">{room.subject}</span>
@@ -80,7 +80,7 @@ export function RandomChatList() {
             {room.selectedEmail && (
               <p className="chat-post-hint">AI 선정: {room.selectedEmail}</p>
             )}
-            <span className="chat-post-enter">입장 코드 입력 →</span>
+            <span className="chat-post-enter">설문 후 입장 →</span>
           </button>
         ))}
       </div>

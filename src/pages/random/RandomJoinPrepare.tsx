@@ -10,6 +10,29 @@ import {
   type RosterRow,
 } from "../../lib/api";
 
+const SURVEY_DONE_KEY = "random_survey_done_rooms";
+
+function loadSurveyDone(): Record<string, boolean> {
+  try {
+    return JSON.parse(sessionStorage.getItem(SURVEY_DONE_KEY) ?? "{}") as Record<
+      string,
+      boolean
+    >;
+  } catch {
+    return {};
+  }
+}
+
+function markSurveyDone(roomCode: string) {
+  const all = loadSurveyDone();
+  all[roomCode] = true;
+  sessionStorage.setItem(SURVEY_DONE_KEY, JSON.stringify(all));
+}
+
+function hasSurveyDone(roomCode: string): boolean {
+  return !!loadSurveyDone()[roomCode];
+}
+
 export function RandomJoinPrepare() {
   const { code = "" } = useParams();
   const navigate = useNavigate();
@@ -31,7 +54,7 @@ export function RandomJoinPrepare() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(hasSurveyDone(code));
 
   const needsSchoolPick = rosterChecked && rosterTotal > 0;
 
@@ -47,6 +70,12 @@ export function RandomJoinPrepare() {
         setMaxParticipants(data.room.maxParticipants);
         setJoinClosed(data.room.joinClosed);
         setScores(Array(data.abilities.length).fill(5));
+
+        // 이미 이 세션에서 설문을 냈거나 모집이 마감된 경우 채팅으로 바로 입장
+        if (hasSurveyDone(code) || data.room.joinClosed) {
+          navigate(`/random/chat/${code}`, { replace: true });
+          return;
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "방 로드 실패");
       } finally {
@@ -56,10 +85,10 @@ export function RandomJoinPrepare() {
     return () => {
       cancelled = true;
     };
-  }, [code]);
+  }, [code, navigate]);
 
   useEffect(() => {
-    if (loading || !code) return;
+    if (loading || !code || done || joinClosed) return;
 
     let cancelled = false;
     setListLoading(true);
@@ -93,7 +122,7 @@ export function RandomJoinPrepare() {
     return () => {
       cancelled = true;
     };
-  }, [loading, code, searchQ]);
+  }, [loading, code, searchQ, done, joinClosed]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -134,7 +163,9 @@ export function RandomJoinPrepare() {
       );
       setParticipantCount(result.total);
       setJoinClosed(result.joinClosed);
+      markSurveyDone(code);
       setDone(true);
+      navigate(`/random/chat/${code}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       if (msg.includes("명단") || msg.includes("학교")) {
@@ -150,26 +181,15 @@ export function RandomJoinPrepare() {
 
   if (loading) {
     return (
-      <Layout title="입장준비" subtitle="설문 불러오는 중..." onBack={() => navigate("/random/rooms")}>
+      <Layout title="입장하기" subtitle="설문 불러오는 중..." onBack={() => navigate("/random/rooms")}>
         <p className="api-banner-detail">잠시만 기다려 주세요...</p>
-      </Layout>
-    );
-  }
-
-  if (joinClosed && !done) {
-    return (
-      <Layout title="입장 마감" subtitle={`${subject} · 코드 ${code}`} onBack={() => navigate("/random/rooms")}>
-        <div className="card placeholder-box">
-          <div className="emoji">🔒</div>
-          <p>이 방은 참여 인원이 가득 차 더 이상 설문에 참여할 수 없습니다.</p>
-        </div>
       </Layout>
     );
   }
 
   if (done) {
     return (
-      <Layout title="제출 완료" subtitle="설문이 저장되었습니다">
+      <Layout title="제출 완료" subtitle="설문이 저장되었습니다" onBack={() => navigate("/random/rooms")}>
         <div className="card placeholder-box">
           <div className="emoji">✅</div>
           <p>
@@ -183,8 +203,13 @@ export function RandomJoinPrepare() {
               : ""}
           </p>
         </div>
-        <button type="button" className="btn" style={{ marginTop: 16 }} onClick={() => navigate("/random/rooms")}>
-          방 목록으로
+        <button
+          type="button"
+          className="btn btn-accent"
+          style={{ marginTop: 16 }}
+          onClick={() => navigate(`/random/chat/${code}`)}
+        >
+          채팅방 입장
         </button>
       </Layout>
     );
@@ -192,14 +217,14 @@ export function RandomJoinPrepare() {
 
   return (
     <Layout
-      title="입장준비 · 설문"
+      title="입장하기 · 설문"
       subtitle={`${subject} · ${participantCount}/${maxParticipants}명`}
       onBack={() => navigate("/random/rooms")}
     >
       <div className="survey-guide-box">
         <p>
-          입장 코드 없이 설문에 참여합니다. 입력하신 정보는 다른 사용자에게
-          공개되지 않습니다.
+          채팅방에 들어가기 전에 설문을 작성해 주세요. 입력하신 정보는 다른
+          사용자에게 공개되지 않습니다.
         </p>
       </div>
 
@@ -338,7 +363,7 @@ export function RandomJoinPrepare() {
 
         {error && <p className="error-msg">{error}</p>}
         <button type="submit" className="btn btn-accent" disabled={submitting}>
-          {submitting ? "저장 중..." : "설문 제출 ⭐"}
+          {submitting ? "저장 중..." : "설문 제출 후 입장 ⭐"}
         </button>
       </form>
     </Layout>
