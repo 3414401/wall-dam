@@ -30,13 +30,43 @@ body,
 
 body {
   font-family: var(--font-body);
-  background: radial-gradient(
-      circle at 50% 30%,
-      rgba(79, 140, 255, 0.45) 0%,
+  background-color: #0a1a42;
+  background-image:
+    radial-gradient(
+      ellipse 80% 60% at 88% 8%,
+      rgba(94, 231, 255, 0.55) 0%,
+      rgba(79, 140, 255, 0.18) 35%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 55% at 12% 88%,
+      rgba(0, 242, 254, 0.42) 0%,
+      rgba(79, 140, 255, 0.2) 40%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 55% 50% at 70% 55%,
+      rgba(90, 60, 200, 0.45) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 60% 45% at 30% 35%,
+      rgba(37, 99, 199, 0.55) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(26, 58, 143, 0.9) 0%,
       transparent 55%
     ),
-    radial-gradient(circle at 20% 80%, rgba(94, 231, 255, 0.2), transparent 40%),
-    linear-gradient(165deg, var(--blue-deep) 0%, #0f2558 55%, #0a1a42 100%);
+    linear-gradient(
+      165deg,
+      var(--blue-deep) 0%,
+      #142a72 28%,
+      #0f2558 58%,
+      #0a1a42 100%
+    );
+  background-attachment: fixed;
   color: var(--white);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
