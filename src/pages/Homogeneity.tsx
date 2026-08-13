@@ -160,7 +160,7 @@ export function Homogeneity() {
 
                 style={{ marginTop: 12 }}
 
-                onClick={() => downloadSessionExcel(session)}
+                onClick={() => downloadSessionExcel(session, insights)}
 
               >
 
