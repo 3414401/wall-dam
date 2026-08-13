@@ -10,7 +10,7 @@
   --shadow: 0 8px 24px rgba(0, 20, 80, 0.35);
   --radius-pill: 999px;
   --radius-card: 20px;
-  --font-display: "Jua", "Noto Sans KR", sans-serif;
+  --font-display: "Noto Sans KR", system-ui, sans-serif;
   --font-body: "Noto Sans KR", system-ui, sans-serif;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
