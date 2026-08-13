@@ -107,6 +107,12 @@ export interface RandomChatMessage {
   system?: boolean;
 }
 
+export interface RandomDiversityPair {
+  pairIndex: number;
+  members: { id: string; nickname: string; email: string }[];
+  reason?: string;
+}
+
 export interface RandomRoomData {
   code: string;
   /** @deprecated kept for existing room JSON compatibility */
@@ -125,6 +131,11 @@ export interface RandomRoomData {
   matchedAt: string | null;
   matchNote: string | null;
   messages: RandomChatMessage[];
+  diversityPairs?: RandomDiversityPair[] | null;
+  diversityLeftover?: { id: string; nickname: string; email: string }[] | null;
+  diversityMatchedAt?: string | null;
+  diversityMatchNote?: string | null;
+  diversityUsedAi?: boolean | null;
 }
 
 export interface RandomRoomPublic {

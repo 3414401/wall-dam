@@ -2,9 +2,11 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Layout } from "../../components/Layout";
 import {
+  diversityMatchRandomRoom,
   getRandomRoom,
   sendRandomMessage,
   type RandomChatMessage,
+  type RandomDiversityMatch,
 } from "../../lib/api";
 import { getUser } from "../../lib/auth";
 
@@ -25,7 +27,10 @@ export function RandomChatRoom() {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [matching, setMatching] = useState(false);
   const [error, setError] = useState("");
+  const [diversityMatch, setDiversityMatch] =
+    useState<RandomDiversityMatch | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const composingRef = useRef(false);
   const messagesRef = useRef<RandomChatMessage[]>([]);
@@ -36,6 +41,9 @@ export function RandomChatRoom() {
     const next = data.messages ?? [];
     messagesRef.current = next;
     setMessages(next);
+    if (data.diversityMatch) {
+      setDiversityMatch(data.diversityMatch);
+    }
   }, [code]);
 
   useEffect(() => {
@@ -66,6 +74,9 @@ export function RandomChatRoom() {
           messagesRef.current = next;
           setMessages(next);
         }
+        if (data.diversityMatch) {
+          setDiversityMatch(data.diversityMatch);
+        }
       } catch {
         /* ignore polling errors */
       }
@@ -81,6 +92,27 @@ export function RandomChatRoom() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  async function handleDiversityMatch() {
+    setError("");
+    setMatching(true);
+    try {
+      const result = await diversityMatchRandomRoom(code);
+      setDiversityMatch({
+        pairs: result.pairs,
+        leftover: result.leftover,
+        note: result.note,
+        usedAi: result.usedAi,
+        matchedAt: result.matchedAt,
+      });
+      setMessages(result.messages);
+      messagesRef.current = result.messages;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "다양성 매칭 실패");
+    } finally {
+      setMatching(false);
+    }
+  }
 
   async function handleSend(e: FormEvent) {
     e.preventDefault();
@@ -116,6 +148,48 @@ export function RandomChatRoom() {
       onBack={() => navigate("/random/rooms")}
     >
       <div className="chat-room">
+        <div className="chat-match-bar">
+          <button
+            type="button"
+            className="btn btn-accent btn-sm"
+            onClick={handleDiversityMatch}
+            disabled={matching}
+          >
+            {matching ? "매칭 중..." : "AI 다양성 매칭"}
+          </button>
+          <p className="chat-match-hint">
+            설문·공공데이터로 2명씩 다양성 극대화 조합 (담을 넘는 조짜기와 동일)
+          </p>
+        </div>
+
+        {diversityMatch && diversityMatch.pairs.length > 0 && (
+          <div className="chat-match-result">
+            <h3 className="chat-match-result-title">
+              다양성 매칭 결과
+              {diversityMatch.usedAi ? " · AI" : " · 자동 균형"}
+            </h3>
+            <ul className="chat-match-pairs">
+              {diversityMatch.pairs.map((pair) => (
+                <li key={pair.pairIndex}>
+                  <strong>{pair.pairIndex}조</strong>{" "}
+                  {pair.members.map((m) => m.nickname).join(" × ")}
+                  {pair.reason ? (
+                    <span className="chat-match-reason">{pair.reason}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+            {diversityMatch.leftover.length > 0 && (
+              <p className="api-banner-detail">
+                대기: {diversityMatch.leftover.map((m) => m.nickname).join(", ")}
+              </p>
+            )}
+            {diversityMatch.note && (
+              <p className="chat-match-note">{diversityMatch.note}</p>
+            )}
+          </div>
+        )}
+
         <div className="chat-messages">
           {messages.map((msg) => (
             <div

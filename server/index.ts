@@ -11,6 +11,10 @@ import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
 import {
+  formatDiversityMatchMessage,
+  matchDiversityPairs,
+} from "./randomPairMatch.js";
+import {
   deleteRandomRoom,
   listRandomRoomCodes,
   loadRandomRoom,
@@ -613,10 +617,67 @@ app.get("/api/random-rooms/:code", async (req, res) => {
       abilities: room.abilities,
       messages: room.messages,
       chatAccess: true,
+      diversityMatch: room.diversityPairs
+        ? {
+            pairs: room.diversityPairs,
+            leftover: room.diversityLeftover ?? [],
+            note: room.diversityMatchNote ?? "",
+            usedAi: !!room.diversityUsedAi,
+            matchedAt: room.diversityMatchedAt ?? null,
+          }
+        : null,
     });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "방 조회에 실패했습니다." });
+  }
+});
+
+app.post("/api/random-rooms/:code/diversity-match", async (req, res) => {
+  try {
+    const room = await loadRandomRoom(req.params.code);
+    if (!room) {
+      res.status(404).json({ error: "방을 찾을 수 없습니다." });
+      return;
+    }
+
+    if (room.surveys.length < 2) {
+      res.status(400).json({
+        error: "매칭하려면 설문 참가자가 2명 이상 필요합니다.",
+      });
+      return;
+    }
+
+    const result = await matchDiversityPairs(room);
+    room.diversityPairs = result.pairs;
+    room.diversityLeftover = result.leftover;
+    room.diversityMatchedAt = new Date().toISOString();
+    room.diversityMatchNote = result.note;
+    room.diversityUsedAi = result.usedAi;
+
+    room.messages.push({
+      id: uuidv4(),
+      authorName: "월담 AI",
+      body: formatDiversityMatchMessage(result),
+      createdAt: new Date().toISOString(),
+      system: true,
+    });
+
+    await saveRandomRoom(room);
+
+    res.json({
+      ok: true,
+      pairs: result.pairs,
+      leftover: result.leftover,
+      note: result.note,
+      usedAi: result.usedAi,
+      matchedAt: room.diversityMatchedAt,
+      messages: room.messages,
+    });
+  } catch (e) {
+    console.error(e);
+    const raw = e instanceof Error ? e.message : "다양성 매칭에 실패했습니다.";
+    res.status(500).json({ error: raw });
   }
 });
 

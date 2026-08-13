@@ -959,6 +959,62 @@ input[type="range"]::-webkit-slider-thumb {
   gap: 12px;
 }
 
+.chat-match-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.chat-match-bar .btn {
+  width: 100%;
+}
+
+.chat-match-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #111;
+  opacity: 0.75;
+}
+
+.chat-match-result {
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  color: #111;
+}
+
+.chat-match-result-title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.chat-match-pairs {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.chat-match-reason {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.chat-match-note {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  opacity: 0.85;
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;

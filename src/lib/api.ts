@@ -251,13 +251,42 @@ export function createRandomRoom(
   });
 }
 
+export interface RandomDiversityPair {
+  pairIndex: number;
+  members: { id: string; nickname: string; email: string }[];
+  reason?: string;
+}
+
+export interface RandomDiversityMatch {
+  pairs: RandomDiversityPair[];
+  leftover: { id: string; nickname: string; email: string }[];
+  note: string;
+  usedAi: boolean;
+  matchedAt?: string | null;
+}
+
 export function getRandomRoom(code: string) {
   return request<{
     room: RandomRoomPublic;
     abilities: string[];
     messages?: RandomChatMessage[];
     chatAccess: boolean;
+    diversityMatch?: RandomDiversityMatch | null;
   }>(`/api/random-rooms/${code}`);
+}
+
+export function diversityMatchRandomRoom(code: string) {
+  return request<{
+    ok: boolean;
+    pairs: RandomDiversityPair[];
+    leftover: { id: string; nickname: string; email: string }[];
+    note: string;
+    usedAi: boolean;
+    matchedAt: string;
+    messages: RandomChatMessage[];
+  }>(`/api/random-rooms/${code}/diversity-match`, {
+    method: "POST",
+  });
 }
 
 export function searchRandomRosterRows(code: string, q: string) {
