@@ -972,10 +972,12 @@ input[type="range"]::-webkit-slider-thumb {
 
 .chat-match-hint {
   margin: 0;
+  padding: 10px 12px;
   font-size: 0.8rem;
-  line-height: 1.4;
+  line-height: 1.45;
   color: #111;
-  opacity: 0.75;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .chat-match-result {

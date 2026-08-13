@@ -103,6 +103,21 @@ function toPublicRoom(room: RandomRoomData): RandomRoomPublic {
   };
 }
 
+const ROOM_WELCOME_TEXT = "랜덤 팀 채팅방이 열렸습니다.";
+
+function normalizeRoomMessages(room: RandomRoomData) {
+  return room.messages.map((msg) => {
+    if (
+      msg.system &&
+      typeof msg.body === "string" &&
+      msg.body.includes("랜덤 팀 채팅방이 열렸습니다")
+    ) {
+      return { ...msg, body: ROOM_WELCOME_TEXT };
+    }
+    return msg;
+  });
+}
+
 async function runRandomMatch(room: RandomRoomData): Promise<RandomRoomData> {
   const { survey, note } = await pickMostHeterogeneous(room);
   room.selectedEmail = survey.email;
@@ -588,7 +603,7 @@ app.post("/api/random-rooms", async (req, res) => {
         {
           id: uuidv4(),
           authorName: "시스템",
-          body: `${subject} 주제의 랜덤 팀 채팅방이 열렸습니다. 설문 후 바로 입장할 수 있습니다.`,
+          body: ROOM_WELCOME_TEXT,
           createdAt: new Date().toISOString(),
           system: true,
         },
@@ -615,7 +630,7 @@ app.get("/api/random-rooms/:code", async (req, res) => {
     res.json({
       room: toPublicRoom(room),
       abilities: room.abilities,
-      messages: room.messages,
+      messages: normalizeRoomMessages(room),
       chatAccess: true,
       diversityMatch: room.diversityPairs
         ? {
@@ -672,7 +687,7 @@ app.post("/api/random-rooms/:code/diversity-match", async (req, res) => {
       note: result.note,
       usedAi: result.usedAi,
       matchedAt: room.diversityMatchedAt,
-      messages: room.messages,
+      messages: normalizeRoomMessages(room),
     });
   } catch (e) {
     console.error(e);
@@ -852,7 +867,7 @@ app.post("/api/random-rooms/:code/messages", async (req, res) => {
     room.messages.push(message);
     await saveRandomRoom(room);
 
-    res.json({ ok: true, message, messages: room.messages });
+    res.json({ ok: true, message, messages: normalizeRoomMessages(room) });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "메시지 전송에 실패했습니다." });

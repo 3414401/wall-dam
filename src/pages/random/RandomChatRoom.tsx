@@ -158,7 +158,8 @@ export function RandomChatRoom() {
             {matching ? "매칭 중..." : "AI 다양성 매칭"}
           </button>
           <p className="chat-match-hint">
-            설문·공공데이터로 2명씩 다양성 극대화 조합 (담을 넘는 조짜기와 동일)
+            AI가 공공데이터와 설문결과를 바탕으로 다양성이 가장 극대화 되는 팀원을
+            매칭해 줍니다.
           </p>
         </div>
 
