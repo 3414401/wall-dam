@@ -425,9 +425,10 @@ input[type="range"]::-webkit-slider-thumb {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--text-muted);
+  color: #111827;
   text-decoration: none;
   font-size: 0.9rem;
+  font-weight: 700;
   margin-bottom: 12px;
   background: none;
   border: none;
@@ -437,7 +438,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .back-link:hover {
-  color: var(--white);
+  color: #000000;
 }
 
 .badge {
@@ -883,6 +884,12 @@ input[type="range"]::-webkit-slider-thumb {
 .room-list-title {
   margin: 0 0 8px;
   font-size: 1rem;
+  color: #111827;
+}
+
+.room-participant-meta {
+  margin: 0;
+  font-size: 0.85rem;
   color: #111827;
 }
 

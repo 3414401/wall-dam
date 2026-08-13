@@ -25,13 +25,6 @@ export function RandomHome() {
         >
           ➕ 방 만들기
         </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => navigate("/random/chat")}
-        >
-          💬 채팅하기
-        </button>
       </div>
     </Layout>
   );

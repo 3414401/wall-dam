@@ -63,7 +63,7 @@ export function RandomRoomList() {
             <p className="room-list-title">
               {room.criterion3} · {room.criterion4}
             </p>
-            <p className="api-banner-detail">
+            <p className="room-participant-meta">
               참여 {room.participantCount}/{room.maxParticipants}
               {room.joinClosed ? " · 마감" : " · 모집 중"}
             </p>
