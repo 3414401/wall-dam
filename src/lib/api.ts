@@ -235,7 +235,6 @@ export function createRandomRoom(
   subject: RandomSubject,
   criterion3: string,
   criterion4: string,
-  recipientEmail: string,
   createdBy: string
 ) {
   return request<{
@@ -248,7 +247,6 @@ export function createRandomRoom(
       subject,
       criterion3,
       criterion4,
-      recipientEmail,
       createdBy,
     }),
   });

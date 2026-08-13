@@ -114,7 +114,7 @@ export interface RandomRoomData {
   abilities: string[];
   criterion3: string;
   criterion4: string;
-  recipientEmail: string;
+  recipientEmail?: string;
   createdAt: string;
   createdBy: string;
   surveys: RandomSurveyResponse[];

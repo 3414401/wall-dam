@@ -538,12 +538,11 @@ app.get("/api/random-rooms", async (_req, res) => {
 
 app.post("/api/random-rooms", async (req, res) => {
   try {
-    const { subject, criterion3, criterion4, recipientEmail, createdBy } =
+    const { subject, criterion3, criterion4, createdBy } =
       req.body as {
         subject?: string;
         criterion3?: string;
         criterion4?: string;
-        recipientEmail?: string;
         createdBy?: string;
       };
 
@@ -556,12 +555,6 @@ app.post("/api/random-rooms", async (req, res) => {
     const c4 = String(criterion4 ?? "").trim();
     if (!c3 || !c4) {
       res.status(400).json({ error: "기준 3, 기준 4를 입력해 주세요." });
-      return;
-    }
-
-    const email = String(recipientEmail ?? "").trim();
-    if (!isValidEmail(email)) {
-      res.status(400).json({ error: "입장 코드를 받을 이메일을 올바르게 입력해 주세요." });
       return;
     }
 
@@ -581,7 +574,7 @@ app.post("/api/random-rooms", async (req, res) => {
       abilities: [RANDOM_CRITERION1, c3, c4],
       criterion3: c3,
       criterion4: c4,
-      recipientEmail: email,
+      recipientEmail: "",
       createdAt: new Date().toISOString(),
       createdBy: createdBy || "host",
       surveys: [],

@@ -27,7 +27,6 @@ export function RandomCreateRoom() {
   const [subject, setSubject] = useState<(typeof RANDOM_SUBJECTS)[number]>(
     "기획/아이디어"
   );
-  const [recipientEmail, setRecipientEmail] = useState("");
   const [criterion3, setCriterion3] = useState("");
   const [criterion4, setCriterion4] = useState("");
   const [created, setCreated] = useState<{ code: string; entryCode: string } | null>(
@@ -38,10 +37,6 @@ export function RandomCreateRoom() {
 
   async function handleCreate() {
     setError("");
-    if (!recipientEmail.trim()) {
-      setError("입장 코드를 받을 이메일을 입력해 주세요.");
-      return;
-    }
     if (!criterion3.trim() || !criterion4.trim()) {
       setError("기준 3, 기준 4를 입력해 주세요.");
       return;
@@ -52,7 +47,6 @@ export function RandomCreateRoom() {
         subject,
         criterion3.trim(),
         criterion4.trim(),
-        recipientEmail.trim(),
         user?.username ?? "host"
       );
       setCreated({ code, entryCode });
@@ -78,7 +72,7 @@ export function RandomCreateRoom() {
       <div className="survey-guide-box">
         <p>
           방 주제와 기준을 설정하세요. 참가자 5명이 설문을 완료하면 AI가 가장
-          이질성이 높은 사람을 선정하고, 채팅방에 이메일을 안내합니다.
+          이질성이 높은 사람을 선정합니다.
         </p>
       </div>
 
@@ -109,21 +103,6 @@ export function RandomCreateRoom() {
         <div className="field">
           <label className="label">기준 1</label>
           <input className="input" value={RANDOM_CRITERION1} disabled />
-        </div>
-
-        <div className="field">
-          <label className="label" htmlFor="recipient-email">
-            입장 코드를 받을 이메일
-          </label>
-          <input
-            id="recipient-email"
-            className="input"
-            type="email"
-            placeholder="example@school.ac.kr"
-            value={recipientEmail}
-            onChange={(e) => setRecipientEmail(e.target.value)}
-            disabled={!!created}
-          />
         </div>
 
         <div className="field">
