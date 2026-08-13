@@ -22,24 +22,24 @@ export function Home() {
       <div className="btn-stack">
         <button
           type="button"
-          className="btn"
-          onClick={() => navigate("/homogeneity")}
-        >
-          📊 우리 조 AI 요약
-        </button>
-        <button
-          type="button"
           className="btn btn-secondary"
           onClick={() => navigate("/wall")}
         >
-          🧱 담을 넘는 조짜기
+          1️⃣ 조짜기🧱
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/homogeneity")}
+        >
+          2️⃣ 우리 조 AI 요약📊
         </button>
         <button
           type="button"
           className="btn btn-accent"
           onClick={() => navigate("/random")}
         >
-          🎲 랜덤 팀 프로젝트
+          🎲 랜덤 학습 채팅
         </button>
         <button
           type="button"
