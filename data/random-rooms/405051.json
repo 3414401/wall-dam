@@ -1,0 +1,29 @@
+{
+  "code": "405051",
+  "subject": "과학/공학",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "mbti T/F",
+    "본인 계산 실력"
+  ],
+  "criterion3": "mbti T/F",
+  "criterion4": "본인 계산 실력",
+  "recipientEmail": "",
+  "createdAt": "2026-08-13T13:16:36.118Z",
+  "createdBy": "lunarlake",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "38c148ba-e9d0-45ee-8a23-5399a2e4ac21",
+      "authorName": "시스템",
+      "body": "과학/공학 주제의 랜덤 팀 채팅방이 열렸습니다. 설문 후 바로 입장할 수 있습니다.",
+      "createdAt": "2026-08-13T13:16:36.118Z",
+      "system": true
+    }
+  ]
+}
