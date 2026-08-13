@@ -22,15 +22,6 @@ export function Home() {
       <div className="btn-stack">
         <button
           type="button"
-          className="btn btn-soft-green"
-          onClick={() => {
-            window.location.href = "https://3414401.github.io/walldam_calculate/";
-          }}
-        >
-          🏫 공공데이터로 동질성 지수 계산하기
-        </button>
-        <button
-          type="button"
           className="btn"
           onClick={() => navigate("/homogeneity")}
         >
