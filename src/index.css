@@ -1020,16 +1020,47 @@ input[type="range"]::-webkit-slider-thumb {
 .chat-opt-in-actions {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.chat-bubble-opt-in {
+  background: #fff8e1 !important;
+  border: 2px solid #111 !important;
+  color: #111 !important;
+  text-align: center;
+}
+
+.btn-opt-in-yes {
+  background: #1a3a8f !important;
+  color: #fff !important;
+  border: 2px solid #111 !important;
+  min-width: 88px;
+  font-weight: 700;
+}
+
+.btn-opt-in-yes:disabled {
+  opacity: 0.45;
+}
+
+.btn-opt-in-no {
+  background: #fff !important;
+  color: #111 !important;
+  border: 2px solid #111 !important;
+  min-width: 88px;
+  font-weight: 700;
 }
 
 .chat-opt-in-guest,
 .chat-opt-in-done {
-  margin: 8px 0 0;
+  margin: 0 0 8px;
+  width: 100%;
   font-size: 0.8rem;
   line-height: 1.4;
-  opacity: 0.85;
+  color: #111;
+  font-weight: 600;
 }
 
 .chat-messages {
