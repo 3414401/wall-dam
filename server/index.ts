@@ -10,7 +10,7 @@ import { getGlobalRoster } from "./globalRoster.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
-import { isEmailConfigured, sendMail } from "./email.js";
+import { emailProviderLabel, isEmailConfigured, sendMail } from "./email.js";
 import {
   formatDiversityMatchMessage,
   formatMatchResultEmail,
@@ -820,25 +820,31 @@ app.post("/api/random-rooms/:code/email-match-results", async (req, res) => {
     if (!isEmailConfigured()) {
       res.status(503).json({
         error:
-          "메일 발송 설정이 아직 없습니다. Render에 RESEND_API_KEY 또는 SMTP 설정을 추가해 주세요.",
+          "메일 발송 설정이 없습니다. Render에 RESEND_API_KEY와 EMAIL_FROM을 넣어 주세요. (Gmail SMTP는 Render에서 자주 실패합니다)",
       });
       return;
     }
 
-    // 예 클릭 → 현재 방에 등록된 구글 로그인 참가자 전원에게 발송
-    const recipients = room.googleParticipants ?? [];
-    if (recipients.length === 0) {
+    // 예 클릭 → 요청자 우선, 이어서 방의 구글 참가자에게 발송
+    const allRecipients = room.googleParticipants ?? [];
+    if (allRecipients.length === 0) {
       res.status(400).json({
         error: "메일을 받을 구글 로그인 참가자가 없습니다.",
       });
       return;
     }
 
+    const recipients = [
+      ...allRecipients.filter((r) => r.email.toLowerCase() === normalized),
+      ...allRecipients.filter((r) => r.email.toLowerCase() !== normalized),
+    ];
+
     const pairs = room.diversityPairs;
     const leftover = room.diversityLeftover ?? [];
     const note = room.diversityMatchNote ?? "";
     const mailed: string[] = [];
     const failed: string[] = [];
+    let lastError = "";
 
     for (const recipient of recipients) {
       const prior = optIns.find(
@@ -865,21 +871,38 @@ app.post("/api/random-rooms/:code/email-match-results", async (req, res) => {
           }),
         });
         mailed.push(recipient.email);
-        optIns.push({
+        const existingIdx = optIns.findIndex(
+          (o) =>
+            o.email.toLowerCase() === recipient.email.toLowerCase() &&
+            o.matchAt === targetMatchAt
+        );
+        const entry = {
           email: recipient.email.toLowerCase(),
           accept: true,
           respondedAt: new Date().toISOString(),
           matchAt: targetMatchAt,
           mailedAt: new Date().toISOString(),
-        });
+        };
+        if (existingIdx >= 0) optIns[existingIdx] = entry;
+        else optIns.push(entry);
       } catch (err) {
         console.error("mail fail", recipient.email, err);
         failed.push(recipient.email);
+        lastError = err instanceof Error ? err.message : String(err);
+        // SMTP가 막힌 경우 전원 실패 가능성이 크므로 빠르게 중단
+        if (
+          lastError.includes("SMTP") ||
+          lastError.includes("시간 초과") ||
+          emailProviderLabel() === "SMTP"
+        ) {
+          break;
+        }
       }
     }
 
-    // 요청자도 기록
-    if (!optIns.some((o) => o.email === normalized && o.matchAt === targetMatchAt)) {
+    if (
+      !optIns.some((o) => o.email === normalized && o.matchAt === targetMatchAt)
+    ) {
       optIns.push({
         email: normalized,
         accept: true,
@@ -897,9 +920,11 @@ app.post("/api/random-rooms/:code/email-match-results", async (req, res) => {
       id: uuidv4(),
       authorName: "월담 AI",
       body:
-        failed.length === 0
-          ? `📧 매칭 결과 메일을 구글 로그인 참가자 ${mailed.length}명에게 발송했습니다.`
-          : `📧 메일 발송: 성공 ${mailed.length}명, 실패 ${failed.length}명.`,
+        mailed.length === 0
+          ? `📧 메일 발송에 실패했습니다. (${emailProviderLabel()}) ${lastError || "Render 메일 설정을 확인해 주세요."}`
+          : failed.length === 0
+            ? `📧 매칭 결과 메일을 구글 로그인 참가자 ${mailed.length}명에게 발송했습니다.`
+            : `📧 메일 발송: 성공 ${mailed.length}명, 실패 ${failed.length}명.`,
       createdAt: new Date().toISOString(),
       system: true,
     });
@@ -907,8 +932,10 @@ app.post("/api/random-rooms/:code/email-match-results", async (req, res) => {
     await saveRandomRoom(room);
 
     if (mailed.length === 0) {
-      res.status(500).json({
-        error: "메일 발송에 실패했습니다. SMTP/Resend 설정을 확인해 주세요.",
+      res.status(502).json({
+        error:
+          lastError ||
+          "메일 발송에 실패했습니다. Gmail SMTP 대신 Resend(RESEND_API_KEY)를 권장합니다.",
         messages: normalizeRoomMessages(room),
       });
       return;
