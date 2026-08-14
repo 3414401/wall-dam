@@ -288,6 +288,12 @@
       "username": "이브아카",
       "joinedAt": "2026-08-14T11:43:56.998Z",
       "lastSeenAt": "2026-08-14T11:44:58.373Z"
+    },
+    {
+      "email": "test@gmail.com",
+      "username": "test",
+      "joinedAt": "2026-08-14T11:46:00.687Z",
+      "lastSeenAt": "2026-08-14T11:46:00.687Z"
     }
   ]
 }
