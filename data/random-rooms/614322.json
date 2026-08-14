@@ -11,7 +11,34 @@
   "recipientEmail": "",
   "createdAt": "2026-08-14T01:42:19.389Z",
   "createdBy": "dlrpajwl",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "09c55cf8-0efa-4e66-941f-7cd2a3607f5c",
+      "nickname": "dfdf (가. 미입력)",
+      "email": "dfdf@test.com",
+      "scores": [
+        1,
+        10,
+        10
+      ],
+      "submittedAt": "2026-08-14T08:28:26.675Z",
+      "rosterRowId": "row-1",
+      "rosterLabel": "가. 미입력",
+      "rosterFields": {
+        "학교명": "가. 미입력",
+        "지역": "미입력",
+        "학교 학생 수": "미입력",
+        "획일화 지수(H_m)": "미입력",
+        "P_special": "미입력",
+        "I_SCU": "미입력",
+        "H_path": "미입력",
+        "H_job": "미입력",
+        "H_ppc": "미입력",
+        "1위 업종": "미입력",
+        "R_net": "미입력"
+      }
+    }
+  ],
   "joinClosed": false,
   "maxParticipants": 5,
   "selectedEmail": null,
