@@ -219,3 +219,44 @@ export function formatDiversityMatchMessage(result: DiversityMatchResult): strin
 
   return lines.join("\n");
 }
+
+export function formatMatchResultEmail(options: {
+  subject: string;
+  recipientName: string;
+  pairs: DiversityPair[];
+  leftover: DiversityPairMember[];
+  note: string;
+}): string {
+  const lines = [
+    `안녕하세요, ${options.recipientName}님.`,
+    "",
+    `월담 랜덤 채팅방(${options.subject}) AI 다양성 매칭 결과입니다.`,
+    "",
+    "[팀 배치]",
+  ];
+
+  for (const pair of options.pairs) {
+    lines.push(`· ${pair.pairIndex}조`);
+    for (const m of pair.members) {
+      lines.push(`  - ${m.nickname} <${m.email}>`);
+    }
+  }
+
+  if (options.leftover.length > 0) {
+    lines.push("");
+    lines.push("[대기]");
+    for (const m of options.leftover) {
+      lines.push(`  - ${m.nickname} <${m.email}>`);
+    }
+  }
+
+  if (options.note?.trim()) {
+    lines.push("");
+    lines.push("[AI 요약]");
+    lines.push(options.note.trim());
+  }
+
+  lines.push("");
+  lines.push("이 메일은 채팅방에서 메일 수신에 동의한 구글 로그인 사용자에게만 발송됩니다.");
+  return lines.join("\n");
+}

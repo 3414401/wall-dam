@@ -10,8 +10,10 @@ import { getGlobalRoster } from "./globalRoster.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
+import { isEmailConfigured, sendMail } from "./email.js";
 import {
   formatDiversityMatchMessage,
+  formatMatchResultEmail,
   matchDiversityPairs,
 } from "./randomPairMatch.js";
 import {
@@ -678,6 +680,17 @@ app.post("/api/random-rooms/:code/diversity-match", async (req, res) => {
       system: true,
     });
 
+    room.messages.push({
+      id: uuidv4(),
+      authorName: "월담 AI",
+      body: "팀원의 메일 주소를 내 메일로 받아보겠습니까? (구글 계정으로 로그인한 사용자 한정)",
+      createdAt: new Date().toISOString(),
+      system: true,
+      kind: "email_opt_in",
+      matchAt: room.diversityMatchedAt,
+    });
+
+    // 새 매칭이면 이전 메일 동의 응답은 유지하되, 이번 matchAt 기준으로 다시 받을 수 있음
     await saveRandomRoom(room);
 
     res.json({
@@ -692,6 +705,225 @@ app.post("/api/random-rooms/:code/diversity-match", async (req, res) => {
   } catch (e) {
     console.error(e);
     const raw = e instanceof Error ? e.message : "다양성 매칭에 실패했습니다.";
+    res.status(500).json({ error: raw });
+  }
+});
+
+app.post("/api/random-rooms/:code/presence", async (req, res) => {
+  try {
+    const room = await loadRandomRoom(req.params.code);
+    if (!room) {
+      res.status(404).json({ error: "방을 찾을 수 없습니다." });
+      return;
+    }
+
+    const { email, username } = req.body as {
+      email?: string;
+      username?: string;
+    };
+    const normalized = String(email ?? "").trim().toLowerCase();
+    if (!isValidEmail(normalized)) {
+      res.status(400).json({ error: "유효한 구글 이메일이 필요합니다." });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const list = room.googleParticipants ?? [];
+    const existing = list.find((p) => p.email.toLowerCase() === normalized);
+    if (existing) {
+      existing.lastSeenAt = now;
+      if (username?.trim()) existing.username = username.trim();
+    } else {
+      list.push({
+        email: normalized,
+        username: username?.trim() || normalized,
+        joinedAt: now,
+        lastSeenAt: now,
+      });
+    }
+    room.googleParticipants = list;
+    await saveRandomRoom(room);
+    res.json({ ok: true, count: list.length });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "참가 등록에 실패했습니다." });
+  }
+});
+
+app.post("/api/random-rooms/:code/email-match-results", async (req, res) => {
+  try {
+    const room = await loadRandomRoom(req.params.code);
+    if (!room) {
+      res.status(404).json({ error: "방을 찾을 수 없습니다." });
+      return;
+    }
+
+    const { email, accept, matchAt } = req.body as {
+      email?: string;
+      accept?: boolean;
+      matchAt?: string;
+    };
+
+    const normalized = String(email ?? "").trim().toLowerCase();
+    if (!isValidEmail(normalized)) {
+      res.status(400).json({ error: "유효한 구글 이메일이 필요합니다." });
+      return;
+    }
+
+    const googleUser = (room.googleParticipants ?? []).find(
+      (p) => p.email.toLowerCase() === normalized
+    );
+    if (!googleUser) {
+      res.status(403).json({
+        error: "구글 계정으로 이 채팅방에 들어온 사용자만 요청할 수 있습니다.",
+      });
+      return;
+    }
+
+    const targetMatchAt = matchAt || room.diversityMatchedAt || "";
+    if (!targetMatchAt || !room.diversityPairs?.length) {
+      res.status(400).json({ error: "아직 다양성 매칭 결과가 없습니다." });
+      return;
+    }
+
+    const optIns = room.emailOptIns ?? [];
+    const already = optIns.find(
+      (o) =>
+        o.email.toLowerCase() === normalized && o.matchAt === targetMatchAt
+    );
+    if (already?.mailedAt) {
+      res.json({
+        ok: true,
+        already: true,
+        messages: normalizeRoomMessages(room),
+      });
+      return;
+    }
+
+    if (!accept) {
+      optIns.push({
+        email: normalized,
+        accept: false,
+        respondedAt: new Date().toISOString(),
+        matchAt: targetMatchAt,
+      });
+      room.emailOptIns = optIns;
+      await saveRandomRoom(room);
+      res.json({
+        ok: true,
+        accepted: false,
+        messages: normalizeRoomMessages(room),
+      });
+      return;
+    }
+
+    if (!isEmailConfigured()) {
+      res.status(503).json({
+        error:
+          "메일 발송 설정이 아직 없습니다. Render에 RESEND_API_KEY 또는 SMTP 설정을 추가해 주세요.",
+      });
+      return;
+    }
+
+    // 예 클릭 → 현재 방에 등록된 구글 로그인 참가자 전원에게 발송
+    const recipients = room.googleParticipants ?? [];
+    if (recipients.length === 0) {
+      res.status(400).json({
+        error: "메일을 받을 구글 로그인 참가자가 없습니다.",
+      });
+      return;
+    }
+
+    const pairs = room.diversityPairs;
+    const leftover = room.diversityLeftover ?? [];
+    const note = room.diversityMatchNote ?? "";
+    const mailed: string[] = [];
+    const failed: string[] = [];
+
+    for (const recipient of recipients) {
+      const prior = optIns.find(
+        (o) =>
+          o.email.toLowerCase() === recipient.email.toLowerCase() &&
+          o.matchAt === targetMatchAt &&
+          o.mailedAt
+      );
+      if (prior) {
+        mailed.push(recipient.email);
+        continue;
+      }
+
+      try {
+        await sendMail({
+          to: recipient.email,
+          subject: `[월담] ${room.subject} 다양성 매칭 결과`,
+          text: formatMatchResultEmail({
+            subject: room.subject,
+            recipientName: recipient.username,
+            pairs,
+            leftover,
+            note,
+          }),
+        });
+        mailed.push(recipient.email);
+        optIns.push({
+          email: recipient.email.toLowerCase(),
+          accept: true,
+          respondedAt: new Date().toISOString(),
+          matchAt: targetMatchAt,
+          mailedAt: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error("mail fail", recipient.email, err);
+        failed.push(recipient.email);
+      }
+    }
+
+    // 요청자도 기록
+    if (!optIns.some((o) => o.email === normalized && o.matchAt === targetMatchAt)) {
+      optIns.push({
+        email: normalized,
+        accept: true,
+        respondedAt: new Date().toISOString(),
+        matchAt: targetMatchAt,
+        mailedAt: mailed.includes(normalized)
+          ? new Date().toISOString()
+          : undefined,
+      });
+    }
+
+    room.emailOptIns = optIns;
+
+    room.messages.push({
+      id: uuidv4(),
+      authorName: "월담 AI",
+      body:
+        failed.length === 0
+          ? `📧 매칭 결과 메일을 구글 로그인 참가자 ${mailed.length}명에게 발송했습니다.`
+          : `📧 메일 발송: 성공 ${mailed.length}명, 실패 ${failed.length}명.`,
+      createdAt: new Date().toISOString(),
+      system: true,
+    });
+
+    await saveRandomRoom(room);
+
+    if (mailed.length === 0) {
+      res.status(500).json({
+        error: "메일 발송에 실패했습니다. SMTP/Resend 설정을 확인해 주세요.",
+        messages: normalizeRoomMessages(room),
+      });
+      return;
+    }
+
+    res.json({
+      ok: true,
+      accepted: true,
+      mailed,
+      failed,
+      messages: normalizeRoomMessages(room),
+    });
+  } catch (e) {
+    console.error(e);
+    const raw = e instanceof Error ? e.message : "메일 요청 처리에 실패했습니다.";
     res.status(500).json({ error: raw });
   }
 });

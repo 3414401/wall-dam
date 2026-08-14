@@ -3,7 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Layout } from "../../components/Layout";
 import {
   diversityMatchRandomRoom,
+  emailMatchResults,
   getRandomRoom,
+  registerRandomRoomPresence,
   sendRandomMessage,
   type RandomChatMessage,
   type RandomDiversityMatch,
@@ -17,6 +19,25 @@ function formatTime(iso: string) {
   });
 }
 
+const OPT_IN_ANSWERED_KEY = "random_email_opt_in_answered";
+
+function loadAnsweredOptIns(): Record<string, boolean> {
+  try {
+    return JSON.parse(sessionStorage.getItem(OPT_IN_ANSWERED_KEY) ?? "{}") as Record<
+      string,
+      boolean
+    >;
+  } catch {
+    return {};
+  }
+}
+
+function markOptInAnswered(messageId: string) {
+  const all = loadAnsweredOptIns();
+  all[messageId] = true;
+  sessionStorage.setItem(OPT_IN_ANSWERED_KEY, JSON.stringify(all));
+}
+
 export function RandomChatRoom() {
   const { code = "" } = useParams();
   const navigate = useNavigate();
@@ -28,12 +49,16 @@ export function RandomChatRoom() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [matching, setMatching] = useState(false);
+  const [emailBusyId, setEmailBusyId] = useState("");
   const [error, setError] = useState("");
   const [diversityMatch, setDiversityMatch] =
     useState<RandomDiversityMatch | null>(null);
+  const [answeredOptIns, setAnsweredOptIns] = useState(loadAnsweredOptIns);
   const bottomRef = useRef<HTMLDivElement>(null);
   const composingRef = useRef(false);
   const messagesRef = useRef<RandomChatMessage[]>([]);
+
+  const isGoogleUser = user?.provider === "google" && !!user.email?.trim();
 
   const refreshChat = useCallback(async () => {
     const data = await getRandomRoom(code);
@@ -45,6 +70,17 @@ export function RandomChatRoom() {
       setDiversityMatch(data.diversityMatch);
     }
   }, [code]);
+
+  useEffect(() => {
+    if (!isGoogleUser || !user?.email) return;
+    void registerRandomRoomPresence(
+      code,
+      user.email,
+      user.username
+    ).catch(() => {
+      /* presence is best-effort */
+    });
+  }, [code, isGoogleUser, user?.email, user?.username]);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,6 +147,34 @@ export function RandomChatRoom() {
       setError(err instanceof Error ? err.message : "다양성 매칭 실패");
     } finally {
       setMatching(false);
+    }
+  }
+
+  async function handleEmailOptIn(
+    message: RandomChatMessage,
+    accept: boolean
+  ) {
+    if (!isGoogleUser || !user?.email) {
+      setError("구글 계정으로 로그인한 사용자만 이용할 수 있습니다.");
+      return;
+    }
+    setError("");
+    setEmailBusyId(message.id);
+    try {
+      await registerRandomRoomPresence(code, user.email, user.username);
+      const result = await emailMatchResults(code, {
+        email: user.email,
+        accept,
+        matchAt: message.matchAt,
+      });
+      markOptInAnswered(message.id);
+      setAnsweredOptIns(loadAnsweredOptIns());
+      setMessages(result.messages);
+      messagesRef.current = result.messages;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "메일 요청 실패");
+    } finally {
+      setEmailBusyId("");
     }
   }
 
@@ -192,25 +256,60 @@ export function RandomChatRoom() {
         )}
 
         <div className="chat-messages">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`chat-bubble-row ${msg.system ? "chat-system" : msg.authorName === authorName.trim() ? "chat-mine" : "chat-other"}`}
-            >
-              {!msg.system && msg.authorName !== authorName.trim() && (
-                <span className="chat-author">{msg.authorName}</span>
-              )}
-              <div className={`chat-bubble ${msg.system ? "chat-bubble-system" : ""}`}>
-                {msg.body.split("\n").map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    {i < msg.body.split("\n").length - 1 && <br />}
-                  </span>
-                ))}
+          {messages.map((msg) => {
+            const showOptIn =
+              msg.kind === "email_opt_in" &&
+              isGoogleUser &&
+              !answeredOptIns[msg.id];
+
+            return (
+              <div
+                key={msg.id}
+                className={`chat-bubble-row ${msg.system ? "chat-system" : msg.authorName === authorName.trim() ? "chat-mine" : "chat-other"}`}
+              >
+                {!msg.system && msg.authorName !== authorName.trim() && (
+                  <span className="chat-author">{msg.authorName}</span>
+                )}
+                <div className={`chat-bubble ${msg.system ? "chat-bubble-system" : ""}`}>
+                  {msg.body.split("\n").map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < msg.body.split("\n").length - 1 && <br />}
+                    </span>
+                  ))}
+                  {msg.kind === "email_opt_in" && !isGoogleUser && (
+                    <p className="chat-opt-in-guest">
+                      구글 계정으로 로그인한 사용자만 메일 수신을 요청할 수 있습니다.
+                    </p>
+                  )}
+                  {showOptIn && (
+                    <div className="chat-opt-in-actions">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-accent"
+                        disabled={emailBusyId === msg.id}
+                        onClick={() => void handleEmailOptIn(msg, true)}
+                      >
+                        {emailBusyId === msg.id ? "처리 중..." : "예"}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-secondary"
+                        disabled={emailBusyId === msg.id}
+                        onClick={() => void handleEmailOptIn(msg, false)}
+                      >
+                        아니오
+                      </button>
+                    </div>
+                  )}
+                  {msg.kind === "email_opt_in" && answeredOptIns[msg.id] && (
+                    <p className="chat-opt-in-done">응답이 반영되었습니다.</p>
+                  )}
+                </div>
+                <span className="chat-time">{formatTime(msg.createdAt)}</span>
               </div>
-              <span className="chat-time">{formatTime(msg.createdAt)}</span>
-            </div>
-          ))}
+            );
+          })}
           <div ref={bottomRef} />
         </div>
 

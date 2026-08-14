@@ -108,6 +108,25 @@ export interface RandomChatMessage {
   body: string;
   createdAt: string;
   system?: boolean;
+  /** 매칭 후 메일 수신 동의 안내 */
+  kind?: "text" | "email_opt_in";
+  /** diversityMatchedAt 와 연결 */
+  matchAt?: string;
+}
+
+export interface RandomGoogleParticipant {
+  email: string;
+  username: string;
+  joinedAt: string;
+  lastSeenAt: string;
+}
+
+export interface RandomEmailOptIn {
+  email: string;
+  accept: boolean;
+  respondedAt: string;
+  matchAt: string;
+  mailedAt?: string;
 }
 
 export interface RandomDiversityPair {
@@ -139,6 +158,8 @@ export interface RandomRoomData {
   diversityMatchedAt?: string | null;
   diversityMatchNote?: string | null;
   diversityUsedAi?: boolean | null;
+  googleParticipants?: RandomGoogleParticipant[];
+  emailOptIns?: RandomEmailOptIn[];
 }
 
 export interface RandomRoomPublic {

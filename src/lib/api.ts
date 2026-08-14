@@ -94,6 +94,8 @@ export interface RandomChatMessage {
   body: string;
   createdAt: string;
   system?: boolean;
+  kind?: "text" | "email_opt_in";
+  matchAt?: string;
 }
 
 export interface RandomRoomPublic {
@@ -286,6 +288,37 @@ export function diversityMatchRandomRoom(code: string) {
     messages: RandomChatMessage[];
   }>(`/api/random-rooms/${code}/diversity-match`, {
     method: "POST",
+  });
+}
+
+export function registerRandomRoomPresence(
+  code: string,
+  email: string,
+  username: string
+) {
+  return request<{ ok: boolean; count: number }>(
+    `/api/random-rooms/${code}/presence`,
+    {
+      method: "POST",
+      body: JSON.stringify({ email, username }),
+    }
+  );
+}
+
+export function emailMatchResults(
+  code: string,
+  payload: { email: string; accept: boolean; matchAt?: string }
+) {
+  return request<{
+    ok: boolean;
+    accepted?: boolean;
+    already?: boolean;
+    mailed?: string[];
+    failed?: string[];
+    messages: RandomChatMessage[];
+  }>(`/api/random-rooms/${code}/email-match-results`, {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
 }
 
