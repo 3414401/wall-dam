@@ -281,5 +281,13 @@
   "diversityLeftover": [],
   "diversityMatchedAt": "2026-08-14T11:36:40.739Z",
   "diversityMatchNote": "예체능/패션 랜덤 채팅방의 다양성 극대화를 위해, 설문 점수 분포의 균형을 맞추면서 학교 및 지역 정보의 다양성을 확보하는 데 중점을 두었습니다. 각 조는 2명으로 구성되어 2인 페어 매칭의 효과를 극대화하도록 배치되었습니다.",
-  "diversityUsedAi": true
+  "diversityUsedAi": true,
+  "googleParticipants": [
+    {
+      "email": "snsbsk21@gmail.com",
+      "username": "이브아카",
+      "joinedAt": "2026-08-14T11:43:56.998Z",
+      "lastSeenAt": "2026-08-14T11:43:56.998Z"
+    }
+  ]
 }
