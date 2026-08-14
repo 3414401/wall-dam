@@ -82,7 +82,10 @@ function decodeJwtPayload(credential: string): Record<string, unknown> {
   if (parts.length < 2) throw new Error("잘못된 Google 로그인 응답입니다.");
   const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
   const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), "=");
-  const json = atob(padded);
+  // atob returns binary Latin-1; Korean names need UTF-8 decode
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
+  const json = new TextDecoder("utf-8").decode(bytes);
   return JSON.parse(json) as Record<string, unknown>;
 }
 
