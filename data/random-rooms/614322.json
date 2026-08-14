@@ -1,0 +1,29 @@
+{
+  "code": "614322",
+  "subject": "기획/아이디어",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "이거 뭐하는 채팅창인가요",
+    "이거머임ㅋㅋㅋㅋ"
+  ],
+  "criterion3": "이거 뭐하는 채팅창인가요",
+  "criterion4": "이거머임ㅋㅋㅋㅋ",
+  "recipientEmail": "",
+  "createdAt": "2026-08-14T01:42:19.389Z",
+  "createdBy": "dlrpajwl",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "6b3a58fe-6b5d-42b8-903e-6011daa670a2",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-14T01:42:19.389Z",
+      "system": true
+    }
+  ]
+}
