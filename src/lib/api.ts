@@ -133,7 +133,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     });
   } catch {
     const hint = import.meta.env.PROD
-      ? "public/config.json 에 API 주소를 넣었는지, Render 서버가 켜져 있는지 확인하세요."
+      ? "Render 서버가 잠들어 있거나 메일 발송이 실패했을 수 있습니다. 10초 뒤 다시 [예]를 눌러 보세요. Gmail SMTP 대신 Resend(RESEND_API_KEY)를 권장합니다."
       : "API 서버가 꺼져 있습니다. CMD에서 npm run dev 로 프론트+API를 같이 실행하세요.";
     throw new Error(`서버에 연결할 수 없습니다. ${hint}`);
   }
@@ -144,6 +144,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     if (res.status === 404) {
       throw new Error(
         `API를 찾을 수 없습니다(404). 연결 주소: ${API_BASE} — Render 재배포·config.json 확인`
+      );
+    }
+    if (res.status === 502 || res.status === 504) {
+      throw new Error(
+        "메일 서버 응답이 너무 오래 걸려 실패했습니다. Render에서 Gmail SMTP 대신 RESEND_API_KEY를 설정해 주세요."
       );
     }
     throw new Error(`요청 실패 (HTTP ${res.status}). Render Logs 확인`);
