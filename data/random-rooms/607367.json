@@ -38,6 +38,32 @@
         "1위 업종": "미입력",
         "R_net": "미입력"
       }
+    },
+    {
+      "id": "f0a39800-d814-433c-a1d4-97062d7262bb",
+      "nickname": "snsb (가. 미입력)",
+      "email": "snsbsk21@gmail.com",
+      "scores": [
+        2,
+        1,
+        2
+      ],
+      "submittedAt": "2026-08-14T10:45:53.832Z",
+      "rosterRowId": "row-1",
+      "rosterLabel": "가. 미입력",
+      "rosterFields": {
+        "학교명": "가. 미입력",
+        "지역": "미입력",
+        "학교 학생 수": "미입력",
+        "획일화 지수(H_m)": "미입력",
+        "P_special": "미입력",
+        "I_SCU": "미입력",
+        "H_path": "미입력",
+        "H_job": "미입력",
+        "H_ppc": "미입력",
+        "1위 업종": "미입력",
+        "R_net": "미입력"
+      }
     }
   ],
   "joinClosed": false,
