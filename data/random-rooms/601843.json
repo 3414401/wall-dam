@@ -236,6 +236,12 @@
       "system": true,
       "kind": "email_opt_in",
       "matchAt": "2026-08-14T11:36:40.739Z"
+    },
+    {
+      "id": "8c0c4888-5f02-4a3d-a502-ca0bfc4a2d69",
+      "authorName": "snsb",
+      "body": "예",
+      "createdAt": "2026-08-14T11:36:48.482Z"
     }
   ],
   "diversityPairs": [
