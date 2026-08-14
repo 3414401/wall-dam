@@ -28,6 +28,8 @@ function isEmailOptInMessage(msg: RandomChatMessage): boolean {
   );
 }
 
+const OPT_IN_ANSWERED_KEY = "random_email_opt_in_answered";
+
 function loadAnsweredOptIns(): Record<string, boolean> {
   try {
     return JSON.parse(sessionStorage.getItem(OPT_IN_ANSWERED_KEY) ?? "{}") as Record<
