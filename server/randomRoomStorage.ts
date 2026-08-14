@@ -1,6 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import type { RandomRoomData } from "./types.js";
+import { RANDOM_MAX_PARTICIPANTS } from "./types.js";
 import { useGitHub } from "./storage.js";
 
 const LOCAL_DIR = path.join(process.cwd(), "server-data", "random-rooms");
@@ -54,11 +55,22 @@ function githubDirPath() {
   return process.env.GITHUB_RANDOM_ROOMS_PATH || "data/random-rooms";
 }
 
+function normalizeRoomCapacity(room: RandomRoomData): RandomRoomData {
+  if (room.maxParticipants === RANDOM_MAX_PARTICIPANTS) return room;
+
+  room.maxParticipants = RANDOM_MAX_PARTICIPANTS;
+  // 아직 정원 미만이면 모집 다시 연다 (기존 5명 마감 방 포함)
+  if (room.surveys.length < RANDOM_MAX_PARTICIPANTS) {
+    room.joinClosed = false;
+  }
+  return room;
+}
+
 export async function loadRandomRoom(code: string): Promise<RandomRoomData | null> {
   if (!useGitHub()) {
     try {
       const raw = await readFile(localPath(code), "utf-8");
-      return JSON.parse(raw) as RandomRoomData;
+      return normalizeRoomCapacity(JSON.parse(raw) as RandomRoomData);
     } catch {
       return null;
     }
@@ -69,7 +81,7 @@ export async function loadRandomRoom(code: string): Promise<RandomRoomData | nul
   if (!data || !data.content) return null;
 
   const decoded = Buffer.from(data.content, "base64").toString("utf-8");
-  return JSON.parse(decoded) as RandomRoomData;
+  return normalizeRoomCapacity(JSON.parse(decoded) as RandomRoomData);
 }
 
 export async function saveRandomRoom(room: RandomRoomData): Promise<void> {

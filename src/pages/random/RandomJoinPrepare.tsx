@@ -39,7 +39,7 @@ export function RandomJoinPrepare() {
   const [abilities, setAbilities] = useState<string[]>([]);
   const [subject, setSubject] = useState("");
   const [participantCount, setParticipantCount] = useState(0);
-  const [maxParticipants, setMaxParticipants] = useState(5);
+  const [maxParticipants, setMaxParticipants] = useState(15);
   const [joinClosed, setJoinClosed] = useState(false);
   const [rosterTotal, setRosterTotal] = useState(0);
   const [rosterChecked, setRosterChecked] = useState(false);
@@ -199,7 +199,7 @@ export function RandomJoinPrepare() {
           <p className="api-banner-detail">
             현재 참여 {participantCount}/{maxParticipants}명
             {joinClosed
-              ? " · 5명이 모여 AI가 선정 이메일을 채팅방에 안내했습니다."
+              ? ` · ${maxParticipants}명이 모여 AI가 선정 이메일을 채팅방에 안내했습니다.`
               : ""}
           </p>
         </div>

@@ -86,6 +86,9 @@ export const RANDOM_SUBJECTS = [
 
 export const RANDOM_CRITERION1 = "선호하는 토론 난이도";
 
+/** 랜덤 채팅방 모집 최대 인원 */
+export const RANDOM_MAX_PARTICIPANTS = 15;
+
 export type RandomSubject = (typeof RANDOM_SUBJECTS)[number];
 
 export interface RandomSurveyResponse {

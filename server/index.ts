@@ -27,7 +27,7 @@ import type {
   SessionData,
   SurveyResponse,
 } from "./types.js";
-import { RANDOM_CRITERION1, RANDOM_SUBJECTS } from "./types.js";
+import { RANDOM_CRITERION1, RANDOM_MAX_PARTICIPANTS, RANDOM_SUBJECTS } from "./types.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -595,7 +595,7 @@ app.post("/api/random-rooms", async (req, res) => {
       createdBy: createdBy || "host",
       surveys: [],
       joinClosed: false,
-      maxParticipants: 5,
+      maxParticipants: RANDOM_MAX_PARTICIPANTS,
       selectedEmail: null,
       matchedAt: null,
       matchNote: null,

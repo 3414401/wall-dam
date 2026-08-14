@@ -67,7 +67,7 @@
     }
   ],
   "joinClosed": false,
-  "maxParticipants": 5,
+  "maxParticipants": 15,
   "selectedEmail": null,
   "matchedAt": null,
   "matchNote": null,
