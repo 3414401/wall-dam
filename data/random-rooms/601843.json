@@ -51,6 +51,12 @@
       "body": "랜덤 팀 채팅방이 열렸습니다.",
       "createdAt": "2026-08-14T10:07:28.560Z",
       "system": true
+    },
+    {
+      "id": "ec5abec0-e3bf-419c-ab07-950724ae8f0e",
+      "authorName": "ㅎㄶ",
+      "body": "안녕하세요",
+      "createdAt": "2026-08-14T10:07:59.597Z"
     }
   ]
 }
