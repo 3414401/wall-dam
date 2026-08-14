@@ -1,0 +1,29 @@
+{
+  "code": "188341",
+  "subject": "과학/공학",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "라즈베리 파이 숙련도",
+    "아두이노 숙련도"
+  ],
+  "criterion3": "라즈베리 파이 숙련도",
+  "criterion4": "아두이노 숙련도",
+  "recipientEmail": "",
+  "createdAt": "2026-08-14T01:32:08.836Z",
+  "createdBy": "dlrpajwl",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "826645ca-6c8b-4c67-9753-c4decd28ad31",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-14T01:32:08.836Z",
+      "system": true
+    }
+  ]
+}
