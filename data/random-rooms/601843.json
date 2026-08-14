@@ -1,0 +1,29 @@
+{
+  "code": "601843",
+  "subject": "예체능/패션",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "제8회 공간정보 활용·아이디어 경진대회",
+    "나가실분"
+  ],
+  "criterion3": "제8회 공간정보 활용·아이디어 경진대회",
+  "criterion4": "나가실분",
+  "recipientEmail": "",
+  "createdAt": "2026-08-14T10:07:28.560Z",
+  "createdBy": "ㅎㄶ",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "943c2cc4-7b5c-418e-b03e-fb05efe1ffdb",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-14T10:07:28.560Z",
+      "system": true
+    }
+  ]
+}
