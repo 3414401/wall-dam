@@ -11,7 +11,34 @@
   "recipientEmail": "",
   "createdAt": "2026-08-14T10:07:28.560Z",
   "createdBy": "ㅎㄶ",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "1224a760-0c23-42b9-a466-94b70e33f9be",
+      "nickname": "컴공 24 (가. 미입력)",
+      "email": "asfd@gmail.com",
+      "scores": [
+        5,
+        5,
+        5
+      ],
+      "submittedAt": "2026-08-14T10:07:51.339Z",
+      "rosterRowId": "row-1",
+      "rosterLabel": "가. 미입력",
+      "rosterFields": {
+        "학교명": "가. 미입력",
+        "지역": "미입력",
+        "학교 학생 수": "미입력",
+        "획일화 지수(H_m)": "미입력",
+        "P_special": "미입력",
+        "I_SCU": "미입력",
+        "H_path": "미입력",
+        "H_job": "미입력",
+        "H_ppc": "미입력",
+        "1위 업종": "미입력",
+        "R_net": "미입력"
+      }
+    }
+  ],
   "joinClosed": false,
   "maxParticipants": 5,
   "selectedEmail": null,
