@@ -1,0 +1,29 @@
+{
+  "code": "390143",
+  "subject": "네이밍/슬로건",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "경남 근처에 사시나요",
+    "창의성"
+  ],
+  "criterion3": "경남 근처에 사시나요",
+  "criterion4": "창의성",
+  "recipientEmail": "",
+  "createdAt": "2026-08-14T10:39:03.690Z",
+  "createdBy": "ì´ë¸ìì¹´",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 5,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "cb8c5f8f-2196-450e-bbea-9de7230e3be1",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-14T10:39:03.690Z",
+      "system": true
+    }
+  ]
+}
