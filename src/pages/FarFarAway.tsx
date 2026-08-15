@@ -4,6 +4,7 @@ import { Layout } from "../components/Layout";
 import { getWalldamPoints, type WalldamPointsPayload } from "../lib/api";
 import { getUser } from "../lib/auth";
 import {
+  ADMIN_WALLDAM_POINTS,
   EMPTY_WALLDAM_POINTS,
   WALLDAM_REGION_META,
   type WalldamPointKey,
@@ -25,12 +26,21 @@ const POINT_LIST: { key: WalldamPointKey; label: string }[] = [
 export function FarFarAway() {
   const navigate = useNavigate();
   const user = getUser();
+  const isAdmin = !!user?.isAdmin;
   const isGoogle = user?.provider === "google" && !!user.email?.trim();
-  const [points, setPoints] = useState<WalldamPointsPayload>(EMPTY_WALLDAM_POINTS);
-  const [loading, setLoading] = useState(isGoogle);
+  const [points, setPoints] = useState<WalldamPointsPayload>(
+    isAdmin ? ADMIN_WALLDAM_POINTS : EMPTY_WALLDAM_POINTS
+  );
+  const [loading, setLoading] = useState(isGoogle && !isAdmin);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (isAdmin) {
+      setPoints(ADMIN_WALLDAM_POINTS);
+      setLoading(false);
+      setError("");
+      return;
+    }
     if (!isGoogle || !user?.email) {
       setPoints(EMPTY_WALLDAM_POINTS);
       setLoading(false);
@@ -53,7 +63,7 @@ export function FarFarAway() {
     return () => {
       cancelled = true;
     };
-  }, [isGoogle, user?.email]);
+  }, [isAdmin, isGoogle, user?.email]);
 
   function scoreText(key: WalldamPointKey) {
     if (loading) return "…";
@@ -76,7 +86,7 @@ export function FarFarAway() {
           {loading ? "…" : points.total}
           <span className="walldam-total-unit">점</span>
         </p>
-        {!isGoogle && (
+        {!isGoogle && !isAdmin && (
           <p className="walldam-total-hint">
             구글 계정으로 로그인하면 채팅방에서 포인트를 적립할 수 있습니다.
           </p>
