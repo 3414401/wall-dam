@@ -157,6 +157,49 @@
       "authorName": "dd",
       "body": "오 저도 인스타 봊니까 신기하더대",
       "createdAt": "2026-08-15T01:45:50.040Z"
+    },
+    {
+      "id": "57e4955f-7652-43f5-ab41-67656e3c77b4",
+      "authorName": "월담 AI",
+      "body": "🤖 AI 다양성 매칭 결과\n(자동 균형 배치)\n\n1조: 김민정 (경북대학교사범대학부설초등학교) × snsb (가. 미입력)\n\n대기: 컴공 24 (강북고등학교)\n\n자동 균형 배치",
+      "createdAt": "2026-08-15T01:57:23.707Z",
+      "system": true
+    },
+    {
+      "id": "05cd4b15-1bb6-46e2-b1c4-933eb2fe8c15",
+      "authorName": "월담 AI",
+      "body": "팀원의 메일 주소를 내 메일로 받아보겠습니까? (구글 계정으로 로그인한 사용자 한정)",
+      "createdAt": "2026-08-15T01:57:23.707Z",
+      "system": true,
+      "kind": "email_opt_in",
+      "matchAt": "2026-08-15T01:57:23.707Z"
     }
-  ]
+  ],
+  "diversityPairs": [
+    {
+      "pairIndex": 1,
+      "members": [
+        {
+          "id": "c28fb60c-54c6-4b4d-9c48-9b15a09ac424",
+          "nickname": "김민정 (경북대학교사범대학부설초등학교)",
+          "email": "dsfas@gmail.com"
+        },
+        {
+          "id": "61fa8d65-6d56-48aa-a1b3-f37ae29ac76b",
+          "nickname": "snsb (가. 미입력)",
+          "email": "snsbsk21@gmail.com"
+        }
+      ]
+    }
+  ],
+  "diversityLeftover": [
+    {
+      "id": "33c16531-35ca-41e1-90c6-bb81ba31311c",
+      "nickname": "컴공 24 (강북고등학교)",
+      "email": "dsfwas@gmail.com"
+    }
+  ],
+  "diversityMatchedAt": "2026-08-15T01:57:23.707Z",
+  "diversityMatchNote": "자동 균형 배치",
+  "diversityUsedAi": false
 }
