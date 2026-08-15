@@ -9,6 +9,7 @@ import { buildSessionInsights } from "./homogeneity.js";
 import { getGlobalRoster, listCities, listDistricts, listSchools } from "./globalRoster.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
+import { fallbackRecommendedActivity } from "./schoolActivityMetrics.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
 import { emailProviderLabel, isEmailConfigured, sendMail } from "./email.js";
 import {
@@ -510,13 +511,35 @@ app.post("/api/sessions/:code/balance-ai", async (req, res) => {
     session.balancedAt = new Date().toISOString();
     session.balanceMethod = result.usedAi ? "ai" : "greedy";
     session.aiBalanceNote = result.usedAi ? result.note : "자동 균형 배치";
-    session.aiTeamExplanations = result.teamExplanations.map((t) => ({
-      teamIndex: t.teamIndex,
-      comment: t.reason?.trim() || `${t.teamIndex}조 배치`,
-      recommendedActivity: t.recommendedActivity?.trim() || undefined,
-    }));
+
+    const explByTeam = new Map(
+      result.teamExplanations.map((t) => [t.teamIndex, t])
+    );
+    session.aiTeamExplanations = result.groups.map((g) => {
+      const expl = explByTeam.get(g.teamIndex);
+      const members = g.memberIds
+        .map((id) => session.surveys.find((s) => s.id === id))
+        .filter(Boolean);
+      return {
+        teamIndex: g.teamIndex,
+        comment: expl?.reason?.trim() || `${g.teamIndex}조 배치`,
+        recommendedActivity:
+          expl?.recommendedActivity?.trim() ||
+          fallbackRecommendedActivity(members, session.teamPurpose),
+      };
+    });
+
     try {
       session.insights = await buildSessionInsights(session);
+      // 인사이트에 더 구체적 추천이 있으면 반영
+      for (const t of session.aiTeamExplanations) {
+        const fromInsight = session.insights?.teamComments?.find(
+          (c) => c.teamIndex === t.teamIndex
+        );
+        if (fromInsight?.recommendedActivity?.trim()) {
+          t.recommendedActivity = fromInsight.recommendedActivity.trim();
+        }
+      }
     } catch (insightErr) {
       console.error("insights after AI balance", insightErr);
     }

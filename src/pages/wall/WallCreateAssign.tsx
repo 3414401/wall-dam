@@ -74,17 +74,21 @@ export function WallCreateAssign() {
     setLoading(true);
     setError("");
     try {
-      const { session: updated, usedAi } = await balanceSessionAi(
-        session.code,
-        teamCount
-      );
+      const { session: updated, usedAi, teamExplanations } =
+        await balanceSessionAi(session.code, teamCount);
+      const explanations =
+        teamExplanations ?? updated.aiTeamExplanations ?? null;
       setSession(
         usedAi
-          ? updated
+          ? {
+              ...updated,
+              aiTeamExplanations: explanations,
+            }
           : {
               ...updated,
               balanceMethod: "greedy",
               aiBalanceNote: AUTO_BALANCE_LABEL,
+              aiTeamExplanations: explanations,
             }
       );
       setError("");
