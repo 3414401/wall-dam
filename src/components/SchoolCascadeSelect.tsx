@@ -197,7 +197,7 @@ export function SchoolCascadeSelect({
   return (
     <div className="roster-pick-section">
       <h2 className="section-title">학교 선택</h2>
-      <p className="api-banner-detail">
+      <p className="api-banner-detail school-cascade-hint">
         도시명 → 시군구 → 학교명 순으로 선택해 주세요.
       </p>
 
