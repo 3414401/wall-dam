@@ -74,17 +74,21 @@ export function WallCreateAssign() {
     setLoading(true);
     setError("");
     try {
-      const { session: updated, usedAi } = await balanceSessionAi(
-        session.code,
-        teamCount
-      );
+      const { session: updated, usedAi, teamExplanations } =
+        await balanceSessionAi(session.code, teamCount);
+      const explanations =
+        teamExplanations ?? updated.aiTeamExplanations ?? null;
       setSession(
         usedAi
-          ? updated
+          ? {
+              ...updated,
+              aiTeamExplanations: explanations,
+            }
           : {
               ...updated,
               balanceMethod: "greedy",
               aiBalanceNote: AUTO_BALANCE_LABEL,
+              aiTeamExplanations: explanations,
             }
       );
       setError("");
@@ -203,6 +207,27 @@ export function WallCreateAssign() {
               </div>
             )}
 
+          {(session.aiTeamExplanations?.some((t) => t.recommendedActivity) ||
+            session.insights?.teamComments?.some((t) => t.recommendedActivity)) && (
+              <div className="ai-explain-box" style={{ marginTop: 12 }}>
+                <h2 className="section-title">조별 추천 활동</h2>
+                <ul className="team-comment-list">
+                  {(
+                    session.aiTeamExplanations?.some((t) => t.recommendedActivity)
+                      ? session.aiTeamExplanations
+                      : session.insights?.teamComments ?? []
+                  )
+                    .filter((t) => t.recommendedActivity)
+                    .map((t) => (
+                      <li key={`act-${t.teamIndex}`}>
+                        <span className="badge">{t.teamIndex}조</span>
+                        {t.recommendedActivity}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+
           {session.groups && (
             <div style={{ marginTop: 20 }}>
               <h2
@@ -239,6 +264,20 @@ export function WallCreateAssign() {
                       .map((a, i) => `${a} ${g.totals[i]}`)
                       .join(" · ")}
                   </p>
+                  {(() => {
+                    const activity =
+                      session.aiTeamExplanations?.find(
+                        (t) => t.teamIndex === g.teamIndex
+                      )?.recommendedActivity ||
+                      session.insights?.teamComments?.find(
+                        (t) => t.teamIndex === g.teamIndex
+                      )?.recommendedActivity;
+                    return activity ? (
+                      <p className="team-recommended-activity">
+                        추천활동: {activity}
+                      </p>
+                    ) : null;
+                  })()}
                 </div>
               ))}
             </div>

@@ -1,4 +1,5 @@
 import { balanceTeamsWithAi } from "./aiBalance.js";
+import { fallbackRecommendedActivity } from "./schoolActivityMetrics.js";
 import type {
   RandomRoomData,
   RandomSurveyResponse,
@@ -17,6 +18,7 @@ export interface DiversityPair {
   pairIndex: number;
   members: DiversityPairMember[];
   reason?: string;
+  recommendedActivity?: string;
 }
 
 export interface DiversityMatchResult {
@@ -165,17 +167,35 @@ export async function matchDiversityPairs(
 
   const surveyById = new Map(room.surveys.map((s) => [s.id, s]));
   const explMap = new Map(
-    (result.teamExplanations ?? []).map((t) => [t.teamIndex, t.reason])
+    (result.teamExplanations ?? []).map((t) => [
+      t.teamIndex,
+      {
+        reason: t.reason,
+        recommendedActivity: t.recommendedActivity,
+      },
+    ])
   );
 
-  const pairs: DiversityPair[] = groupPairs.map((g, i) => ({
-    pairIndex: i + 1,
-    members: g.memberIds.map((id) => {
-      const s = surveyById.get(id)!;
-      return { id: s.id, nickname: s.nickname, email: s.email };
-    }),
-    reason: explMap.get(g.teamIndex) ?? explMap.get(i + 1),
-  }));
+  const pairs: DiversityPair[] = groupPairs.map((g, i) => {
+    const expl =
+      explMap.get(g.teamIndex) ?? explMap.get(i + 1) ?? {
+        reason: undefined,
+        recommendedActivity: undefined,
+      };
+    const members = g.memberIds.map((id) => surveyById.get(id)!);
+    return {
+      pairIndex: i + 1,
+      members: members.map((s) => ({
+        id: s.id,
+        nickname: s.nickname,
+        email: s.email,
+      })),
+      reason: expl.reason,
+      recommendedActivity:
+        expl.recommendedActivity ||
+        fallbackRecommendedActivity(members, sessionLike.teamPurpose),
+    };
+  });
 
   const leftover = leftoverIds.map((id) => {
     const s = surveyById.get(id)!;
@@ -202,6 +222,9 @@ export function formatDiversityMatchMessage(result: DiversityMatchResult): strin
     lines.push(`${pair.pairIndex}조: ${names}`);
     if (pair.reason?.trim()) {
       lines.push(`  · ${pair.reason.trim()}`);
+    }
+    if (pair.recommendedActivity?.trim()) {
+      lines.push(`  · 추천활동: ${pair.recommendedActivity.trim()}`);
     }
   }
 
@@ -239,6 +262,9 @@ export function formatMatchResultEmail(options: {
     lines.push(`· ${pair.pairIndex}조`);
     for (const m of pair.members) {
       lines.push(`  - ${m.nickname} <${m.email}>`);
+    }
+    if (pair.recommendedActivity?.trim()) {
+      lines.push(`  추천활동: ${pair.recommendedActivity.trim()}`);
     }
   }
 

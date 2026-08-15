@@ -291,6 +291,7 @@ export interface RandomDiversityPair {
   pairIndex: number;
   members: { id: string; nickname: string; email: string }[];
   reason?: string;
+  recommendedActivity?: string;
 }
 
 export interface RandomDiversityMatch {

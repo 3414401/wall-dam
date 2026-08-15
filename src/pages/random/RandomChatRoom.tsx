@@ -256,6 +256,11 @@ export function RandomChatRoom() {
                   {pair.reason ? (
                     <span className="chat-match-reason">{pair.reason}</span>
                   ) : null}
+                  {pair.recommendedActivity ? (
+                    <span className="chat-match-activity">
+                      추천활동: {pair.recommendedActivity}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>
