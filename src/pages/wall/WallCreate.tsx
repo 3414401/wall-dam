@@ -23,7 +23,7 @@ export function WallCreate() {
           className="btn btn-secondary"
           onClick={() => navigate("/wall/create/assign")}
         >
-          2단계: 조 배치하기
+          2단계: 조 배치하기🤖
         </button>
       </div>
     </Layout>

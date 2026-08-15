@@ -101,7 +101,7 @@ export function WallCreateAssign() {
 
   return (
     <Layout
-      title="2단계: 조 배치하기"
+      title="2단계: 조 배치하기🤖"
       subtitle="자동 균형 배치 · AI 조 배치"
       onBack={() => navigate("/wall/create")}
     >
