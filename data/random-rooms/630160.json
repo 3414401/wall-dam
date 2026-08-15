@@ -185,6 +185,12 @@
       "system": true,
       "kind": "email_opt_in",
       "matchAt": "2026-08-15T02:06:52.069Z"
+    },
+    {
+      "id": "56d9e336-69ea-402e-8459-ae4cd043511b",
+      "authorName": "ㅇㄹㄴ",
+      "body": "오오 한번해볼까요?",
+      "createdAt": "2026-08-15T02:07:16.038Z"
     }
   ],
   "diversityPairs": [
