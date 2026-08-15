@@ -6,8 +6,21 @@ import { getUser } from "../lib/auth";
 import {
   EMPTY_WALLDAM_POINTS,
   WALLDAM_REGION_META,
+  type WalldamPointKey,
   walldamRegionBackground,
 } from "../lib/walldamPoints";
+
+const POINT_LIST: { key: WalldamPointKey; label: string }[] = [
+  { key: "total", label: "월담 종합 포인트" },
+  { key: "seoulGyeonggi", label: "서울/경기 포인트" },
+  { key: "busanUlsanGyeongnam", label: "부산/울산/경남 포인트" },
+  { key: "daeguGyeongbuk", label: "대구/경북 포인트" },
+  { key: "gwangjuJeonnam", label: "광주/전남 포인트" },
+  { key: "daejeonChungcheong", label: "대전/충남/충북 포인트" },
+  { key: "gangwon", label: "강원 포인트" },
+  { key: "jeonbuk", label: "전북 포인트" },
+  { key: "jeju", label: "제주 포인트" },
+];
 
 export function FarFarAway() {
   const navigate = useNavigate();
@@ -42,12 +55,21 @@ export function FarFarAway() {
     };
   }, [isGoogle, user?.email]);
 
+  function scoreText(key: WalldamPointKey) {
+    if (loading) return "…";
+    return `${points[key] ?? 0}점`;
+  }
+
   return (
     <Layout
       title="멀리 저 멀리"
       subtitle="지역사랑 상품권으로 교류 학습을 시작해요"
       onBack={() => navigate("/home")}
     >
+      <p className="walldam-fill-hint">
+        각 지역의 이용자와 교류할수록 색깔이 채워져요!
+      </p>
+
       <div className="walldam-total-points" aria-live="polite">
         <p className="walldam-total-label">월담 종합 포인트</p>
         <p className="walldam-total-value">
@@ -84,6 +106,17 @@ export function FarFarAway() {
           })}
         </div>
         <div className="far-phone-home" aria-hidden />
+      </div>
+
+      <div className="walldam-points-panel" aria-label="월담 포인트 현황">
+        <ul className="walldam-points-list">
+          {POINT_LIST.map((item) => (
+            <li key={item.key} className="walldam-points-row">
+              <span className="walldam-points-name">{item.label}</span>
+              <span className="walldam-points-score">{scoreText(item.key)}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </Layout>
   );
