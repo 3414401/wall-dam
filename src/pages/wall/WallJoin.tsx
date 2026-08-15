@@ -13,6 +13,7 @@ export function WallJoin() {
   const [step, setStep] = useState<Step>("code");
   const [code, setCode] = useState("");
   const [hasSchoolData, setHasSchoolData] = useState(false);
+  const [schoolSkipped, setSchoolSkipped] = useState(false);
   const [abilities, setAbilities] = useState<string[]>([]);
   const [selectedRow, setSelectedRow] = useState<RosterRow | null>(null);
   const [studentName, setStudentName] = useState("");
@@ -21,6 +22,8 @@ export function WallJoin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+
+  const needsSchool = hasSchoolData && !schoolSkipped;
 
   const onAvailability = useCallback((hasData: boolean) => {
     setHasSchoolData(hasData);
@@ -44,6 +47,7 @@ export function WallJoin() {
       setStudentName("");
       setNickname("");
       setHasSchoolData(false);
+      setSchoolSkipped(false);
       setStep("survey");
     } catch (err) {
       setError(err instanceof Error ? err.message : "입장 실패");
@@ -56,17 +60,17 @@ export function WallJoin() {
     e.preventDefault();
     setError("");
 
-    if (hasSchoolData && !selectedRow) {
+    if (needsSchool && !selectedRow) {
       setError("도시명·시군구·학교명을 선택해 주세요.");
       return;
     }
 
-    if (hasSchoolData && selectedRow && !studentName.trim()) {
+    if (needsSchool && selectedRow && !studentName.trim()) {
       setError("본인 이름을 입력해 주세요. (같은 학교 여러 명 가능)");
       return;
     }
 
-    if (!hasSchoolData && !nickname.trim()) {
+    if (!needsSchool && !nickname.trim()) {
       setError("닉네임을 입력해 주세요.");
       return;
     }
@@ -79,7 +83,13 @@ export function WallJoin() {
 
     setLoading(true);
     try {
-      await submitSurvey(code, name.trim(), scores, selectedRow?.id);
+      await submitSurvey(
+        code,
+        name.trim(),
+        scores,
+        selectedRow?.id,
+        schoolSkipped
+      );
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "제출 실패");
@@ -157,9 +167,14 @@ export function WallJoin() {
             setError("");
           }}
           onAvailability={onAvailability}
+          onSkipChange={(skipped) => {
+            setSchoolSkipped(skipped);
+            setError("");
+            if (skipped) setSelectedRow(null);
+          }}
         />
 
-        {hasSchoolData && (
+        {needsSchool && (
           <div className="field">
             <label className="label" htmlFor="student-name">
               본인 이름 (필수)
@@ -177,7 +192,7 @@ export function WallJoin() {
           </div>
         )}
 
-        {!hasSchoolData && (
+        {!needsSchool && (
           <div className="field">
             <label className="label" htmlFor="nickname">
               닉네임 (본인 식별용)

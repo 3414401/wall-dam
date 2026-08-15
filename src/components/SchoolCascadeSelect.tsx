@@ -11,6 +11,8 @@ type Props = {
   selectedRow: RosterRow | null;
   onSelect: (row: RosterRow | null) => void;
   onAvailability?: (hasData: boolean) => void;
+  /** 학교 정보 미입력 여부 */
+  onSkipChange?: (skipped: boolean) => void;
 };
 
 export function SchoolCascadeSelect({
@@ -18,6 +20,7 @@ export function SchoolCascadeSelect({
   selectedRow,
   onSelect,
   onAvailability,
+  onSkipChange,
 }: Props) {
   const [cities, setCities] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
@@ -31,10 +34,13 @@ export function SchoolCascadeSelect({
   >([]);
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
+  const [skipped, setSkipped] = useState(false);
   const [loadingCities, setLoadingCities] = useState(true);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingSchools, setLoadingSchools] = useState(false);
   const [error, setError] = useState("");
+
+  const selectsDisabled = disabled || skipped;
 
   useEffect(() => {
     let cancelled = false;
@@ -61,7 +67,7 @@ export function SchoolCascadeSelect({
   }, [onAvailability]);
 
   useEffect(() => {
-    if (!city) {
+    if (!city || skipped) {
       setDistricts([]);
       return;
     }
@@ -84,10 +90,10 @@ export function SchoolCascadeSelect({
     return () => {
       cancelled = true;
     };
-  }, [city]);
+  }, [city, skipped]);
 
   useEffect(() => {
-    if (!city || !district) {
+    if (!city || !district || skipped) {
       setSchools([]);
       return;
     }
@@ -110,7 +116,23 @@ export function SchoolCascadeSelect({
     return () => {
       cancelled = true;
     };
-  }, [city, district]);
+  }, [city, district, skipped]);
+
+  function clearCascade() {
+    setCity("");
+    setDistrict("");
+    setSchools([]);
+    onSelect(null);
+  }
+
+  function toggleSkip() {
+    const next = !skipped;
+    setSkipped(next);
+    onSkipChange?.(next);
+    if (next) {
+      clearCascade();
+    }
+  }
 
   function resetFromCity(nextCity: string) {
     setCity(nextCity);
@@ -142,13 +164,13 @@ export function SchoolCascadeSelect({
     });
   }
 
-  if (selectedRow) {
+  if (selectedRow && !skipped) {
     const cityLabel = selectedRow.cells["도시명"] || city;
     const districtLabel = selectedRow.cells["시군구"] || district;
     const schoolLabel = selectedRow.cells["학교명"] || selectedRow.label;
     return (
       <div className="roster-pick-section">
-        <h2 className="section-title">학교 선택 (필수)</h2>
+        <h2 className="section-title">학교 선택</h2>
         <div className="roster-selected-box">
           <span className="roster-selected-label">선택됨</span>
           <strong>
@@ -174,10 +196,25 @@ export function SchoolCascadeSelect({
 
   return (
     <div className="roster-pick-section">
-      <h2 className="section-title">학교 선택 (필수)</h2>
+      <h2 className="section-title">학교 선택</h2>
       <p className="api-banner-detail">
         도시명 → 시군구 → 학교명 순으로 선택해 주세요.
       </p>
+
+      <button
+        type="button"
+        className={`btn btn-sm school-skip-btn ${skipped ? "is-active" : ""}`}
+        disabled={disabled}
+        onClick={toggleSkip}
+      >
+        {skipped ? "학교 정보 다시 입력할래요" : "학교 정보 미입력할래요"}
+      </button>
+
+      {skipped && (
+        <p className="api-banner-detail school-skip-hint">
+          학교 정보를 입력하지 않습니다. 아래 이름만 작성해 주세요.
+        </p>
+      )}
 
       <div className="field">
         <label className="label" htmlFor="school-city">
@@ -187,7 +224,7 @@ export function SchoolCascadeSelect({
           id="school-city"
           className="input"
           value={city}
-          disabled={disabled || loadingCities}
+          disabled={selectsDisabled || loadingCities}
           onChange={(e) => resetFromCity(e.target.value)}
         >
           <option value="">
@@ -209,7 +246,7 @@ export function SchoolCascadeSelect({
           id="school-district"
           className="input"
           value={district}
-          disabled={disabled || !city || loadingDistricts}
+          disabled={selectsDisabled || !city || loadingDistricts}
           onChange={(e) => resetFromDistrict(e.target.value)}
         >
           <option value="">
@@ -235,7 +272,7 @@ export function SchoolCascadeSelect({
           id="school-name"
           className="input"
           value=""
-          disabled={disabled || !district || loadingSchools}
+          disabled={selectsDisabled || !district || loadingSchools}
           onChange={(e) => pickSchool(e.target.value)}
         >
           <option value="">

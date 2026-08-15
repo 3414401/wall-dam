@@ -381,10 +381,11 @@ app.post("/api/sessions/:code/surveys", async (req, res) => {
       return;
     }
 
-    const { nickname, scores, rosterRowId } = req.body as {
+    const { nickname, scores, rosterRowId, skipSchool } = req.body as {
       nickname?: string;
       scores?: number[];
       rosterRowId?: string;
+      skipSchool?: boolean;
     };
 
     let displayName = nickname?.trim() ?? "";
@@ -393,7 +394,7 @@ app.post("/api/sessions/:code/surveys", async (req, res) => {
 
     const globalRoster = await getGlobalRoster();
 
-    if (globalRoster) {
+    if (globalRoster && !skipSchool) {
       if (!rosterRowId) {
         res.status(400).json({ error: "명단에서 본인을 선택해 주세요." });
         return;
@@ -1067,11 +1068,12 @@ app.post("/api/random-rooms/:code/surveys", async (req, res) => {
       return;
     }
 
-    const { nickname, email, scores, rosterRowId } = req.body as {
+    const { nickname, email, scores, rosterRowId, skipSchool } = req.body as {
       nickname?: string;
       email?: string;
       scores?: number[];
       rosterRowId?: string;
+      skipSchool?: boolean;
     };
 
     let displayName = nickname?.trim() ?? "";
@@ -1080,7 +1082,7 @@ app.post("/api/random-rooms/:code/surveys", async (req, res) => {
 
     const globalRoster = await getGlobalRoster();
 
-    if (globalRoster) {
+    if (globalRoster && !skipSchool) {
       if (!rosterRowId) {
         res.status(400).json({ error: "명단에서 학교명을 선택해 주세요." });
         return;

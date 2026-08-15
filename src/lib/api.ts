@@ -222,13 +222,14 @@ export function submitSurvey(
   code: string,
   nickname: string,
   scores: number[],
-  rosterRowId?: string
+  rosterRowId?: string,
+  skipSchool?: boolean
 ) {
   return request<{ ok: boolean; total: number }>(
     `/api/sessions/${code}/surveys`,
     {
       method: "POST",
-      body: JSON.stringify({ nickname, scores, rosterRowId }),
+      body: JSON.stringify({ nickname, scores, rosterRowId, skipSchool }),
     }
   );
 }
@@ -368,7 +369,8 @@ export function submitRandomSurvey(
   nickname: string,
   email: string,
   scores: number[],
-  rosterRowId?: string
+  rosterRowId?: string,
+  skipSchool?: boolean
 ) {
   return request<{
     ok: boolean;
@@ -377,7 +379,7 @@ export function submitRandomSurvey(
     matched: boolean;
   }>(`/api/random-rooms/${code}/surveys`, {
     method: "POST",
-    body: JSON.stringify({ nickname, email, scores, rosterRowId }),
+    body: JSON.stringify({ nickname, email, scores, rosterRowId, skipSchool }),
   });
 }
 

@@ -756,6 +756,27 @@ input[type="range"]::-webkit-slider-thumb {
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.school-skip-btn {
+  width: 100%;
+  margin: 0 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  background: rgba(255, 255, 255, 0.85);
+  color: #111;
+  font-weight: 700;
+}
+
+.school-skip-btn.is-active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.school-skip-hint {
+  margin: -4px 0 12px;
+  color: #111;
+  font-weight: 600;
+}
+
 .roster-selected-box {
   display: flex;
   flex-wrap: wrap;

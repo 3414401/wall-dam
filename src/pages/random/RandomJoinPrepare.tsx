@@ -43,6 +43,7 @@ export function RandomJoinPrepare() {
   const [maxParticipants, setMaxParticipants] = useState(15);
   const [joinClosed, setJoinClosed] = useState(false);
   const [hasSchoolData, setHasSchoolData] = useState(false);
+  const [schoolSkipped, setSchoolSkipped] = useState(false);
   const [selectedRow, setSelectedRow] = useState<RosterRow | null>(null);
   const [studentName, setStudentName] = useState("");
   const [nickname, setNickname] = useState("");
@@ -52,6 +53,8 @@ export function RandomJoinPrepare() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(hasSurveyDone(code));
+
+  const needsSchool = hasSchoolData && !schoolSkipped;
 
   const onAvailability = useCallback((hasData: boolean) => {
     setHasSchoolData(hasData);
@@ -89,17 +92,17 @@ export function RandomJoinPrepare() {
     e.preventDefault();
     setError("");
 
-    if (hasSchoolData && !selectedRow) {
+    if (needsSchool && !selectedRow) {
       setError("도시명·시군구·학교명을 선택해 주세요.");
       return;
     }
 
-    if (hasSchoolData && selectedRow && !studentName.trim()) {
+    if (needsSchool && selectedRow && !studentName.trim()) {
       setError("본인 이름을 입력해 주세요. (같은 학교 여러 명 가능)");
       return;
     }
 
-    if (!hasSchoolData && !nickname.trim()) {
+    if (!needsSchool && !nickname.trim()) {
       setError("이름(닉네임)을 입력해 주세요.");
       return;
     }
@@ -122,7 +125,8 @@ export function RandomJoinPrepare() {
         name,
         email.trim(),
         scores,
-        selectedRow?.id
+        selectedRow?.id,
+        schoolSkipped
       );
       setParticipantCount(result.total);
       setJoinClosed(result.joinClosed);
@@ -193,9 +197,14 @@ export function RandomJoinPrepare() {
             setError("");
           }}
           onAvailability={onAvailability}
+          onSkipChange={(skipped) => {
+            setSchoolSkipped(skipped);
+            setError("");
+            if (skipped) setSelectedRow(null);
+          }}
         />
 
-        {hasSchoolData && (
+        {needsSchool && (
           <div className="field">
             <label className="label" htmlFor="student-name">
               본인 이름 (필수)
@@ -210,7 +219,7 @@ export function RandomJoinPrepare() {
           </div>
         )}
 
-        {!hasSchoolData && (
+        {!needsSchool && (
           <div className="field">
             <label className="label" htmlFor="prep-nickname">
               이름 (닉네임)
