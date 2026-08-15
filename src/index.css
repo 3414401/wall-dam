@@ -785,6 +785,10 @@ input[type="range"]::-webkit-slider-thumb {
   font-weight: 600;
 }
 
+.school-cascade-hint {
+  color: #111;
+}
+
 .roster-selected-box {
   display: flex;
   flex-wrap: wrap;

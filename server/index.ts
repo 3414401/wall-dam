@@ -9,6 +9,7 @@ import { buildSessionInsights } from "./homogeneity.js";
 import { getGlobalRoster, listCities, listDistricts, listSchools } from "./globalRoster.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
+import { parseChatCityOnlyId } from "./chatSchoolCities.js";
 import { fallbackRecommendedActivity } from "./schoolActivityMetrics.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
 import { emailProviderLabel, isEmailConfigured, sendMail } from "./email.js";
@@ -1111,19 +1112,33 @@ app.post("/api/random-rooms/:code/surveys", async (req, res) => {
         res.status(400).json({ error: "명단에서 학교명을 선택해 주세요." });
         return;
       }
-      const row = globalRoster.rows.find((r) => r.id === rosterRowId);
-      if (!row) {
-        res.status(400).json({ error: "선택한 명단 행을 찾을 수 없습니다." });
-        return;
-      }
-      rosterFields = row.cells;
-      rosterLabel = row.label;
-      if (!displayName) {
-        res.status(400).json({ error: "본인 이름을 입력해 주세요." });
-        return;
-      }
-      if (!displayName.includes(row.label)) {
-        displayName = `${displayName} (${row.label})`;
+
+      const cityOnly = parseChatCityOnlyId(rosterRowId);
+      if (cityOnly) {
+        rosterFields = { 도시명: cityOnly };
+        rosterLabel = cityOnly;
+        if (!displayName) {
+          res.status(400).json({ error: "본인 이름을 입력해 주세요." });
+          return;
+        }
+        if (!displayName.includes(cityOnly)) {
+          displayName = `${displayName} (${cityOnly})`;
+        }
+      } else {
+        const row = globalRoster.rows.find((r) => r.id === rosterRowId);
+        if (!row) {
+          res.status(400).json({ error: "선택한 명단 행을 찾을 수 없습니다." });
+          return;
+        }
+        rosterFields = row.cells;
+        rosterLabel = row.label;
+        if (!displayName) {
+          res.status(400).json({ error: "본인 이름을 입력해 주세요." });
+          return;
+        }
+        if (!displayName.includes(row.label)) {
+          displayName = `${displayName} (${row.label})`;
+        }
       }
     } else if (!displayName) {
       res.status(400).json({ error: "이름(닉네임)을 입력해 주세요." });
