@@ -397,3 +397,40 @@ export function sendRandomMessage(
     }
   );
 }
+
+export interface WalldamPointsPayload {
+  total: number;
+  seoulGyeonggi: number;
+  busanUlsanGyeongnam: number;
+  daeguGyeongbuk: number;
+  gwangjuJeonnam: number;
+  daejeonChungcheong: number;
+  gangwon: number;
+  jeonbuk: number;
+  jeju: number;
+}
+
+export function getWalldamPoints(email: string) {
+  const params = new URLSearchParams({ email });
+  return request<{
+    ok: boolean;
+    points: WalldamPointsPayload;
+    lastEarnDate: string | null;
+  }>(`/api/walldam-points?${params}`);
+}
+
+export function earnWalldamPointsInRoom(code: string, email: string) {
+  return request<{
+    ok: boolean;
+    earned: WalldamPointsPayload;
+    points: WalldamPointsPayload;
+    lastEarnDate: string | null;
+    message: string;
+    messages?: RandomChatMessage[];
+    alreadyEarnedToday?: boolean;
+    error?: string;
+  }>(`/api/random-rooms/${code}/earn-points`, {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
