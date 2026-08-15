@@ -171,10 +171,47 @@
       "createdAt": "2026-08-15T02:00:32.333Z"
     },
     {
-      "id": "4fcc031c-83a6-433c-9326-5c5f13790029",
-      "authorName": "ㄹㄹㄴㅇ",
-      "body": "저도 한번",
-      "createdAt": "2026-08-15T02:06:36.322Z"
+      "id": "0f29af07-960a-42a6-a874-1f81d717bd16",
+      "authorName": "월담 AI",
+      "body": "🤖 AI 다양성 매칭 결과\n(자동 균형 배치)\n\n1조: 김민정 (가. 미입력) × ㄴㅇㄹ (대구공업고등학교 테크노폴리스 캠퍼스)\n\n대기: 김민정 (가. 미입력)\n\n자동 균형 배치",
+      "createdAt": "2026-08-15T02:06:52.070Z",
+      "system": true
+    },
+    {
+      "id": "e3f6e93f-b932-48c6-bf59-720490a1e761",
+      "authorName": "월담 AI",
+      "body": "팀원의 메일 주소를 내 메일로 받아보겠습니까? (구글 계정으로 로그인한 사용자 한정)",
+      "createdAt": "2026-08-15T02:06:52.070Z",
+      "system": true,
+      "kind": "email_opt_in",
+      "matchAt": "2026-08-15T02:06:52.069Z"
     }
-  ]
+  ],
+  "diversityPairs": [
+    {
+      "pairIndex": 1,
+      "members": [
+        {
+          "id": "bef23daf-6782-4e71-82c7-606a06865bad",
+          "nickname": "김민정 (가. 미입력)",
+          "email": "dsffdas@gmail.com"
+        },
+        {
+          "id": "c88d967c-7a90-47c3-bbb6-e07285ec1dbe",
+          "nickname": "ㄴㅇㄹ (대구공업고등학교 테크노폴리스 캠퍼스)",
+          "email": "dssdfffdas@gmail.com"
+        }
+      ]
+    }
+  ],
+  "diversityLeftover": [
+    {
+      "id": "9063e4db-aa8f-4e7b-864a-7e44bddd0bae",
+      "nickname": "김민정 (가. 미입력)",
+      "email": "dssdffwas@gmail.com"
+    }
+  ],
+  "diversityMatchedAt": "2026-08-15T02:06:52.069Z",
+  "diversityMatchNote": "자동 균형 배치",
+  "diversityUsedAi": false
 }
