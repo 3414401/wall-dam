@@ -44,7 +44,7 @@ export const WALLDAM_REGION_META: {
   {
     key: "seoulGyeonggi",
     mapId: "seoul-gyeonggi",
-    label: "서울/\n경기",
+    label: "서울/경기/\n인천",
     pointLabel: "서울/경기 포인트",
   },
   {
@@ -56,7 +56,7 @@ export const WALLDAM_REGION_META: {
   {
     key: "daejeonChungcheong",
     mapId: "chungcheong",
-    label: "대전/충남/\n충북",
+    label: "대전/충청",
     pointLabel: "대전/충남/충북 포인트",
   },
   {
