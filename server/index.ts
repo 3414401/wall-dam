@@ -513,6 +513,7 @@ app.post("/api/sessions/:code/balance-ai", async (req, res) => {
     session.aiTeamExplanations = result.teamExplanations.map((t) => ({
       teamIndex: t.teamIndex,
       comment: t.reason?.trim() || `${t.teamIndex}조 배치`,
+      recommendedActivity: t.recommendedActivity?.trim() || undefined,
     }));
     try {
       session.insights = await buildSessionInsights(session);

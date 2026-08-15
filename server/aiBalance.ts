@@ -2,6 +2,12 @@ import { getAiReferenceText } from "./aiReference.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { balanceTeams } from "./balance.js";
 import { generateText, hasGemini, parseJsonFromText } from "./gemini.js";
+import {
+  fallbackRecommendedActivity,
+  formatSchoolActivityLine,
+  pickSchoolActivityMetrics,
+  SCHOOL_ACTIVITY_PROMPT_RULES,
+} from "./schoolActivityMetrics.js";
 import type { SessionData, SurveyResponse, TeamGroup } from "./types.js";
 
 function teamSumsFromMembers(members: SurveyResponse[]): number[] {
@@ -16,9 +22,17 @@ function teamSumsFromMembers(members: SurveyResponse[]): number[] {
 }
 
 interface AiTeamsPayload {
-  teams: { teamIndex: number; memberIds: string[] }[];
+  teams: {
+    teamIndex: number;
+    memberIds: string[];
+    recommendedActivity?: string;
+  }[];
   summary?: string;
-  teamExplanations?: { teamIndex: number; reason: string }[];
+  teamExplanations?: {
+    teamIndex: number;
+    reason: string;
+    recommendedActivity?: string;
+  }[];
 }
 
 function validateAiTeams(
@@ -89,13 +103,57 @@ function repairAiTeams(
     .map((g, idx) => ({ ...g, teamIndex: idx + 1 }));
 }
 
+function activitiesFromPayload(
+  surveys: SurveyResponse[],
+  groups: TeamGroup[],
+  parsed: AiTeamsPayload,
+  purpose?: string
+): { teamIndex: number; reason: string; recommendedActivity: string }[] {
+  const reasonMap = new Map(
+    (parsed.teamExplanations ?? []).map((t) => [
+      t.teamIndex,
+      {
+        reason: t.reason?.trim() || "",
+        activity: t.recommendedActivity?.trim() || "",
+      },
+    ])
+  );
+  const teamActivityMap = new Map(
+    (parsed.teams ?? []).map((t) => [
+      t.teamIndex,
+      t.recommendedActivity?.trim() || "",
+    ])
+  );
+
+  return groups.map((g) => {
+    const members = g.memberIds
+      .map((id) => surveys.find((s) => s.id === id))
+      .filter(Boolean) as SurveyResponse[];
+    const fromExpl = reasonMap.get(g.teamIndex);
+    const activity =
+      fromExpl?.activity ||
+      teamActivityMap.get(g.teamIndex) ||
+      fallbackRecommendedActivity(members, purpose);
+
+    return {
+      teamIndex: g.teamIndex,
+      reason: fromExpl?.reason || `${g.teamIndex}조 배치`,
+      recommendedActivity: activity,
+    };
+  });
+}
+
 export async function balanceTeamsWithAi(
   session: SessionData,
   teamCount: number
 ): Promise<{
   groups: TeamGroup[];
   note: string;
-  teamExplanations: { teamIndex: number; reason: string }[];
+  teamExplanations: {
+    teamIndex: number;
+    reason: string;
+    recommendedActivity: string;
+  }[];
   usedAi: boolean;
 }> {
   const count = Math.max(
@@ -104,23 +162,39 @@ export async function balanceTeamsWithAi(
   );
 
   if (!hasGemini()) {
+    const groups = balanceTeams(session.surveys, count);
     return {
-      groups: balanceTeams(session.surveys, count),
+      groups,
       note: "자동 균형 배치",
-      teamExplanations: [],
+      teamExplanations: groups.map((g) => {
+        const members = g.memberIds
+          .map((id) => session.surveys.find((s) => s.id === id))
+          .filter(Boolean) as SurveyResponse[];
+        return {
+          teamIndex: g.teamIndex,
+          reason: "",
+          recommendedActivity: fallbackRecommendedActivity(
+            members,
+            session.teamPurpose
+          ),
+        };
+      }),
       usedAi: false,
     };
   }
 
   const roster = session.surveys
-    .map((s) =>
-      JSON.stringify({
+    .map((s) => {
+      const schoolActivity = pickSchoolActivityMetrics(s.rosterFields);
+      return JSON.stringify({
         id: s.id,
         nickname: s.nickname,
         scores: s.scores,
+        schoolActivity,
+        schoolActivitySummary: formatSchoolActivityLine(schoolActivity),
         excelRow: s.rosterFields ?? null,
-      })
-    )
+      });
+    })
     .join(",\n");
 
   const reference = await getAiReferenceText();
@@ -130,7 +204,7 @@ export async function balanceTeamsWithAi(
 
   const rosterGuide = await getRosterAiGuideText();
   const rosterGuideBlock = rosterGuide
-    ? `\n[명단 지침]\n${rosterGuide.slice(0, 1500)}\n`
+    ? `\n[명단 지침]\n${rosterGuide.slice(0, 1800)}\n`
     : "";
 
   const purpose = session.teamPurpose?.trim();
@@ -144,6 +218,7 @@ ${purposeBlock}${referenceBlock}${rosterGuideBlock}
 1) 각 조의 ${session.abilities.length}개 기준 합계가 비슷하게
 2) 각 기준별로 조 간 점수 분포가 고르게
 3) 한 조에 너무 강하거나 약한 사람만 몰리지 않게
+4) 학교 공공데이터(schoolActivity)로 다양성을 높이되, 배치 후 조별 추천활동도 작성
 
 [기준] ${session.abilities.join(" | ")}
 
@@ -151,6 +226,8 @@ ${purposeBlock}${referenceBlock}${rosterGuideBlock}
 [
 ${roster}
 ]
+
+${SCHOOL_ACTIVITY_PROMPT_RULES}
 
 규칙:
 - memberIds는 위 id를 그대로 사용
@@ -160,11 +237,19 @@ ${roster}
 JSON만:
 {
   "teams": [
-    { "teamIndex": 1, "memberIds": ["uuid", "..."] }
+    {
+      "teamIndex": 1,
+      "memberIds": ["uuid", "..."],
+      "recommendedActivity": "이 조의 학교 지표(사회 문화 획일성·소비 1~3위 업종)를 반영한 추천활동 1문장"
+    }
   ],
-  "summary": "전체적으로 왜 이렇게 나눴는지 한국어 3~5문장 (조를 짜는 목적·엑셀 지표 반영)",
+  "summary": "전체적으로 왜 이렇게 나눴는지 한국어 3~5문장 (조를 짜는 목적·학교 지표 반영)",
   "teamExplanations": [
-    { "teamIndex": 1, "reason": "1조 멤버 구성 이유 2~3문장 (학교명·점수·엑셀 열 언급)" }
+    {
+      "teamIndex": 1,
+      "reason": "1조 멤버 구성 이유 2~3문장 (학교명·점수·사회 문화 획일성·소비 업종 언급)",
+      "recommendedActivity": "1조 추천활동 (학교 지표 반영, teams와 동일해도 됨)"
+    }
   ]
 }
 
@@ -175,9 +260,12 @@ teamExplanations는 1조부터 ${count}조까지 각각 1개씩 작성하세요.
     const parsed = parseJsonFromText<AiTeamsPayload>(raw);
     if (!parsed.teams?.length) throw new Error("teams 배열 없음");
     const groups = validateAiTeams(session.surveys, parsed.teams, count);
-    const explanations =
-      parsed.teamExplanations?.filter((t) => t.teamIndex && t.reason?.trim()) ??
-      [];
+    const explanations = activitiesFromPayload(
+      session.surveys,
+      groups,
+      parsed,
+      session.teamPurpose
+    );
 
     return {
       groups,
@@ -189,10 +277,23 @@ teamExplanations는 1조부터 ${count}조까지 각각 1개씩 작성하세요.
     };
   } catch (e) {
     console.error("AI balance fallback", e);
+    const groups = balanceTeams(session.surveys, count);
     return {
-      groups: balanceTeams(session.surveys, count),
+      groups,
       note: "자동 균형 배치",
-      teamExplanations: [],
+      teamExplanations: groups.map((g) => {
+        const members = g.memberIds
+          .map((id) => session.surveys.find((s) => s.id === id))
+          .filter(Boolean) as SurveyResponse[];
+        return {
+          teamIndex: g.teamIndex,
+          reason: "",
+          recommendedActivity: fallbackRecommendedActivity(
+            members,
+            session.teamPurpose
+          ),
+        };
+      }),
       usedAi: false,
     };
   }
