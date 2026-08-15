@@ -25,13 +25,6 @@ export function WallHome() {
         >
           🔑 조 참여하기 🎓
         </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => navigate("/wall/results")}
-        >
-          📋 조 결과보기
-        </button>
       </div>
     </Layout>
   );
