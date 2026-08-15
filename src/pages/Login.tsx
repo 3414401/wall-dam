@@ -49,9 +49,13 @@ export function Login() {
       setError("비밀번호를 입력해 주세요.");
       return;
     }
-    setError("");
-    loginGuest(username, password);
-    navigate("/home", { replace: true });
+    try {
+      setError("");
+      loginGuest(username, password);
+      navigate("/home", { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "로그인에 실패했습니다.");
+    }
   }
 
   return (

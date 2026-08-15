@@ -35,6 +35,19 @@ export const EMPTY_WALLDAM_POINTS: WalldamPoints = {
   jeju: 0,
 };
 
+/** 게스트 admin 계정 고정 포인트 */
+export const ADMIN_WALLDAM_POINTS: WalldamPoints = {
+  total: 20,
+  seoulGyeonggi: 2,
+  busanUlsanGyeongnam: 0,
+  daeguGyeongbuk: 10,
+  gwangjuJeonnam: 4,
+  daejeonChungcheong: 1,
+  gangwon: 0,
+  jeonbuk: 2,
+  jeju: 1,
+};
+
 export const WALLDAM_REGION_META: {
   key: WalldamRegionKey;
   mapId: string;
