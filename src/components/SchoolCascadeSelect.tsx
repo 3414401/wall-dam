@@ -5,6 +5,11 @@ import {
   getSchoolList,
   type RosterRow,
 } from "../lib/api";
+import {
+  CHAT_SURVEY_CITIES,
+  chatCityOnlyId,
+  isChatFullSchoolCity,
+} from "../lib/chatSchoolCities";
 
 type Props = {
   disabled?: boolean;
@@ -13,6 +18,11 @@ type Props = {
   onAvailability?: (hasData: boolean) => void;
   /** 학교 정보 미입력 여부 */
   onSkipChange?: (skipped: boolean) => void;
+  /**
+   * roster: 조짜기 — 엑셀에 있는 도시만
+   * chat: 채팅방 — 전국 17개 도시, 대전·대구만 시군구·학교 선택
+   */
+  regionMode?: "roster" | "chat";
 };
 
 export function SchoolCascadeSelect({
@@ -21,7 +31,9 @@ export function SchoolCascadeSelect({
   onSelect,
   onAvailability,
   onSkipChange,
+  regionMode = "roster",
 }: Props) {
+  const isChat = regionMode === "chat";
   const [cities, setCities] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
   const [schools, setSchools] = useState<
@@ -40,7 +52,10 @@ export function SchoolCascadeSelect({
   const [loadingSchools, setLoadingSchools] = useState(false);
   const [error, setError] = useState("");
 
+  const fullCascade = !isChat || isChatFullSchoolCity(city);
+  const cityOnlyMode = isChat && !!city && !isChatFullSchoolCity(city);
   const selectsDisabled = disabled || skipped;
+  const districtSchoolDisabled = selectsDisabled || !city || cityOnlyMode;
 
   useEffect(() => {
     let cancelled = false;
@@ -48,10 +63,16 @@ export function SchoolCascadeSelect({
       setLoadingCities(true);
       setError("");
       try {
-        const { cities: list } = await getSchoolCities();
-        if (cancelled) return;
-        setCities(list);
-        onAvailability?.(list.length > 0);
+        if (isChat) {
+          if (cancelled) return;
+          setCities([...CHAT_SURVEY_CITIES]);
+          onAvailability?.(true);
+        } else {
+          const { cities: list } = await getSchoolCities();
+          if (cancelled) return;
+          setCities(list);
+          onAvailability?.(list.length > 0);
+        }
       } catch (e) {
         if (cancelled) return;
         setCities([]);
@@ -64,10 +85,10 @@ export function SchoolCascadeSelect({
     return () => {
       cancelled = true;
     };
-  }, [onAvailability]);
+  }, [onAvailability, isChat]);
 
   useEffect(() => {
-    if (!city || skipped) {
+    if (!city || skipped || !fullCascade) {
       setDistricts([]);
       return;
     }
@@ -90,10 +111,10 @@ export function SchoolCascadeSelect({
     return () => {
       cancelled = true;
     };
-  }, [city, skipped]);
+  }, [city, skipped, fullCascade]);
 
   useEffect(() => {
-    if (!city || !district || skipped) {
+    if (!city || !district || skipped || !fullCascade) {
       setSchools([]);
       return;
     }
@@ -116,7 +137,7 @@ export function SchoolCascadeSelect({
     return () => {
       cancelled = true;
     };
-  }, [city, district, skipped]);
+  }, [city, district, skipped, fullCascade]);
 
   function clearCascade() {
     setCity("");
@@ -134,11 +155,29 @@ export function SchoolCascadeSelect({
     }
   }
 
+  function selectCityOnly(nextCity: string) {
+    onSelect({
+      id: chatCityOnlyId(nextCity),
+      label: nextCity,
+      cells: {
+        도시명: nextCity,
+      },
+    });
+  }
+
   function resetFromCity(nextCity: string) {
     setCity(nextCity);
     setDistrict("");
     setSchools([]);
-    onSelect(null);
+    if (!nextCity) {
+      onSelect(null);
+      return;
+    }
+    if (isChat && !isChatFullSchoolCity(nextCity)) {
+      selectCityOnly(nextCity);
+    } else {
+      onSelect(null);
+    }
   }
 
   function resetFromDistrict(nextDistrict: string) {
@@ -165,40 +204,47 @@ export function SchoolCascadeSelect({
   }
 
   if (selectedRow && !skipped) {
-    const cityLabel = selectedRow.cells["도시명"] || city;
-    const districtLabel = selectedRow.cells["시군구"] || district;
-    const schoolLabel = selectedRow.cells["학교명"] || selectedRow.label;
-    return (
-      <div className="roster-pick-section">
-        <h2 className="section-title">학교 선택</h2>
-        <div className="roster-selected-box">
-          <span className="roster-selected-label">선택됨</span>
-          <strong>
-            {cityLabel} · {districtLabel} · {schoolLabel}
-          </strong>
-          <button
-            type="button"
-            className="btn btn-sm"
-            disabled={disabled}
-            onClick={() => {
-              onSelect(null);
-              setCity("");
-              setDistrict("");
-              setSchools([]);
-            }}
-          >
-            다시 선택
-          </button>
+    const isCityOnlySelection =
+      isChat && selectedRow.id.startsWith("city-only:");
+    // 채팅방·도시만 선택: 시군구/학교 비활성 상태를 그대로 보여 줌
+    if (!isCityOnlySelection) {
+      const cityLabel = selectedRow.cells["도시명"] || city;
+      const districtLabel = selectedRow.cells["시군구"] || district;
+      const schoolLabel = selectedRow.cells["학교명"] || selectedRow.label;
+      return (
+        <div className="roster-pick-section">
+          <h2 className="section-title">학교 선택</h2>
+          <div className="roster-selected-box">
+            <span className="roster-selected-label">선택됨</span>
+            <strong>
+              {cityLabel} · {districtLabel} · {schoolLabel}
+            </strong>
+            <button
+              type="button"
+              className="btn btn-sm"
+              disabled={disabled}
+              onClick={() => {
+                onSelect(null);
+                setCity("");
+                setDistrict("");
+                setSchools([]);
+              }}
+            >
+              다시 선택
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   return (
     <div className="roster-pick-section">
       <h2 className="section-title">학교 선택</h2>
-      <p className="api-banner-detail">
-        도시명 → 시군구 → 학교명 순으로 선택해 주세요.
+      <p className={`api-banner-detail ${isChat ? "school-cascade-hint" : ""}`}>
+        {isChat
+          ? "도시명을 선택해 주세요. 대전·대구는 시군구 → 학교명까지 선택합니다."
+          : "도시명 → 시군구 → 학교명 순으로 선택해 주세요."}
       </p>
 
       <button
@@ -246,15 +292,17 @@ export function SchoolCascadeSelect({
           id="school-district"
           className="input"
           value={district}
-          disabled={selectsDisabled || !city || loadingDistricts}
+          disabled={districtSchoolDisabled || loadingDistricts}
           onChange={(e) => resetFromDistrict(e.target.value)}
         >
           <option value="">
-            {!city
-              ? "도시를 먼저 선택"
-              : loadingDistricts
-                ? "불러오는 중..."
-                : "시군구 선택"}
+            {cityOnlyMode
+              ? "이 지역은 선택 불가"
+              : !city
+                ? "도시를 먼저 선택"
+                : loadingDistricts
+                  ? "불러오는 중..."
+                  : "시군구 선택"}
           </option>
           {districts.map((d) => (
             <option key={d} value={d}>
@@ -272,17 +320,19 @@ export function SchoolCascadeSelect({
           id="school-name"
           className="input"
           value=""
-          disabled={selectsDisabled || !district || loadingSchools}
+          disabled={districtSchoolDisabled || !district || loadingSchools}
           onChange={(e) => pickSchool(e.target.value)}
         >
           <option value="">
-            {!district
-              ? "시군구를 먼저 선택"
-              : loadingSchools
-                ? "불러오는 중..."
-                : schools.length
-                  ? "학교 선택"
-                  : "학교 없음"}
+            {cityOnlyMode
+              ? "이 지역은 선택 불가"
+              : !district
+                ? "시군구를 먼저 선택"
+                : loadingSchools
+                  ? "불러오는 중..."
+                  : schools.length
+                    ? "학교 선택"
+                    : "학교 없음"}
           </option>
           {schools.map((s) => (
             <option key={s.id} value={s.id}>
@@ -291,6 +341,12 @@ export function SchoolCascadeSelect({
           ))}
         </select>
       </div>
+
+      {cityOnlyMode && (
+        <p className="api-banner-detail school-cascade-hint">
+          선택하신 지역은 시군구·학교명 데이터가 없어 도시명만 저장됩니다.
+        </p>
+      )}
 
       {error && <p className="error-msg">{error}</p>}
     </div>

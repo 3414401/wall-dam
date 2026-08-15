@@ -93,7 +93,7 @@ export function RandomJoinPrepare() {
     setError("");
 
     if (needsSchool && !selectedRow) {
-      setError("도시명·시군구·학교명을 선택해 주세요.");
+      setError("도시명을 선택해 주세요. (대전·대구는 시군구·학교명까지)");
       return;
     }
 
@@ -113,7 +113,10 @@ export function RandomJoinPrepare() {
     }
 
     const schoolLabel =
-      selectedRow?.cells["학교명"]?.trim() || selectedRow?.label || "";
+      selectedRow?.cells["학교명"]?.trim() ||
+      selectedRow?.cells["도시명"]?.trim() ||
+      selectedRow?.label ||
+      "";
     const name = selectedRow
       ? `${studentName.trim()} (${schoolLabel})`
       : nickname.trim();
@@ -191,6 +194,7 @@ export function RandomJoinPrepare() {
 
       <form className="card" onSubmit={handleSubmit}>
         <SchoolCascadeSelect
+          regionMode="chat"
           selectedRow={selectedRow}
           onSelect={(row) => {
             setSelectedRow(row);
