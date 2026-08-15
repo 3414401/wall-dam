@@ -63,6 +63,32 @@
         "1위 업종": "미입력",
         "R_net": "미입력"
       }
+    },
+    {
+      "id": "2bc69cf9-fd43-4e6b-9e08-eb58b01742e3",
+      "nickname": "대학생 (가. 미입력)",
+      "email": "univ@test.com",
+      "scores": [
+        8,
+        9,
+        8
+      ],
+      "submittedAt": "2026-08-15T02:29:11.022Z",
+      "rosterRowId": "row-1",
+      "rosterLabel": "가. 미입력",
+      "rosterFields": {
+        "학교명": "가. 미입력",
+        "지역": "미입력",
+        "학교 학생 수": "미입력",
+        "획일화 지수(H_m)": "미입력",
+        "P_special": "미입력",
+        "I_SCU": "미입력",
+        "H_path": "미입력",
+        "H_job": "미입력",
+        "H_ppc": "미입력",
+        "1위 업종": "미입력",
+        "R_net": "미입력"
+      }
     }
   ],
   "joinClosed": false,
