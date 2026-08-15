@@ -11,6 +11,10 @@ import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
 import { parseChatCityOnlyId } from "./chatSchoolCities.js";
 import { fallbackRecommendedActivity } from "./schoolActivityMetrics.js";
+import {
+  earnWalldamPoints,
+  loadWalldamPoints,
+} from "./walldamPoints.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
 import { emailProviderLabel, isEmailConfigured, sendMail } from "./email.js";
 import {
@@ -1236,6 +1240,84 @@ app.post("/api/random-rooms/:code/messages", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "메시지 전송에 실패했습니다." });
+  }
+});
+
+/** 월담 포인트 조회 (구글 이메일) */
+app.get("/api/walldam-points", async (req, res) => {
+  try {
+    const email = String(req.query.email ?? "").trim();
+    if (!isValidEmail(email)) {
+      res.status(400).json({ error: "구글 계정 이메일이 필요합니다." });
+      return;
+    }
+    const record = await loadWalldamPoints(email);
+    res.json({
+      ok: true,
+      points: record.points,
+      lastEarnDate: record.lastEarnDate,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "포인트 조회에 실패했습니다." });
+  }
+});
+
+/** 채팅방 월담 포인트 적립 (구글 계정 · 하루 1회) */
+app.post("/api/random-rooms/:code/earn-points", async (req, res) => {
+  try {
+    const room = await loadRandomRoom(req.params.code);
+    if (!room) {
+      res.status(404).json({ error: "방을 찾을 수 없습니다." });
+      return;
+    }
+
+    const { email } = req.body as { email?: string };
+    const userEmail = String(email ?? "").trim();
+    if (!isValidEmail(userEmail)) {
+      res.status(400).json({ error: "구글 계정으로 로그인한 뒤 적립할 수 있습니다." });
+      return;
+    }
+
+    const result = await earnWalldamPoints({
+      email: userEmail,
+      surveys: room.surveys,
+    });
+
+    if (!result.ok) {
+      res.status(result.alreadyEarnedToday ? 409 : 400).json({
+        ok: false,
+        alreadyEarnedToday: !!result.alreadyEarnedToday,
+        earned: result.earned,
+        points: result.points,
+        lastEarnDate: result.lastEarnDate,
+        error: result.message,
+        message: result.message,
+      });
+      return;
+    }
+
+    room.messages.push({
+      id: uuidv4(),
+      authorName: "월담 AI",
+      body: `🏅 ${userEmail} 님이 월담 포인트를 적립했습니다. (종합 +${result.earned.total})`,
+      createdAt: new Date().toISOString(),
+      system: true,
+    });
+    await saveRandomRoom(room);
+
+    res.json({
+      ok: true,
+      earned: result.earned,
+      points: result.points,
+      lastEarnDate: result.lastEarnDate,
+      message: result.message,
+      messages: normalizeRoomMessages(room),
+    });
+  } catch (e) {
+    console.error(e);
+    const msg = e instanceof Error ? e.message : "포인트 적립에 실패했습니다.";
+    res.status(500).json({ error: msg });
   }
 });
 

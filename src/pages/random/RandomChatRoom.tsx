@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Layout } from "../../components/Layout";
 import {
   diversityMatchRandomRoom,
+  earnWalldamPointsInRoom,
   emailMatchResults,
   getRandomRoom,
   registerRandomRoomPresence,
@@ -58,6 +59,8 @@ export function RandomChatRoom() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [matching, setMatching] = useState(false);
+  const [earningPoints, setEarningPoints] = useState(false);
+  const [earnMessage, setEarnMessage] = useState("");
   const [emailBusyId, setEmailBusyId] = useState("");
   const [error, setError] = useState("");
   const [diversityMatch, setDiversityMatch] =
@@ -159,6 +162,28 @@ export function RandomChatRoom() {
     }
   }
 
+  async function handleEarnPoints() {
+    setError("");
+    setEarnMessage("");
+    if (!isGoogleUser || !user?.email) {
+      setError("구글 계정으로 로그인한 사용자만 월담 포인트를 적립할 수 있습니다.");
+      return;
+    }
+    setEarningPoints(true);
+    try {
+      const result = await earnWalldamPointsInRoom(code, user.email);
+      setEarnMessage(result.message);
+      if (result.messages) {
+        setMessages(result.messages);
+        messagesRef.current = result.messages;
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "포인트 적립 실패");
+    } finally {
+      setEarningPoints(false);
+    }
+  }
+
   async function handleEmailOptIn(
     message: RandomChatMessage,
     accept: boolean
@@ -240,6 +265,20 @@ export function RandomChatRoom() {
             AI가 공공데이터와 설문결과를 바탕으로 다양성이 가장 극대화 되는 팀원을
             매칭해 줍니다.
           </p>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm chat-earn-points-btn"
+            onClick={handleEarnPoints}
+            disabled={earningPoints || !isGoogleUser}
+          >
+            {earningPoints ? "적립 중..." : "🏅 월담 포인트 적립"}
+          </button>
+          {!isGoogleUser && (
+            <p className="chat-match-hint">
+              구글 계정으로 로그인한 사용자만 하루 1회 적립할 수 있습니다.
+            </p>
+          )}
+          {earnMessage && <p className="chat-earn-points-msg">{earnMessage}</p>}
         </div>
 
         {diversityMatch && diversityMatch.pairs.length > 0 && (
