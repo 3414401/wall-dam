@@ -115,6 +115,22 @@
         "1위 업종": "미입력",
         "R_net": "미입력"
       }
+    },
+    {
+      "id": "bf709e47-4825-4a4f-b661-66a643c831bd",
+      "nickname": "Kwang (광주광역시)",
+      "email": "kwang@gmail.com",
+      "scores": [
+        9,
+        9,
+        10
+      ],
+      "submittedAt": "2026-08-15T11:28:22.209Z",
+      "rosterRowId": "city-only:광주광역시",
+      "rosterLabel": "광주광역시",
+      "rosterFields": {
+        "도시명": "광주광역시"
+      }
     }
   ],
   "joinClosed": false,
