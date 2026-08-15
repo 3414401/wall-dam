@@ -145,6 +145,49 @@
       "authorName": "ㅎㄶ",
       "body": "오픈 카톡 괜찮으신가요?",
       "createdAt": "2026-08-14T10:10:38.409Z"
+    },
+    {
+      "id": "c4353f21-4858-463a-80ae-68b56ea938aa",
+      "authorName": "월담 AI",
+      "body": "🤖 AI 다양성 매칭 결과\n(자동 균형 배치)\n\n1조: ㅁㄴㄹㅇ (가. 미입력) × o (가. 미입력)\n\n대기: 대학생 (가. 미입력)\n\n자동 균형 배치",
+      "createdAt": "2026-08-15T02:29:51.900Z",
+      "system": true
+    },
+    {
+      "id": "26238840-4962-44a6-866e-155c151f86d5",
+      "authorName": "월담 AI",
+      "body": "팀원의 메일 주소를 내 메일로 받아보겠습니까? (구글 계정으로 로그인한 사용자 한정)",
+      "createdAt": "2026-08-15T02:29:51.900Z",
+      "system": true,
+      "kind": "email_opt_in",
+      "matchAt": "2026-08-15T02:29:51.900Z"
     }
-  ]
+  ],
+  "diversityPairs": [
+    {
+      "pairIndex": 1,
+      "members": [
+        {
+          "id": "2e347c0e-a6ca-4d7d-a85e-d19c4b87dd5d",
+          "nickname": "ㅁㄴㄹㅇ (가. 미입력)",
+          "email": "asfd@gmail.com"
+        },
+        {
+          "id": "c7498f78-0c43-4ead-ba3e-98b70c4db8b4",
+          "nickname": "o (가. 미입력)",
+          "email": "larsberry@test.com"
+        }
+      ]
+    }
+  ],
+  "diversityLeftover": [
+    {
+      "id": "2bc69cf9-fd43-4e6b-9e08-eb58b01742e3",
+      "nickname": "대학생 (가. 미입력)",
+      "email": "univ@test.com"
+    }
+  ],
+  "diversityMatchedAt": "2026-08-15T02:29:51.900Z",
+  "diversityMatchNote": "자동 균형 배치",
+  "diversityUsedAi": false
 }
