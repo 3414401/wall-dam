@@ -37,6 +37,32 @@
         "1위 업종": "미입력",
         "R_net": "미입력"
       }
+    },
+    {
+      "id": "9063e4db-aa8f-4e7b-864a-7e44bddd0bae",
+      "nickname": "김민정 (가. 미입력)",
+      "email": "dssdffwas@gmail.com",
+      "scores": [
+        6,
+        5,
+        4
+      ],
+      "submittedAt": "2026-08-15T01:57:33.904Z",
+      "rosterRowId": "row-1",
+      "rosterLabel": "가. 미입력",
+      "rosterFields": {
+        "학교명": "가. 미입력",
+        "지역": "미입력",
+        "학교 학생 수": "미입력",
+        "획일화 지수(H_m)": "미입력",
+        "P_special": "미입력",
+        "I_SCU": "미입력",
+        "H_path": "미입력",
+        "H_job": "미입력",
+        "H_ppc": "미입력",
+        "1위 업종": "미입력",
+        "R_net": "미입력"
+      }
     }
   ],
   "joinClosed": false,
