@@ -1,0 +1,22 @@
+{
+  "code": "514312",
+  "insightsCode": "172902",
+  "abilities": [
+    "지난 수업 이해도",
+    "다문화 친구가 많은가요?",
+    "외향성",
+    "mbti T/F (T에 가까울수록 0점)"
+  ],
+  "teamPurpose": "다문화 교육",
+  "createdAt": "2026-08-15T02:37:42.319Z",
+  "createdBy": "김학생",
+  "surveys": [],
+  "teamCount": 4,
+  "groups": null,
+  "balancedAt": null,
+  "balanceMethod": null,
+  "aiBalanceNote": null,
+  "aiTeamExplanations": null,
+  "insights": null,
+  "roster": null
+}
