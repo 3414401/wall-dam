@@ -1,14 +1,14 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { SchoolCascadeSelect } from "../../components/SchoolCascadeSelect";
 import { ScoreSlider } from "../../components/ScoreSlider";
 import { Layout } from "../../components/Layout";
 import {
   getRandomRoom,
-  getRosterInfo,
-  searchRandomRosterRows,
   submitRandomSurvey,
   type RosterRow,
 } from "../../lib/api";
+import { getUser } from "../../lib/auth";
 
 const SURVEY_DONE_KEY = "random_survey_done_rooms";
 
@@ -36,27 +36,26 @@ function hasSurveyDone(roomCode: string): boolean {
 export function RandomJoinPrepare() {
   const { code = "" } = useParams();
   const navigate = useNavigate();
+  const user = getUser();
   const [abilities, setAbilities] = useState<string[]>([]);
   const [subject, setSubject] = useState("");
   const [participantCount, setParticipantCount] = useState(0);
   const [maxParticipants, setMaxParticipants] = useState(15);
   const [joinClosed, setJoinClosed] = useState(false);
-  const [rosterTotal, setRosterTotal] = useState(0);
-  const [rosterChecked, setRosterChecked] = useState(false);
-  const [searchQ, setSearchQ] = useState("");
-  const [searchResults, setSearchResults] = useState<RosterRow[]>([]);
-  const [listLoading, setListLoading] = useState(false);
+  const [hasSchoolData, setHasSchoolData] = useState(false);
   const [selectedRow, setSelectedRow] = useState<RosterRow | null>(null);
   const [studentName, setStudentName] = useState("");
   const [nickname, setNickname] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(user?.email ?? "");
   const [scores, setScores] = useState([5, 5, 5]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(hasSurveyDone(code));
 
-  const needsSchoolPick = rosterChecked && rosterTotal > 0;
+  const onAvailability = useCallback((hasData: boolean) => {
+    setHasSchoolData(hasData);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,7 +70,6 @@ export function RandomJoinPrepare() {
         setJoinClosed(data.room.joinClosed);
         setScores(Array(data.abilities.length).fill(5));
 
-        // 이미 이 세션에서 설문을 냈거나 모집이 마감된 경우 채팅으로 바로 입장
         if (hasSurveyDone(code) || data.room.joinClosed) {
           navigate(`/random/chat/${code}`, { replace: true });
           return;
@@ -87,58 +85,21 @@ export function RandomJoinPrepare() {
     };
   }, [code, navigate]);
 
-  useEffect(() => {
-    if (loading || !code || done || joinClosed) return;
-
-    let cancelled = false;
-    setListLoading(true);
-
-    void (async () => {
-      let total = 0;
-      try {
-        const info = await getRosterInfo();
-        total = info.rowCount;
-      } catch {
-        /* roster/info 실패 시 search로 재시도 */
-      }
-
-      try {
-        const r = await searchRandomRosterRows(code, searchQ);
-        if (cancelled) return;
-        setSearchResults(r.results);
-        setRosterTotal(Math.max(total, r.total));
-      } catch {
-        if (cancelled) return;
-        setSearchResults([]);
-        if (total > 0) setRosterTotal(total);
-      } finally {
-        if (!cancelled) {
-          setRosterChecked(true);
-          setListLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [loading, code, searchQ, done, joinClosed]);
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
 
-    if (needsSchoolPick && !selectedRow) {
-      setError("학교명을 목록에서 선택해 주세요.");
+    if (hasSchoolData && !selectedRow) {
+      setError("도시명·시군구·학교명을 선택해 주세요.");
       return;
     }
 
-    if (needsSchoolPick && selectedRow && !studentName.trim()) {
+    if (hasSchoolData && selectedRow && !studentName.trim()) {
       setError("본인 이름을 입력해 주세요. (같은 학교 여러 명 가능)");
       return;
     }
 
-    if (!needsSchoolPick && !nickname.trim()) {
+    if (!hasSchoolData && !nickname.trim()) {
       setError("이름(닉네임)을 입력해 주세요.");
       return;
     }
@@ -148,8 +109,10 @@ export function RandomJoinPrepare() {
       return;
     }
 
+    const schoolLabel =
+      selectedRow?.cells["학교명"]?.trim() || selectedRow?.label || "";
     const name = selectedRow
-      ? studentName.trim()
+      ? `${studentName.trim()} (${schoolLabel})`
       : nickname.trim();
 
     setSubmitting(true);
@@ -167,13 +130,7 @@ export function RandomJoinPrepare() {
       setDone(true);
       navigate(`/random/chat/${code}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg.includes("명단") || msg.includes("학교")) {
-        setRosterTotal((n) => Math.max(n, 1));
-        setRosterChecked(true);
-        setSearchQ("");
-      }
-      setError(msg || "제출 실패");
+      setError(err instanceof Error ? err.message : "제출 실패");
     } finally {
       setSubmitting(false);
     }
@@ -229,76 +186,16 @@ export function RandomJoinPrepare() {
       </div>
 
       <form className="card" onSubmit={handleSubmit}>
-        <div className="roster-pick-section">
-          <h2 className="section-title">학교명 선택 (필수)</h2>
-          <p className="api-banner-detail">
-            roster.xlsx A열 목록에서 본인 학교를 선택하세요.
-          </p>
+        <SchoolCascadeSelect
+          selectedRow={selectedRow}
+          onSelect={(row) => {
+            setSelectedRow(row);
+            setError("");
+          }}
+          onAvailability={onAvailability}
+        />
 
-          {selectedRow ? (
-            <div className="roster-selected-box">
-              <span className="roster-selected-label">선택됨</span>
-              <strong>{selectedRow.label}</strong>
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={() => setSelectedRow(null)}
-              >
-                다시 선택
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="field">
-                <label className="label" htmlFor="roster-search">
-                  학교명 검색
-                </label>
-                <input
-                  id="roster-search"
-                  className="input"
-                  placeholder="비워두면 전체 목록"
-                  value={searchQ}
-                  onChange={(e) => setSearchQ(e.target.value)}
-                />
-              </div>
-              <p className="api-banner-detail">
-                {listLoading
-                  ? "명단 불러오는 중..."
-                  : searchQ.trim()
-                    ? `검색 ${searchResults.length}건 / 전체 ${rosterTotal}건`
-                    : `학교명 ${searchResults.length}건 (전체 ${rosterTotal}건)`}
-              </p>
-              {!listLoading && searchResults.length === 0 && rosterTotal > 0 && (
-                <p className="error-msg" style={{ marginBottom: 12 }}>
-                  검색 결과가 없습니다.
-                </p>
-              )}
-              {!listLoading && rosterTotal === 0 && rosterChecked && (
-                <p className="api-banner-detail">
-                  명단이 없으면 아래 이름·닉네임으로 참여할 수 있습니다.
-                </p>
-              )}
-              <ul className="roster-pick-list">
-                {searchResults.map((row) => (
-                  <li key={row.id}>
-                    <button
-                      type="button"
-                      className="roster-pick-item"
-                      onClick={() => {
-                        setSelectedRow(row);
-                        setError("");
-                      }}
-                    >
-                      {row.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
-
-        {needsSchoolPick && (
+        {hasSchoolData && (
           <div className="field">
             <label className="label" htmlFor="student-name">
               본인 이름 (필수)
@@ -313,7 +210,7 @@ export function RandomJoinPrepare() {
           </div>
         )}
 
-        {rosterChecked && !needsSchoolPick && (
+        {!hasSchoolData && (
           <div className="field">
             <label className="label" htmlFor="prep-nickname">
               이름 (닉네임)

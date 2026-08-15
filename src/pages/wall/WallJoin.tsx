@@ -1,13 +1,9 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SchoolCascadeSelect } from "../../components/SchoolCascadeSelect";
 import { ScoreSlider } from "../../components/ScoreSlider";
 import { Layout } from "../../components/Layout";
-import {
-  getRosterInfo,
-  getSession,
-  searchRosterRows,
-  submitSurvey,
-} from "../../lib/api";
+import { getSession, submitSurvey } from "../../lib/api";
 import type { RosterRow } from "../../lib/api";
 
 type Step = "code" | "survey";
@@ -16,12 +12,8 @@ export function WallJoin() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("code");
   const [code, setCode] = useState("");
-  const [rosterTotal, setRosterTotal] = useState(0);
-  const [rosterChecked, setRosterChecked] = useState(false);
+  const [hasSchoolData, setHasSchoolData] = useState(false);
   const [abilities, setAbilities] = useState<string[]>([]);
-  const [searchQ, setSearchQ] = useState("");
-  const [searchResults, setSearchResults] = useState<RosterRow[]>([]);
-  const [listLoading, setListLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState<RosterRow | null>(null);
   const [studentName, setStudentName] = useState("");
   const [nickname, setNickname] = useState("");
@@ -30,44 +22,9 @@ export function WallJoin() {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
-  const needsSchoolPick = rosterChecked && rosterTotal > 0;
-
-  useEffect(() => {
-    if (step !== "survey" || !code) return;
-
-    let cancelled = false;
-    setListLoading(true);
-
-    void (async () => {
-      let total = 0;
-      try {
-        const info = await getRosterInfo();
-        total = info.rowCount;
-      } catch {
-        /* roster/info 실패 시 search로 재시도 */
-      }
-
-      try {
-        const r = await searchRosterRows(code, searchQ);
-        if (cancelled) return;
-        setSearchResults(r.results);
-        setRosterTotal(Math.max(total, r.total));
-      } catch {
-        if (cancelled) return;
-        setSearchResults([]);
-        if (total > 0) setRosterTotal(total);
-      } finally {
-        if (!cancelled) {
-          setRosterChecked(true);
-          setListLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [step, code, searchQ]);
+  const onAvailability = useCallback((hasData: boolean) => {
+    setHasSchoolData(hasData);
+  }, []);
 
   async function handleCodeSubmit(e: FormEvent) {
     e.preventDefault();
@@ -85,23 +42,8 @@ export function WallJoin() {
       setScores(Array(session.abilities.length).fill(5));
       setSelectedRow(null);
       setStudentName("");
-      setSearchQ("");
-      setSearchResults([]);
-      setRosterTotal(0);
-      setRosterChecked(false);
-
-      try {
-        const info = await getRosterInfo();
-        setRosterTotal(info.rowCount);
-      } catch {
-        try {
-          const probe = await searchRosterRows(trimmed, "");
-          setRosterTotal(probe.total);
-        } catch {
-          setRosterTotal(0);
-        }
-      }
-
+      setNickname("");
+      setHasSchoolData(false);
       setStep("survey");
     } catch (err) {
       setError(err instanceof Error ? err.message : "입장 실패");
@@ -114,23 +56,25 @@ export function WallJoin() {
     e.preventDefault();
     setError("");
 
-    if (needsSchoolPick && !selectedRow) {
-      setError("학교명을 목록에서 선택해 주세요.");
+    if (hasSchoolData && !selectedRow) {
+      setError("도시명·시군구·학교명을 선택해 주세요.");
       return;
     }
 
-    if (needsSchoolPick && selectedRow && !studentName.trim()) {
+    if (hasSchoolData && selectedRow && !studentName.trim()) {
       setError("본인 이름을 입력해 주세요. (같은 학교 여러 명 가능)");
       return;
     }
 
-    if (!needsSchoolPick && !selectedRow && !nickname.trim()) {
-      setError("학교명을 선택하거나 닉네임을 입력해 주세요.");
+    if (!hasSchoolData && !nickname.trim()) {
+      setError("닉네임을 입력해 주세요.");
       return;
     }
 
+    const schoolLabel =
+      selectedRow?.cells["학교명"]?.trim() || selectedRow?.label || "";
     const name = selectedRow
-      ? `${studentName.trim()} (${selectedRow.label})`
+      ? `${studentName.trim()} (${schoolLabel})`
       : nickname;
 
     setLoading(true);
@@ -138,13 +82,7 @@ export function WallJoin() {
       await submitSurvey(code, name.trim(), scores, selectedRow?.id);
       setDone(true);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg.includes("명단에서")) {
-        setRosterTotal((n) => Math.max(n, 1));
-        setRosterChecked(true);
-        setSearchQ("");
-      }
-      setError(msg || "제출 실패");
+      setError(err instanceof Error ? err.message : "제출 실패");
     } finally {
       setLoading(false);
     }
@@ -202,81 +140,26 @@ export function WallJoin() {
     );
   }
 
+  const selectedSchool =
+    selectedRow?.cells["학교명"]?.trim() || selectedRow?.label || "";
+
   return (
     <Layout
       title="설문 작성"
-      subtitle={selectedRow ? selectedRow.label : `코드 ${code}`}
+      subtitle={selectedSchool || `코드 ${code}`}
       onBack={() => setStep("code")}
     >
       <form className="card" onSubmit={handleSurveySubmit}>
-        <div className="roster-pick-section">
-            <h2 className="section-title">학교명 선택 (필수)</h2>
-            <p className="api-banner-detail">
-              roster.xlsx A열 목록에서 본인 학교를 선택하세요.
-            </p>
+        <SchoolCascadeSelect
+          selectedRow={selectedRow}
+          onSelect={(row) => {
+            setSelectedRow(row);
+            setError("");
+          }}
+          onAvailability={onAvailability}
+        />
 
-            {selectedRow ? (
-              <div className="roster-selected-box">
-                <span className="roster-selected-label">선택됨</span>
-                <strong>{selectedRow.label}</strong>
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  onClick={() => setSelectedRow(null)}
-                >
-                  다시 선택
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="field">
-                  <label className="label" htmlFor="roster-search">
-                    학교명 검색
-                  </label>
-                  <input
-                    id="roster-search"
-                    className="input"
-                    placeholder="비워두면 전체 목록"
-                    value={searchQ}
-                    onChange={(e) => setSearchQ(e.target.value)}
-                  />
-                </div>
-                <p className="api-banner-detail">
-                  {listLoading
-                    ? "명단 불러오는 중..."
-                    : searchQ.trim()
-                      ? `검색 ${searchResults.length}건 / 전체 ${rosterTotal}건`
-                      : `학교명 ${searchResults.length}건 (전체 ${rosterTotal}건)`}
-                </p>
-                {!listLoading && searchResults.length === 0 && (
-                  <p className="error-msg" style={{ marginBottom: 12 }}>
-                    {rosterTotal === 0
-                      ? "명단을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
-                      : "검색 결과가 없습니다."}
-                  </p>
-                )}
-                <ul className="roster-pick-list">
-                  {searchResults.map((row) => (
-                    <li key={row.id}>
-                      <button
-                        type="button"
-                        className="roster-pick-item"
-                        onClick={() => {
-                          setSelectedRow(row);
-                          setError("");
-                        }}
-                      >
-                        {row.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-          </div>
-
-        {needsSchoolPick && (
+        {hasSchoolData && (
           <div className="field">
             <label className="label" htmlFor="student-name">
               본인 이름 (필수)
@@ -294,7 +177,7 @@ export function WallJoin() {
           </div>
         )}
 
-        {rosterChecked && !needsSchoolPick && (
+        {!hasSchoolData && (
           <div className="field">
             <label className="label" htmlFor="nickname">
               닉네임 (본인 식별용)

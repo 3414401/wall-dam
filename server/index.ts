@@ -6,7 +6,7 @@ import { balanceTeams } from "./balance.js";
 import { getExcelReferenceText } from "./excelReference.js";
 import { hasGemini, probeGeminiModel } from "./gemini.js";
 import { buildSessionInsights } from "./homogeneity.js";
-import { getGlobalRoster } from "./globalRoster.js";
+import { getGlobalRoster, listCities, listDistricts, listSchools } from "./globalRoster.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { searchRoster } from "./rosterParse.js";
 import { pickMostHeterogeneous } from "./randomMatch.js";
@@ -242,7 +242,7 @@ app.get("/api/roster/info", async (_req, res) => {
   if (!roster) {
     res.status(404).json({
       error:
-        "영구 명단 파일이 없습니다. GitHub에 data/roster.xlsx (또는 roster.csv)를 올려 주세요.",
+        "영구 명단 파일이 없습니다. GitHub에 data/schools.xlsx (또는 roster.xlsx)를 올려 주세요.",
     });
     return;
   }
@@ -251,7 +251,72 @@ app.get("/api/roster/info", async (_req, res) => {
     rowCount: roster.rows.length,
     columns: roster.columns,
     uploadedAt: roster.uploadedAt,
+    cities: listCities(roster),
   });
+});
+
+app.get("/api/schools/cities", async (_req, res) => {
+  try {
+    const roster = await getGlobalRoster();
+    if (!roster) {
+      res.status(404).json({ error: "학교 데이터가 없습니다." });
+      return;
+    }
+    res.json({ cities: listCities(roster) });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "도시 목록 조회 실패" });
+  }
+});
+
+app.get("/api/schools/districts", async (req, res) => {
+  try {
+    const city = String(req.query.city ?? "").trim();
+    if (!city) {
+      res.status(400).json({ error: "도시명을 선택해 주세요." });
+      return;
+    }
+    const roster = await getGlobalRoster();
+    if (!roster) {
+      res.status(404).json({ error: "학교 데이터가 없습니다." });
+      return;
+    }
+    res.json({ city, districts: listDistricts(roster, city) });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "시군구 목록 조회 실패" });
+  }
+});
+
+app.get("/api/schools/list", async (req, res) => {
+  try {
+    const city = String(req.query.city ?? "").trim();
+    const district = String(req.query.district ?? "").trim();
+    if (!city || !district) {
+      res.status(400).json({ error: "도시명과 시군구를 선택해 주세요." });
+      return;
+    }
+    const roster = await getGlobalRoster();
+    if (!roster) {
+      res.status(404).json({ error: "학교 데이터가 없습니다." });
+      return;
+    }
+    const schools = listSchools(roster, city, district);
+    res.json({
+      city,
+      district,
+      schools: schools.map((s) => ({
+        id: s.id,
+        school: s.school,
+        label: s.label,
+        cells: s.cells,
+      })),
+      total: schools.length,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "학교 목록 조회 실패" });
+  }
 });
 
 app.get("/api/sessions/:code/roster/search", async (req, res) => {

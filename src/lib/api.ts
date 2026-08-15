@@ -179,7 +179,35 @@ export function getRosterInfo() {
     fileName: string;
     rowCount: number;
     columns: string[];
+    uploadedAt?: string;
+    cities?: string[];
   }>("/api/roster/info");
+}
+
+export function getSchoolCities() {
+  return request<{ cities: string[] }>("/api/schools/cities");
+}
+
+export function getSchoolDistricts(city: string) {
+  const params = new URLSearchParams({ city });
+  return request<{ city: string; districts: string[] }>(
+    `/api/schools/districts?${params}`
+  );
+}
+
+export function getSchoolList(city: string, district: string) {
+  const params = new URLSearchParams({ city, district });
+  return request<{
+    city: string;
+    district: string;
+    schools: {
+      id: string;
+      school: string;
+      label: string;
+      cells?: Record<string, string>;
+    }[];
+    total: number;
+  }>(`/api/schools/list?${params}`);
 }
 
 export function searchRosterRows(code: string, q: string) {

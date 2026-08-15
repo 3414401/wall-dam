@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 import type { RosterData, RosterRow } from "./types.js";
 
-const MAX_ROWS = 2000;
+const MAX_ROWS = 5000;
 
 export function parseRosterBuffer(
   buffer: Buffer,
@@ -32,11 +32,18 @@ export function parseRosterBuffer(
       cells[col] = raw[idx] ?? "";
     });
 
+    const schoolName = (cells["학교명"] ?? "").trim();
+    const city = (cells["도시명"] ?? "").trim();
+    const district = (cells["시군구"] ?? "").trim();
     const columnA = (raw[0] ?? "").trim() || cells[columns[0]] || "";
+    const label =
+      schoolName ||
+      [city, district, columnA].filter(Boolean).join(" ") ||
+      "이름 없음";
 
     rows.push({
       id: `row-${i}`,
-      label: columnA || "이름 없음",
+      label,
       cells,
     });
   }
@@ -62,7 +69,17 @@ export function searchRoster(
   if (!q) return roster.rows.slice(0, limit);
 
   return roster.rows
-    .filter((row) => row.label.toLowerCase().includes(q))
+    .filter((row) => {
+      const school = (row.cells["학교명"] ?? row.label).toLowerCase();
+      const city = (row.cells["도시명"] ?? "").toLowerCase();
+      const district = (row.cells["시군구"] ?? "").toLowerCase();
+      return (
+        school.includes(q) ||
+        city.includes(q) ||
+        district.includes(q) ||
+        row.label.toLowerCase().includes(q)
+      );
+    })
     .slice(0, limit);
 }
 
