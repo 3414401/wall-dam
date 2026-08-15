@@ -8,6 +8,12 @@ import type {
 import { getAiReferenceText } from "./aiReference.js";
 import { getRosterAiGuideText } from "./rosterAiGuide.js";
 import { generateText, hasGemini, parseJsonFromText } from "./gemini.js";
+import {
+  fallbackRecommendedActivity,
+  formatSchoolActivityLine,
+  pickSchoolActivityMetrics,
+  SCHOOL_ACTIVITY_PROMPT_RULES,
+} from "./schoolActivityMetrics.js";
 
 function stdDev(values: number[]): number {
   if (values.length < 2) return 0;
@@ -59,13 +65,17 @@ export async function buildSessionInsights(
 
   if (session.groups?.length) {
     teamComments = session.groups.map((g) => {
-      const names = g.memberIds
-        .map((id) => session.surveys.find((s) => s.id === id)?.nickname)
-        .filter(Boolean);
+      const members = g.memberIds
+        .map((id) => session.surveys.find((s) => s.id === id))
+        .filter(Boolean) as SurveyResponse[];
+      const names = members.map((m) => m.nickname);
       return {
         teamIndex: g.teamIndex,
         comment: `${g.teamIndex}조(${names.join(", ")})의 응답 패턴을 바탕으로 한 조 단위 특성입니다.`,
-        recommendedActivity: `${session.teamPurpose?.trim() || "팀 프로젝트"}에 맞는 역할 분담 토의와 10분 아이스브레이킹을 추천합니다.`,
+        recommendedActivity: fallbackRecommendedActivity(
+          members,
+          session.teamPurpose
+        ),
       };
     });
   }
@@ -73,12 +83,14 @@ export async function buildSessionInsights(
   if (hasGemini() && session.surveys.length >= 2) {
     const roster = session.surveys
       .map((s) => {
+        const schoolActivity = pickSchoolActivityMetrics(s.rosterFields);
+        const schoolLine = formatSchoolActivityLine(schoolActivity);
         const excel = s.rosterFields
-          ? ` | 엑셀: ${Object.entries(s.rosterFields)
+          ? ` | 엑셀전체: ${Object.entries(s.rosterFields)
               .map(([k, v]) => `${k}=${v}`)
               .join("; ")}`
           : "";
-        return `- ${s.nickname}: ${session.abilities.map((a, i) => `${a}=${s.scores[i]}`).join(", ")}${excel}`;
+        return `- ${s.nickname}: ${session.abilities.map((a, i) => `${a}=${s.scores[i]}`).join(", ")} | 추천활동용학교지표: ${schoolLine}${excel}`;
       })
       .join("\n");
 
@@ -120,6 +132,8 @@ ${teamsText}
 동질성 지수(계산값): ${homogeneityIndex}/100
 ${abilityStats.map((s) => `${s.name}: 평균 ${s.mean}, 표준편차 ${s.std}`).join("\n")}
 
+${SCHOOL_ACTIVITY_PROMPT_RULES}
+
 JSON만 출력:
 {
   "overallSummary": "전체 응답 패턴을 한국어 2문장으로",
@@ -127,7 +141,7 @@ JSON만 출력:
     {
       "teamIndex": 1,
       "comment": "1조 한 줄 코멘트",
-      "recommendedActivity": "1조에게 맞는 구체적 팀 활동 1가지 (20~40자)"
+      "recommendedActivity": "1조 추천활동 — 조원 학교의 사회 문화 획일성 지수·소비 1~3위 업종을 반영한 구체적 활동 1문장"
     }
   ]
 }
@@ -146,11 +160,19 @@ teamComments는 조 배치가 있을 때만 각 조마다 1줄 코멘트와 reco
       if (Array.isArray(parsed.teamComments)) {
         teamComments = parsed.teamComments
           .filter((t) => t.teamIndex && t.comment)
-          .map((t) => ({
-            teamIndex: t.teamIndex,
-            comment: t.comment.trim(),
-            recommendedActivity: t.recommendedActivity?.trim() || undefined,
-          }));
+          .map((t) => {
+            const group = session.groups?.find((g) => g.teamIndex === t.teamIndex);
+            const members = (group?.memberIds ?? [])
+              .map((id) => session.surveys.find((s) => s.id === id))
+              .filter(Boolean) as SurveyResponse[];
+            return {
+              teamIndex: t.teamIndex,
+              comment: t.comment.trim(),
+              recommendedActivity:
+                t.recommendedActivity?.trim() ||
+                fallbackRecommendedActivity(members, session.teamPurpose),
+            };
+          });
       }
     } catch (e) {
       console.error("Gemini insights", e);

@@ -486,6 +486,14 @@ input[type="range"]::-webkit-slider-thumb {
   color: #111827;
 }
 
+.team-recommended-activity {
+  margin: 10px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: #111827;
+}
+
 .team-totals {
   font-size: 0.85rem;
   color: #111827;
@@ -1029,6 +1037,15 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: 2px;
   font-size: 0.8rem;
   opacity: 0.8;
+}
+
+.chat-match-activity {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #111;
+  line-height: 1.4;
 }
 
 .chat-match-note {
