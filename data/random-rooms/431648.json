@@ -1,0 +1,29 @@
+{
+  "code": "431648",
+  "subject": "기획/아이디어",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "2026년 제6회 K-인공지능 제조데이터 분석 경진대회",
+    "관심있습니다!!"
+  ],
+  "criterion3": "2026년 제6회 K-인공지능 제조데이터 분석 경진대회",
+  "criterion4": "관심있습니다!!",
+  "recipientEmail": "",
+  "createdAt": "2026-08-26T08:41:08.377Z",
+  "createdBy": "afs",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 15,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "2b2c12b8-fa31-4268-a8e6-4581c53928b8",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-26T08:41:08.378Z",
+      "system": true
+    }
+  ]
+}
