@@ -1,0 +1,29 @@
+{
+  "code": "869164",
+  "subject": "창업",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "주식",
+    "관심 많으신 분"
+  ],
+  "criterion3": "주식",
+  "criterion4": "관심 많으신 분",
+  "recipientEmail": "",
+  "createdAt": "2026-08-26T01:48:46.040Z",
+  "createdBy": "fklasfd",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 15,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "7c9d0b0d-438e-497d-b727-03fde6181266",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-26T01:48:46.040Z",
+      "system": true
+    }
+  ]
+}
