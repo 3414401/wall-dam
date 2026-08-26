@@ -11,7 +11,19 @@
   "recipientEmail": "",
   "createdAt": "2026-08-26T08:41:08.377Z",
   "createdBy": "afs",
-  "surveys": [],
+  "surveys": [
+    {
+      "id": "e8864680-c88c-4f97-9bd1-e8078fed877c",
+      "nickname": "dd",
+      "email": "seung@gmail.com",
+      "scores": [
+        2,
+        6,
+        3
+      ],
+      "submittedAt": "2026-08-26T08:41:40.493Z"
+    }
+  ],
   "joinClosed": false,
   "maxParticipants": 15,
   "selectedEmail": null,
