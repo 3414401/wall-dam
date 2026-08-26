@@ -1,0 +1,29 @@
+{
+  "code": "695856",
+  "subject": "기획/아이디어",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "2026 문화다양성 AI 영상 콘텐츠 공모전",
+    "관심있으신 분"
+  ],
+  "criterion3": "2026 문화다양성 AI 영상 콘텐츠 공모전",
+  "criterion4": "관심있으신 분",
+  "recipientEmail": "",
+  "createdAt": "2026-08-26T02:04:17.069Z",
+  "createdBy": "ㄴㅁㄹㄴ",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 15,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "a76cc06f-95ea-4414-ae6d-b119eff1a681",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-26T02:04:17.069Z",
+      "system": true
+    }
+  ]
+}
