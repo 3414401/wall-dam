@@ -27,6 +27,17 @@
       "rosterFields": {
         "도시명": "강원특별자치도"
       }
+    },
+    {
+      "id": "4c71ea8c-a4e2-4679-840a-6e3878633cba",
+      "nickname": "ㄹㅈㄷ",
+      "email": "dsfwddas@gmail.com",
+      "scores": [
+        5,
+        5,
+        5
+      ],
+      "submittedAt": "2026-08-26T01:50:11.500Z"
     }
   ],
   "joinClosed": false,
