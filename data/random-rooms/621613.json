@@ -1,0 +1,29 @@
+{
+  "code": "621613",
+  "subject": "해외",
+  "abilities": [
+    "선호하는 토론 난이도",
+    "터키 여행",
+    "동행구할수 있을까요?"
+  ],
+  "criterion3": "터키 여행",
+  "criterion4": "동행구할수 있을까요?",
+  "recipientEmail": "",
+  "createdAt": "2026-08-26T01:58:27.742Z",
+  "createdBy": "ㄴㅇㄹ",
+  "surveys": [],
+  "joinClosed": false,
+  "maxParticipants": 15,
+  "selectedEmail": null,
+  "matchedAt": null,
+  "matchNote": null,
+  "messages": [
+    {
+      "id": "60f5d53f-5cc7-43f4-aba1-bfba20e99107",
+      "authorName": "시스템",
+      "body": "랜덤 팀 채팅방이 열렸습니다.",
+      "createdAt": "2026-08-26T01:58:27.743Z",
+      "system": true
+    }
+  ]
+}
