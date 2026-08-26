@@ -128,6 +128,12 @@
       "system": true,
       "kind": "email_opt_in",
       "matchAt": "2026-08-26T04:42:37.548Z"
+    },
+    {
+      "id": "0a9db0c9-aab6-4861-abc5-27d8add3e4b1",
+      "authorName": "공모전",
+      "body": "우와",
+      "createdAt": "2026-08-26T04:43:12.336Z"
     }
   ],
   "diversityPairs": [
