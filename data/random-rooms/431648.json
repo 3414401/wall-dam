@@ -44,6 +44,17 @@
         3
       ],
       "submittedAt": "2026-08-26T08:44:52.317Z"
+    },
+    {
+      "id": "8e2aa691-ca0c-40b1-9e2d-0b5282732ead",
+      "nickname": "sdfads",
+      "email": "s3823@gmail.com",
+      "scores": [
+        5,
+        3,
+        8
+      ],
+      "submittedAt": "2026-08-26T08:45:18.583Z"
     }
   ],
   "joinClosed": false,
