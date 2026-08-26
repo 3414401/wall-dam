@@ -170,6 +170,12 @@
       "authorName": "DFSDAF",
       "body": "저두요!",
       "createdAt": "2026-08-26T04:45:20.970Z"
+    },
+    {
+      "id": "e5248c9b-c8ca-4806-b890-3d5cd5333f34",
+      "authorName": "공모전",
+      "body": "그럼 저희 셋 모였으니 한번 다시 해볼게요",
+      "createdAt": "2026-08-26T04:45:53.237Z"
     }
   ],
   "diversityPairs": [
